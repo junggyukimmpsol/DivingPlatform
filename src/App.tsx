@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Navigation from './components/Navigation'
 import HeroSection from './components/HeroSection'
+import VideoGallerySection from './components/VideoGallerySection'
 import ReviewsSection from './components/ReviewsSection'
 import WhyUsSection from './components/WhyUsSection'
 import LocationsSection from './components/LocationsSection'
@@ -8,8 +9,7 @@ import TimelineSection from './components/TimelineSection'
 import PriceComparisonSection from './components/PriceComparisonSection'
 import EventsSection from './components/EventsSection'
 import Footer from './components/Footer'
-import KakaoFloatingButton from './components/common/KakaoFloatingButton'
-import WhatsAppFloatingButton from './components/common/WhatsAppFloatingButton'
+import SocialFloatingButtons from './components/common/SocialFloatingButtons'
 
 function App() {
   const [activeTab, setActiveTab] = useState('home')
@@ -33,6 +33,7 @@ function App() {
         return (
           <>
             <HeroSection />
+            <VideoGallerySection />
             <ReviewsSection />
           </>
         )
@@ -61,8 +62,7 @@ function App() {
         {renderContent()}
       </div>
       <Footer />
-      <WhatsAppFloatingButton />
-      <KakaoFloatingButton />
+      <SocialFloatingButtons />
     </div>
   )
 }
