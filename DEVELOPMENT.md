@@ -36,14 +36,21 @@
   - 법령 및 규제 준수 사항 (개인정보보호법, 전자상거래법, 전자금융거래법 등)
   - 외부 플랫폼 연동 가이드 (네이버 스토어, 마이리얼트립 등)
   - 성능, 모니터링, 배포 전략
+- 디자인 분석 문서(DESIGN_ANALYSIS.md) 작성
+  - AI스러운 요소 3가지 식별 (그래디언트 과다, 애니메이션 과다, 이모지 남발)
+  - 경쟁사 PADI 다이빙 샵 벤치마크 (Cebu Fun Divers, CEBU J DIVING, Mango Dive)
+  - 2025 웹 디자인 트렌드 분석
+  - 단계별 개선 권장사항 (이모지→아이콘, 톤 조정, 효과 제거)
 
 #### 변경 파일
 - `DEVELOPMENT.md` (신규 생성)
 - `PRODUCTION_CHECKLIST.md` (신규 생성)
+- `DESIGN_ANALYSIS.md` (신규 생성)
 
 #### 커밋
 - docs: 개발 로그 시스템 추가
 - docs: 상용 웹서비스 개발 체크리스트 추가
+- docs: 디자인 분석 및 개선 가이드 추가
 
 ---
 
@@ -73,6 +80,7 @@
 - [x] 컴포넌트 구조 설계
 - [x] 개발 로그 시스템 구축
 - [x] 상용 서비스 개발 가이드 작성 (결제, 보안, 법령, 외부 연동)
+- [x] 디자인 분석 및 개선 가이드 작성 (AI스러운 요소 식별, 경쟁사 벤치마크)
 
 ### 🚧 진행 중인 작업
 - 없음
@@ -87,19 +95,33 @@
 ## 남은 과제
 
 ### 우선순위: 높음 🔴
+- [ ] **디자인 개선 Phase 1: 프로페셔널 이미지 확보**
+  - [ ] 이모지 → react-icons로 전면 교체 (20개 이상)
+  - [ ] 카피라이팅 톤 수정 ("후기 맛집" → "고객 후기" 등)
+  - [ ] 절대적 표현 완화 ("100% 안전" → "Safety First" 등)
+  - 📄 상세: [DESIGN_ANALYSIS.md](./DESIGN_ANALYSIS.md)
 - [ ] 실제 이미지 에셋 추가 (현재 placeholder 사용 중인지 확인 필요)
 - [ ] 각 컴포넌트 구현 검증 및 테스트
 - [ ] 반응형 디자인 테스트 (모바일, 태블릿, 데스크톱)
 - [ ] 성능 최적화 (이미지 lazy loading, 코드 스플리팅)
 
 ### 우선순위: 중간 🟡
+- [ ] **디자인 개선 Phase 2: 시각적 개선**
+  - [ ] 그래디언트 효과 80% 제거 (배경 orbs 제거, CTA만 유지)
+  - [ ] floating particles 제거 (20개 파티클 제거)
+  - [ ] 마우스 추적 parallax 제거
+  - 📄 상세: [DESIGN_ANALYSIS.md](./DESIGN_ANALYSIS.md)
 - [ ] SEO 최적화 (메타 태그, Open Graph, Twitter Card)
 - [ ] Google Analytics 또는 추적 스크립트 추가
 - [ ] 접근성(A11y) 개선 (ARIA 레이블, 키보드 내비게이션)
 - [ ] 다국어 지원 검토 (한국어/영어)
 
 ### 우선순위: 낮음 🟢
-- [ ] 애니메이션 효과 추가 (scroll animations, fade-in effects)
+- [ ] **디자인 개선 Phase 3: 성능 및 UX**
+  - [ ] 애니메이션 70% 감소 (fade-in만 유지)
+  - [ ] 배경을 실제 다이빙 사진으로 교체
+  - [ ] blur 효과 최소화 (1개만 유지)
+  - 📄 상세: [DESIGN_ANALYSIS.md](./DESIGN_ANALYSIS.md)
 - [ ] 다크 모드 지원 검토
 - [ ] PWA(Progressive Web App) 기능 추가
 - [ ] E2E 테스트 설정 (Playwright 또는 Cypress)
@@ -176,6 +198,26 @@
 - 비디오 파일 lazy loading 검토
 - 초기 로딩 성능 최적화
 
+### 디자인 개선 전략 (2025-01-18)
+> 상세: [DESIGN_ANALYSIS.md](./DESIGN_ANALYSIS.md)
+
+**분석 결과: AI스러운 요소 3가지**
+1. **과도한 그래디언트/글로우** - 5개 이상 겹침, blur 다중 적용
+2. **과다 애니메이션** - 10개 이상 동시 실행, 20개 파티클, 마우스 추적
+3. **이모지 남발** - 20개 이상 이모지 사용, 과장된 카피 ("후기 맛집")
+
+**개선 원칙: "Less is More"**
+- 1 Hero Visual: 하나의 강력한 이미지
+- 2-3 Brand Colors: 일관된 색상 팔레트
+- 1-2 Animations: 핵심 요소에만
+- Professional Icons: react-icons 사용 (이모지 제거)
+- Professional Tone: 과장 없는 정확한 표현
+
+**벤치마크 대상**
+- Cebu Fun Divers (PADI 5 Star)
+- CEBU J DIVING
+- Mango Dive (망고다이브)
+
 ---
 
 ## 다음 세션을 위한 가이드
@@ -206,6 +248,7 @@
 ## 참고 문서
 - [README.md](./README.md) - 프로젝트 소개 및 사용법
 - [SETUP.md](./SETUP.md) - 환경 설정 가이드
+- [DESIGN_ANALYSIS.md](./DESIGN_ANALYSIS.md) - 디자인 분석 및 개선 가이드 (AI스러운 요소, 경쟁사 벤치마크)
 - [PRODUCTION_CHECKLIST.md](./PRODUCTION_CHECKLIST.md) - 상용 서비스 개발 체크리스트 (결제, 보안, 법령, 외부 연동)
 - [package.json](./package.json) - 의존성 및 스크립트
 
