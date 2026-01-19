@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { FaPlay, FaPause, FaExpand, FaVolumeMute, FaVolumeUp } from 'react-icons/fa'
+import { useLanguage } from '../contexts/LanguageContext'
 
 interface VideoItem {
   id: number
@@ -10,6 +11,7 @@ interface VideoItem {
 }
 
 const VideoGallerySection: React.FC = () => {
+  const { t } = useLanguage()
   const [activeVideo, setActiveVideo] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
@@ -17,36 +19,13 @@ const VideoGallerySection: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const videos: VideoItem[] = [
-    {
-      id: 1,
-      src: '/asset/dive_vid_1.mp4',
-      title: '환상적인 산호초 세계',
-      description: '알록달록한 산호초와 열대어들이 만들어내는 수중 천국',
-      location: '세부 콘티키 포인트',
-    },
-    {
-      id: 2,
-      src: '/asset/dive_vid_2.mp4',
-      title: '거북이와 함께하는 다이빙',
-      description: '온순한 바다거북과 눈을 맞추는 특별한 순간',
-      location: '아포섬 생추어리',
-    },
-    {
-      id: 3,
-      src: '/asset/dive_vid_3.mp4',
-      title: '신비로운 수중 동굴',
-      description: '빛이 스며드는 동굴 속 환상적인 광경',
-      location: '보홀 발리캐식',
-    },
-    {
-      id: 4,
-      src: '/asset/dive_vid_4.mp4',
-      title: '물고기 떼의 향연',
-      description: '수천 마리의 물고기가 만들어내는 장관',
-      location: '코타키나발루',
-    },
-  ]
+  const videos: VideoItem[] = t.videoGallery.videos.map((video, index) => ({
+    id: index + 1,
+    src: `/asset/dive_vid_${index + 1}.mp4`,
+    title: video.title,
+    description: video.description,
+    location: video.location,
+  }))
 
   useEffect(() => {
     if (videoRef.current) {
@@ -110,17 +89,17 @@ const VideoGallerySection: React.FC = () => {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-ocean-teal"></span>
               </span>
               <span className="font-body text-sm font-semibold tracking-wider text-ocean-teal uppercase">
-                실제 다이빙 영상
+                {t.videoGallery.badge}
               </span>
             </span>
           </div>
           <h2 className="mb-6 font-display text-4xl font-bold text-white md:text-5xl lg:text-6xl">
-            직접 눈으로 확인하세요
+            {t.videoGallery.title}
           </h2>
           <p className="mx-auto max-w-2xl font-body text-lg text-slate-400">
-            Parks 로컬 다이빙에서 촬영한 실제 영상입니다.
+            {t.videoGallery.subtitle}
             <br className="hidden sm:block" />
-            당신도 이 순간의 주인공이 될 수 있습니다.
+            {t.videoGallery.subtitleEnd}
           </p>
         </div>
 
@@ -185,14 +164,14 @@ const VideoGallerySection: React.FC = () => {
                 <button
                   onClick={toggleMute}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm text-white transition-all hover:bg-black/70"
-                  aria-label={isMuted ? '소리 켜기' : '소리 끄기'}
+                  aria-label={isMuted ? t.videoGallery.unmute : t.videoGallery.mute}
                 >
                   {isMuted ? <FaVolumeMute className="h-4 w-4" /> : <FaVolumeUp className="h-4 w-4" />}
                 </button>
                 <button
                   onClick={toggleFullscreen}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm text-white transition-all hover:bg-black/70"
-                  aria-label="전체화면"
+                  aria-label={t.videoGallery.fullscreen}
                 >
                   <FaExpand className="h-4 w-4" />
                 </button>
@@ -212,7 +191,7 @@ const VideoGallerySection: React.FC = () => {
           <div className="flex flex-col gap-4">
             <div className="mb-2">
               <h4 className="font-body text-sm font-semibold text-slate-400 uppercase tracking-wider">
-                다이빙 하이라이트
+                {t.videoGallery.highlights}
               </h4>
             </div>
             {videos.map((video, index) => (
@@ -277,10 +256,10 @@ const VideoGallerySection: React.FC = () => {
           <div className="inline-flex flex-col sm:flex-row items-center gap-4 rounded-3xl bg-gradient-to-r from-white/5 to-white/10 border border-white/10 p-8 backdrop-blur-sm">
             <div className="text-center sm:text-left">
               <h4 className="font-display text-xl font-bold text-white mb-2">
-                이 순간을 직접 경험하고 싶다면?
+                {t.videoGallery.ctaTitle}
               </h4>
               <p className="text-sm text-slate-400">
-                지금 바로 예약하고 잊지 못할 추억을 만들어보세요
+                {t.videoGallery.ctaSubtitle}
               </p>
             </div>
             <a
@@ -289,7 +268,7 @@ const VideoGallerySection: React.FC = () => {
               rel="noopener noreferrer"
               className="flex-shrink-0 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-parks-gold to-amber-400 px-8 py-3 font-body font-bold text-ocean-dark transition-all hover:scale-105 hover:shadow-glow-gold"
             >
-              예약 문의하기
+              {t.videoGallery.ctaButton}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>

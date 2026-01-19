@@ -1,39 +1,14 @@
 import React from 'react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const LocationsSection = () => {
-  const locations = [
-    {
-      number: '1호점',
-      name: 'Cebu',
-      nameKo: '세부',
-      description: '고객 만족도 1위 다이빙 샵',
-      features: ['콘티키 포인트', '울랑고 섬', '힐루통안'],
-      color: 'from-blue-500 to-blue-700',
-    },
-    {
-      number: '2호점',
-      name: 'Bohol',
-      nameKo: '보홀',
-      description: '발리캐식이 있는 최고의 포인트',
-      features: ['발리캐식', '팡라오', '발리볼'],
-      color: 'from-purple-500 to-purple-700',
-    },
-    {
-      number: '3호점',
-      name: 'Kota Kinabalu',
-      nameKo: '코타키나발루',
-      description: '다양한 해양생물과 아름다운 바다',
-      features: ['투나부 베이', '사피 섬', '마무틱 섬'],
-      color: 'from-emerald-500 to-emerald-700',
-    },
-    {
-      number: '4호점',
-      name: 'Bali',
-      nameKo: '발리',
-      description: '만타가오리와 몰라몰라의 성지',
-      features: ['만타 베이', '누사두아', '투람벤'],
-      color: 'from-orange-500 to-orange-700',
-    },
+  const { t } = useLanguage()
+
+  const colors = [
+    'from-blue-500 to-blue-700',
+    'from-purple-500 to-purple-700',
+    'from-emerald-500 to-emerald-700',
+    'from-orange-500 to-orange-700',
   ]
 
   return (
@@ -48,30 +23,30 @@ const LocationsSection = () => {
         {/* Section Header */}
         <div className="mb-12 text-center">
           <div className="mb-4 inline-block rounded-full bg-ocean-teal/10 border border-ocean-teal/20 px-6 py-2 text-sm font-bold text-ocean-teal">
-            PADI 5 Star 공식 리조트
+            {t.locations.badge}
           </div>
           <h2 className="mb-6 text-4xl font-display font-bold text-white md:text-5xl lg:text-6xl">
-            Parks 로컬 다이빙 지점
+            {t.locations.title}
           </h2>
           <p className="text-xl font-light text-slate-300 md:text-2xl">
-            <span className="font-semibold text-parks-gold">전세계 4개 지점</span> 다이빙 샵 운영
+            <span className="font-semibold text-parks-gold">{t.locations.subtitle}</span>{t.locations.subtitleEnd}
           </p>
           <p className="mt-4 text-lg text-slate-400">
-            고객 만족도 1위, 재구매율 1위 다이빙샵을
+            {t.locations.description1}
             <br />
-            운영하여 소중한 여행을 저희에게 맡겨주세요!!
+            {t.locations.description2}
           </p>
         </div>
 
         {/* Locations Grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {locations.map((location, index) => (
+          {t.locations.locations.map((location, index) => (
             <div
               key={index}
               className="glass-card group transform rounded-2xl p-6 transition-all duration-300 hover:scale-105 hover:bg-white/10 border border-white/5"
             >
               {/* Branch Number Badge */}
-              <div className={`mb-4 inline-block rounded-full bg-gradient-to-r ${location.color} px-4 py-1 text-sm font-bold text-white shadow-lg`}>
+              <div className={`mb-4 inline-block rounded-full bg-gradient-to-r ${colors[index]} px-4 py-1 text-sm font-bold text-white shadow-lg`}>
                 {location.number}
               </div>
 
@@ -105,7 +80,7 @@ const LocationsSection = () => {
                   <span className="text-2xl drop-shadow-md">⭐</span>
                   <div className="text-left">
                     <p className="text-xs font-semibold text-ocean-teal">PADI</p>
-                    <p className="text-sm font-bold text-parks-gold">5 Star Diving Shop</p>
+                    <p className="text-sm font-bold text-parks-gold">{t.locations.padi5Star}</p>
                   </div>
                 </div>
               </div>
@@ -115,27 +90,19 @@ const LocationsSection = () => {
 
         {/* Trust Indicators */}
         <div className="mt-16 grid gap-6 md:grid-cols-3">
-          <div className="glass-card rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
-            <div className="mb-3 text-4xl filter drop-shadow-lg">🏆</div>
-            <h4 className="mb-2 text-2xl font-bold text-white">2,000회+</h4>
-            <p className="text-slate-400">누적 다이빙 투어</p>
-          </div>
-          <div className="glass-card rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
-            <div className="mb-3 text-4xl filter drop-shadow-lg">👥</div>
-            <h4 className="mb-2 text-2xl font-bold text-white">1,000명+</h4>
-            <p className="text-slate-400">만족한 고객</p>
-          </div>
-          <div className="glass-card rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
-            <div className="mb-3 text-4xl filter drop-shadow-lg">⭐</div>
-            <h4 className="mb-2 text-2xl font-bold text-white">5.0/5.0</h4>
-            <p className="text-slate-400">고객 만족도</p>
-          </div>
+          {t.locations.trustIndicators.map((indicator, index) => (
+            <div key={index} className="glass-card rounded-2xl p-6 text-center hover:bg-white/5 transition-colors">
+              <div className="mb-3 text-4xl filter drop-shadow-lg">{indicator.icon}</div>
+              <h4 className="mb-2 text-2xl font-bold text-white">{indicator.value}</h4>
+              <p className="text-slate-400">{indicator.label}</p>
+            </div>
+          ))}
         </div>
 
         {/* Map Visualization Hint */}
         <div className="mt-12 text-center">
           <p className="text-lg text-ocean-teal font-medium tracking-wide">
-            아시아 최고의 다이빙 포인트에서 여러분을 기다립니다
+            {t.locations.bottomText}
           </p>
         </div>
       </div>

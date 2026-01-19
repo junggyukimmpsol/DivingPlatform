@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { FaPlay, FaChevronDown } from 'react-icons/fa'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const HeroSection = () => {
   const [scrollY, setScrollY] = useState(0)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const { t } = useLanguage()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,13 +29,6 @@ const HeroSection = () => {
       window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [])
-
-  const stats = [
-    { label: '지점', value: '4', sub: '세계 곳곳', icon: '🌏' },
-    { label: '리뷰', value: '1,000+', sub: '5점 만점', icon: '⭐' },
-    { label: '가격', value: '-30%', sub: '최저가 보장', icon: '💰' },
-    { label: '안전', value: '100%', sub: 'PADI 인증', icon: '🛡️' },
-  ]
 
   return (
     <section className="relative min-h-screen w-full overflow-hidden bg-ocean-dark flex items-center justify-center">
@@ -106,7 +101,7 @@ const HeroSection = () => {
                 <div className="relative h-2.5 w-2.5 rounded-full bg-parks-gold shadow-[0_0_10px_rgba(251,191,36,0.8)]"></div>
               </div>
               <span className="font-body text-sm font-semibold tracking-[0.2em] text-parks-gold uppercase">
-                PADI 5 Star Diving Shop
+                {t.hero.badge}
               </span>
             </div>
           </div>
@@ -116,10 +111,10 @@ const HeroSection = () => {
             className="mx-auto max-w-5xl font-display text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl animate-fade-up"
             style={{ animationDelay: '0.1s' }}
           >
-            <span className="block mb-2">Discover the</span>
+            <span className="block mb-2">{t.hero.title1}</span>
             <span className="relative inline-block">
               <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-ocean-teal via-cyan-300 to-ocean-accent bg-[length:200%_auto] animate-gradient-shift">
-                Ocean's Magic
+                {t.hero.title2}
               </span>
               <span className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-ocean-teal to-transparent opacity-50"></span>
             </span>
@@ -130,10 +125,10 @@ const HeroSection = () => {
             className="mx-auto mt-8 max-w-2xl font-body text-lg leading-relaxed text-slate-300 md:text-xl lg:text-2xl animate-fade-up"
             style={{ animationDelay: '0.2s' }}
           >
-            세부 · 보홀 · 코타키나발루 · 발리
+            {t.hero.subtitle}
             <br className="hidden sm:block" />
-            <span className="text-white font-medium">Parks 로컬 다이빙</span>과 함께하는
-            <span className="text-ocean-teal font-medium"> 프리미엄 다이빙</span> 경험
+            <span className="text-white font-medium">{t.hero.subtitleHighlight}</span>{t.hero.subtitleEnd}
+            <span className="text-ocean-teal font-medium"> {t.hero.subtitlePremium}</span> {t.hero.subtitleExperience}
           </p>
 
           {/* CTA Buttons */}
@@ -149,7 +144,7 @@ const HeroSection = () => {
               className="group relative overflow-hidden rounded-full bg-gradient-to-r from-parks-gold via-amber-400 to-parks-gold-light px-10 py-4 shadow-glow-gold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(251,191,36,0.5)] active:scale-95"
             >
               <span className="relative z-10 flex items-center gap-2 font-body text-base font-bold tracking-wide text-ocean-dark">
-                지금 예약하기
+                {t.hero.cta}
                 <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -162,7 +157,7 @@ const HeroSection = () => {
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 group-hover:bg-white/20 transition-colors">
                 <FaPlay className="w-3 h-3 text-white ml-0.5" />
               </div>
-              <span className="font-body text-base font-medium text-white">투어 영상 보기</span>
+              <span className="font-body text-base font-medium text-white">{t.hero.watchVideo}</span>
             </button>
           </div>
 
@@ -172,7 +167,7 @@ const HeroSection = () => {
             style={{ animationDelay: '0.4s' }}
           >
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-              {stats.map((stat, idx) => (
+              {t.hero.stats.map((stat, idx) => (
                 <div
                   key={idx}
                   className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.1] hover:-translate-y-1 hover:shadow-lg"
@@ -198,27 +193,22 @@ const HeroSection = () => {
             className="mt-12 flex flex-wrap items-center justify-center gap-6 animate-fade-up"
             style={{ animationDelay: '0.5s' }}
           >
-            <div className="flex items-center gap-2 text-slate-400">
-              <span className="text-lg">⭐</span>
-              <span className="text-sm font-medium">네이버 평점 4.9</span>
-            </div>
-            <div className="w-px h-4 bg-slate-600"></div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <span className="text-lg">⭐</span>
-              <span className="text-sm font-medium">구글 평점 5.0</span>
-            </div>
-            <div className="w-px h-4 bg-slate-600"></div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <span className="text-lg">🏆</span>
-              <span className="text-sm font-medium">1,000+ 고객</span>
-            </div>
+            {t.hero.trustBadges.map((badge, idx) => (
+              <React.Fragment key={idx}>
+                <div className="flex items-center gap-2 text-slate-400">
+                  <span className="text-lg">{badge.icon}</span>
+                  <span className="text-sm font-medium">{badge.text}</span>
+                </div>
+                {idx < t.hero.trustBadges.length - 1 && <div className="w-px h-4 bg-slate-600"></div>}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce-subtle">
-        <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">Scroll</span>
+        <span className="text-xs font-medium text-slate-500 uppercase tracking-widest">{t.hero.scroll}</span>
         <div className="relative">
           <div className="w-6 h-10 rounded-full border-2 border-slate-600 flex justify-center pt-2">
             <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>

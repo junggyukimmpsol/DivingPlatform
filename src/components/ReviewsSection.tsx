@@ -1,51 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { FaStar, FaQuoteLeft, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import StarRating from './common/StarRating'
-import type { Review } from '../types'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const ReviewsSection: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
+  const { t } = useLanguage()
 
-  const reviews: Review[] = [
-    {
-      id: 'tnsd',
-      username: 'tnsd****',
-      rating: 5,
-      text: '처음 체험 다이빙 하는 거라 걱정이 많았는데 정말 너무 친절하시고 물속에서도 계속 신경 써주셔서 너무 감사했어요! 1인 60만원 내고 온 친구 말로는 40분밖에 못했다고 하던데 여기는 1시간 정도를 물 속에서 있었어요..!',
-    },
-    {
-      id: 'wnsg',
-      username: 'wnsg****',
-      rating: 5,
-      text: '인원이 많아서 걱정을 많이했는데 정말 한 명 한 명 신경 써주시고 안전에 대해 철저히 챙겨주셔서 너무나도 즐겁고 안전하게 다녀올 수 있었습니다!! 가격도 타업체 대비 저렴한데 시간도 더 오래 할 수 있고 정말 최고였습니다!',
-    },
-    {
-      id: 'girwns',
-      username: 'girwns****',
-      rating: 5,
-      text: '세부 패키지 여행 중 다이빙 따로 예약 하고 가족들이랑 같이 했는데 너무 좋았어요. 물 속에서 찍어주신 사진도 너무 예쁘고 시간도 넉넉하게 줘서 충분히 즐길 수 있었습니다. 다음에 또 세부 오면 여기서 할게요!',
-    },
-    {
-      id: 'lej1',
-      username: 'lej1****',
-      rating: 5,
-      text: '여행 일정 중 가장 기대했던 다이빙이었는데 기대 이상이었습니다! 강사님들 정말 친절하시고 안전하게 잘 케어해주셨어요. 물 속 세상이 정말 아름다워서 시간 가는 줄 몰랐습니다. 최고였습니다!!',
-    },
-    {
-      id: 'park2',
-      username: 'park2****',
-      rating: 5,
-      text: '처음 다이빙인데 강사님이 너무 잘 이끌어주셔서 무섭지 않고 재미있게 즐겼어요! 물고기도 많이 보고 사진도 예쁘게 찍어주시고 정말 좋은 추억 만들고 갑니다. 강추!',
-    },
-    {
-      id: 'kim5',
-      username: 'kim5****',
-      rating: 5,
-      text: '보홀에서 다이빙했는데 발리캐식 포인트가 정말 환상적이었어요! 다양한 물고기들과 산호초를 가까이서 볼 수 있어서 감동이었습니다. 다음에 꼭 또 오고 싶어요!',
-    },
-  ]
+  const reviews = t.reviews.reviews
 
   // Auto-play carousel
   useEffect(() => {
@@ -89,16 +53,16 @@ const ReviewsSection: React.FC = () => {
             <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-parks-gold/10 to-transparent border border-parks-gold/20 px-6 py-2.5 backdrop-blur-sm">
               <FaStar className="text-parks-gold animate-pulse" />
               <span className="font-body text-sm font-semibold tracking-wider text-parks-gold uppercase">
-                고객님들이 증명하는
+                {t.reviews.badge}
               </span>
             </span>
           </div>
 
           <h2 className="mb-6 font-display text-4xl font-bold text-white md:text-5xl lg:text-6xl tracking-tight animate-fade-up" style={{ animationDelay: '0.1s' }}>
-            후기{' '}
+            {t.reviews.title}{' '}
             <span className="relative inline-block">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-ocean-teal via-cyan-300 to-ocean-accent">
-                맛집!
+                {t.reviews.titleHighlight}
               </span>
               <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none">
                 <path d="M2 10C50 2 150 2 198 10" stroke="url(#underline-gradient)" strokeWidth="3" strokeLinecap="round"/>
@@ -124,7 +88,7 @@ const ReviewsSection: React.FC = () => {
               <span className="font-display text-4xl md:text-5xl font-bold text-white">5.0</span>
             </div>
             <p className="font-body text-slate-400">
-              누적 <span className="text-parks-gold font-semibold">1,000명 이상</span>의 고객 인증
+              {t.reviews.ratingText} <span className="text-parks-gold font-semibold">{t.reviews.ratingHighlight}</span>{t.reviews.ratingEnd}
             </p>
           </div>
         </div>
@@ -135,14 +99,14 @@ const ReviewsSection: React.FC = () => {
           <button
             onClick={goToPrev}
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/20 hover:scale-110 hidden md:flex"
-            aria-label="이전 리뷰"
+            aria-label={t.reviews.prevReview}
           >
             <FaChevronLeft />
           </button>
           <button
             onClick={goToNext}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all hover:bg-white/20 hover:scale-110 hidden md:flex"
-            aria-label="다음 리뷰"
+            aria-label={t.reviews.nextReview}
           >
             <FaChevronRight />
           </button>
@@ -195,7 +159,7 @@ const ReviewsSection: React.FC = () => {
                       {/* Verified Badge */}
                       <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-green-500/10 border border-green-500/20 px-4 py-2">
                         <span className="text-green-400 text-sm">✓</span>
-                        <span className="text-sm font-medium text-green-400">실제 이용 고객 후기</span>
+                        <span className="text-sm font-medium text-green-400">{t.reviews.verifiedBadge}</span>
                       </div>
                     </div>
                   </div>
@@ -215,7 +179,7 @@ const ReviewsSection: React.FC = () => {
                     ? 'w-8 h-2 bg-parks-gold'
                     : 'w-2 h-2 bg-white/30 hover:bg-white/50'
                 }`}
-                aria-label={`리뷰 ${index + 1}로 이동`}
+                aria-label={t.reviews.goToReview.replace('{index}', String(index + 1))}
               />
             ))}
           </div>
@@ -223,12 +187,7 @@ const ReviewsSection: React.FC = () => {
 
         {/* Review Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-          {[
-            { label: '전체 리뷰', value: '1,000+', icon: '📝' },
-            { label: '5점 비율', value: '98%', icon: '⭐' },
-            { label: '재방문율', value: '85%', icon: '🔄' },
-            { label: '추천율', value: '99%', icon: '👍' },
-          ].map((stat, index) => (
+          {t.reviews.stats.map((stat, index) => (
             <div
               key={index}
               className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 p-6 text-center backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/20"
@@ -250,10 +209,10 @@ const ReviewsSection: React.FC = () => {
               <span className="text-2xl">N</span>
             </div>
             <div className="text-left">
-              <p className="text-sm text-slate-400">네이버 리뷰</p>
+              <p className="text-sm text-slate-400">{t.reviews.platforms.naver.label}</p>
               <p className="font-display text-lg font-bold text-white flex items-center gap-1">
                 <FaStar className="text-parks-gold" />
-                4.9
+                {t.reviews.platforms.naver.rating}
               </p>
             </div>
           </a>
@@ -266,10 +225,10 @@ const ReviewsSection: React.FC = () => {
               <span className="text-2xl">G</span>
             </div>
             <div className="text-left">
-              <p className="text-sm text-slate-400">구글 리뷰</p>
+              <p className="text-sm text-slate-400">{t.reviews.platforms.google.label}</p>
               <p className="font-display text-lg font-bold text-white flex items-center gap-1">
                 <FaStar className="text-parks-gold" />
-                5.0
+                {t.reviews.platforms.google.rating}
               </p>
             </div>
           </a>
@@ -284,9 +243,9 @@ const ReviewsSection: React.FC = () => {
               <span className="text-2xl">📸</span>
             </div>
             <div className="text-left">
-              <p className="text-sm text-slate-400">인스타그램</p>
+              <p className="text-sm text-slate-400">{t.reviews.platforms.instagram.label}</p>
               <p className="font-display text-lg font-bold text-white">
-                @parks_local_diving
+                {t.reviews.platforms.instagram.handle}
               </p>
             </div>
           </a>
