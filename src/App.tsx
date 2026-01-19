@@ -35,18 +35,16 @@ function App() {
             <HeroSection />
             <VideoGallerySection />
             <ReviewsSection />
+            <WhyUsSection />
+            <EventsSection />
           </>
         )
-      case 'why-us':
-        return <WhyUsSection />
-      case 'locations':
+      case 'location-info':
         return <LocationsSection />
-      case 'schedule':
+      case 'location-tours':
         return <TimelineSection />
-      case 'pricing':
+      case 'location-pricing':
         return <PriceComparisonSection />
-      case 'events':
-        return <EventsSection />
       default:
         return <HeroSection />
     }
