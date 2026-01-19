@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import LanguageSwitcher from './LanguageSwitcher'
-import { FaHome, FaStar, FaMapMarkerAlt, FaCalendarAlt, FaDollarSign, FaGift } from 'react-icons/fa'
+import { FaHome, FaMapMarkerAlt, FaShip, FaDollarSign } from 'react-icons/fa'
 
 interface NavigationProps {
   activeTab: string
@@ -23,11 +23,9 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
 
   const tabs = [
     { id: 'home', label: t.nav.home, icon: FaHome },
-    { id: 'why-us', label: t.nav.whyUs, icon: FaStar },
-    { id: 'locations', label: t.nav.locations, icon: FaMapMarkerAlt },
-    { id: 'schedule', label: t.nav.schedule, icon: FaCalendarAlt },
-    { id: 'pricing', label: t.nav.pricing, icon: FaDollarSign },
-    { id: 'events', label: t.nav.events, icon: FaGift },
+    { id: 'location-info', label: t.nav.locationInfo, icon: FaMapMarkerAlt },
+    { id: 'location-tours', label: t.nav.locationTours, icon: FaShip },
+    { id: 'location-pricing', label: t.nav.locationPricing, icon: FaDollarSign },
   ]
 
   return (
@@ -133,7 +131,7 @@ const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
           </div>
 
           {/* Mobile Tab Grid */}
-          <div className="grid grid-cols-6 gap-1 rounded-2xl bg-white/5 p-1.5 backdrop-blur-sm border border-white/10">
+          <div className="grid grid-cols-4 gap-1 rounded-2xl bg-white/5 p-1.5 backdrop-blur-sm border border-white/10">
             {tabs.map((tab) => {
               const isActive = activeTab === tab.id
 

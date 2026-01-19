@@ -23,6 +23,58 @@
 
 ## 개발 히스토리
 
+### 2026-01-19 | 세션 ID: rwNwi
+**작업자**: Claude Code
+**브랜치**: `claude/understand-ongoing-issues-rwNwi`
+
+#### 작업 내용
+- **진행중인 사안 파악 및 분석**
+  - Explore 에이전트를 통한 전체 프로젝트 현황 조사
+  - 기존 문서 검토 (DESIGN_ANALYSIS.md, PRODUCTION_CHECKLIST.md)
+  - 컴포넌트 구조 및 기능 분석
+
+- **신규 개선사항 8가지 접수**
+  1. ❌ 카카오톡 채팅창 바로가기 변경 (URL 이슈 발견 - 포트원 URL이 잘못 제공됨)
+  2. 리뷰 내용 수정 ("1인 60만원 내고 온 친구..." 부자연스러움)
+  3. 상담 플로팅 버튼 개선 (24시간, 다국어 강조)
+  4. 네비게이션 탭 재구성 (홈-지점안내-지점별투어-지점별가격)
+  5. 영상과 타이틀 매칭 확인 및 수정
+  6. 지점별 다이빙 투어 가격 정보 추가 (현재 보홀만 있음)
+  7. 지점별 제공 서비스 차별화 (세부: 픽드랍 O, 다른 지점: X)
+  8. 각 다이빙 샵별 페이지 라우팅 구조 설계 및 구현
+
+- **우선순위 계획 수립**
+  - 🔴 1순위 (즉시): 카카오톡 링크, 리뷰 수정
+  - 🟡 2순위 (중요): 플로팅 버튼, 네비게이션 재구성
+  - 🟢 3순위 (복잡): 영상 매칭, 지점별 가격/서비스
+  - 🔵 4순위 (장기): 라우팅 구조 (React Router 필요)
+
+- **Stop Hook 버그 수정**
+  - `.claude/hooks/hooks.json` 수정 (bash here-string → POSIX 호환)
+  - `.claude/settings.local.json` 수정 (bash here-string → POSIX 호환)
+  - 커밋: `9e93efe`, `633734f`
+
+#### 변경 파일
+- `.claude/hooks/hooks.json` (수정 - POSIX 호환)
+- `.claude/settings.local.json` (수정 - POSIX 호환)
+
+#### 커밋
+- `9e93efe`: fix: replace bash-specific syntax in stop hook with POSIX-compliant alternative
+- `633734f`: fix: update stop hook in settings.local.json to use POSIX-compliant syntax
+
+#### 블로커
+- ⚠️ **카카오톡 URL 이슈**: 제공된 URL이 포트원(PortOne) 결제 개발자 문서 URL임
+  - 제공: `https://developers.portone.io/opi/ko/integration/pg/v1/toss...`
+  - 필요: 카카오톡 채팅 바로가기 URL (예: `https://pf.kakao.com/_xxxxx`)
+  - 상태: 올바른 URL 확인 대기 중
+
+#### 다음 세션 작업 예정
+1. 카카오톡 올바른 URL 적용
+2. 리뷰 내용 자연스럽게 수정
+3. 플로팅 버튼 다국어/24시간 강조 디자인
+
+---
+
 ### 2025-01-18 | 세션 ID: TSSpz
 **작업자**: Claude Code
 **브랜치**: `claude/add-dev-log-TSSpz`

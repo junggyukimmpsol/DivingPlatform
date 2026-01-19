@@ -2,11 +2,9 @@ export const translations = {
   ko: {
     nav: {
       home: '홈',
-      whyUs: '선택 이유',
-      locations: '지점 안내',
-      schedule: '투어 일정',
-      pricing: '가격 안내',
-      events: '이벤트',
+      locationInfo: '지점안내',
+      locationTours: '지점별투어',
+      locationPricing: '지점별가격',
     },
     hero: {
       badge: 'PADI 5 Star Diving Shop',
@@ -117,6 +115,12 @@ export const translations = {
           nameKo: '세부',
           description: '고객 만족도 1위 다이빙 샵',
           features: ['콘티키 포인트', '울랑고 섬', '힐루통안'],
+          services: [
+            { icon: '🚗', name: '무료 픽드랍', highlight: true },
+            { icon: '🍽️', name: '점심 식사' },
+            { icon: '📷', name: '수중 촬영' },
+            { icon: '🤿', name: '장비 렌탈' },
+          ],
         },
         {
           number: '2호점',
@@ -124,6 +128,12 @@ export const translations = {
           nameKo: '보홀',
           description: '발리캐식이 있는 최고의 포인트',
           features: ['발리캐식', '팡라오', '발리볼'],
+          services: [
+            { icon: '🍽️', name: '점심 식사' },
+            { icon: '📷', name: '수중 촬영' },
+            { icon: '🤿', name: '장비 렌탈' },
+            { icon: '🎫', name: '환경세 포함' },
+          ],
         },
         {
           number: '3호점',
@@ -131,6 +141,12 @@ export const translations = {
           nameKo: '코타키나발루',
           description: '다양한 해양생물과 아름다운 바다',
           features: ['투나부 베이', '사피 섬', '마무틱 섬'],
+          services: [
+            { icon: '🍽️', name: '점심 식사' },
+            { icon: '📷', name: '수중 촬영' },
+            { icon: '🤿', name: '장비 렌탈' },
+            { icon: '🌴', name: '현지 가이드' },
+          ],
         },
         {
           number: '4호점',
@@ -138,6 +154,12 @@ export const translations = {
           nameKo: '발리',
           description: '만타가오리와 몰라몰라의 성지',
           features: ['만타 베이', '누사두아', '투람벤'],
+          services: [
+            { icon: '🍽️', name: '점심 식사' },
+            { icon: '📷', name: '수중 촬영' },
+            { icon: '🤿', name: '장비 렌탈' },
+            { icon: '🏝️', name: '리조트 연계' },
+          ],
         },
       ],
       trustIndicators: [
@@ -224,8 +246,27 @@ export const translations = {
       },
       mobileCompetitorLabel: '타업체 평균',
       priceData: [
+        // === 세부 지점 ===
         {
-          location: '알로나 비치\n산호 직벽 포인트\n(다이빙)',
+          location: '[세부]\n콘티키 포인트\n(다이빙)',
+          type: '보트 체험 다이빙 2회',
+          duration: '(1회 교육 다이빙 - 25분~30분\n1회 다이빙(정) 40분 이상)',
+          competitor: '19만원\n($ 135)',
+          parks: '13만원',
+          savings: '(6만원 SAVE)',
+        },
+        {
+          location: '[세부]\n울랑고 섬\n(다이빙)',
+          type: '펀다이빙 2회',
+          duration: '(1회 다이빙시 40분 이상)',
+          competitor: '20만원\n($ 140)',
+          parks: '13만원',
+          savings: '(7만원 SAVE)',
+        },
+
+        // === 보홀 지점 ===
+        {
+          location: '[보홀]\n알로나 비치\n산호 직벽 포인트',
           type: '보트 체험 다이빙 2회',
           duration: '(1회 교육 다이빙 - 25분~30분\n1회 다이빙(정) 40분 이상)',
           competitor: '20만원\n($ 140)',
@@ -233,7 +274,7 @@ export const translations = {
           savings: '(6만원 SAVE)',
         },
         {
-          location: '알로나 비치\n산호 직벽 포인트\n(다이빙)',
+          location: '[보홀]\n알로나 비치\n산호 직벽 포인트',
           type: '펀다이빙 2회',
           duration: '(1회 다이빙시 40분 이상)',
           competitor: '20만원\n($ 140)',
@@ -241,23 +282,7 @@ export const translations = {
           savings: '(7만원 SAVE)',
         },
         {
-          location: '나팔링\n(다이빙)',
-          type: '보트 체험 다이빙 2회',
-          duration: '(1회 교육 다이빙 - 25분~30분\n1회 다이빙(정) 40분 이상)',
-          competitor: '21만원\n($ 150)',
-          parks: '15만원',
-          savings: '(6만원 SAVE)',
-        },
-        {
-          location: '나팔링\n(다이빙)',
-          type: '펀다이빙 2회',
-          duration: '(1회 다이빙시 40분 이상)',
-          competitor: '20만원\n($ 140)',
-          parks: '13만원',
-          savings: '(7만원 SAVE)',
-        },
-        {
-          location: '발리캐식 or\n파밀라칸\n(다이빙)\n+\n샌드위치\n점심 제공',
+          location: '[보홀]\n발리캐식 or 파밀라칸\n+ 점심 제공',
           type: '보트 펀다이빙 2회',
           duration: '(1회 다이빙시 40분 이상)',
           competitor: '19만원\n($ 125)',
@@ -265,38 +290,66 @@ export const translations = {
           savings: '(5만원 SAVE)',
         },
         {
-          location: '발리캐식 or\n파밀라칸\n(다이빙)\n+\n샌드위치\n점심 제공',
+          location: '[보홀]\n발리캐식 or 파밀라칸\n+ 점심 제공',
           type: '보트 펀다이빙 3회',
           duration: '(1회 다이빙시 40분 이상)',
           competitor: '22만원\n($ 145)',
           parks: '18만원',
           savings: '(4만원 SAVE)',
         },
+
+        // === 코타키나발루 지점 ===
         {
-          location: '보트 스노클링',
-          type: '스노클링 2회',
-          duration: '',
-          competitor: '12만원\n($ 90)',
-          parks: '7만원',
-          savings: '(4만원 SAVE)',
+          location: '[코타키나발루]\n사피 섬\n(다이빙)',
+          type: '보트 체험 다이빙 2회',
+          duration: '(1회 교육 다이빙 - 25분~30분\n1회 다이빙(정) 40분 이상)',
+          competitor: '18만원\n($ 130)',
+          parks: '12만원',
+          savings: '(6만원 SAVE)',
+        },
+        {
+          location: '[코타키나발루]\n마무틱 섬\n(다이빙)',
+          type: '펀다이빙 2회',
+          duration: '(1회 다이빙시 40분 이상)',
+          competitor: '19만원\n($ 135)',
+          parks: '13만원',
+          savings: '(6만원 SAVE)',
+        },
+
+        // === 발리 지점 ===
+        {
+          location: '[발리]\n만타 베이\n(다이빙)',
+          type: '보트 체험 다이빙 2회',
+          duration: '(1회 교육 다이빙 - 25분~30분\n1회 다이빙(정) 40분 이상)',
+          competitor: '25만원\n($ 175)',
+          parks: '18만원',
+          savings: '(7만원 SAVE)',
+        },
+        {
+          location: '[발리]\n투람벤 난파선\n(다이빙)',
+          type: '펀다이빙 2회',
+          duration: '(1회 다이빙시 40분 이상)',
+          competitor: '24만원\n($ 170)',
+          parks: '17만원',
+          savings: '(7만원 SAVE)',
         },
       ],
       notesTitle: '중요 공지',
       notes: [
         {
           number: '1',
-          text: '의 모든 투어는 막탄 내 무료 픽드랍이 포함된 올인클루시브 패키지입니다.',
-          highlight: '보홀 지점',
+          text: '모든 투어는 올인클루시브 패키지입니다. (장비 렌탈, 픽드랍, 점심 식사, 환경세, 입장료, 수중 촬영 포함)',
+          highlight: 'Parks 로컬 다이빙',
         },
         {
           number: '2',
-          text: '투어 일정 (무료 픽드랍 포함)',
-          subtext: '(호텔 픽업 → 다이빙 포인트 → 점심 식사 → 호텔 드랍)',
+          text: '지점별 픽드랍 서비스: 세부(막탄 내 무료), 보홀(막탄 내 무료), 코타키나발루·발리(별도 문의)',
+          subtext: '',
         },
         {
           number: '3',
-          text: '모든 투어에 무료 픽드랍 서비스가 포함되어 있으며,',
-          subtext: '안전하고 편안하게 호텔까지 모셔다 드립니다.',
+          text: '위 가격은 참고용이며, 실제 가격은 예약 시 확인 바랍니다.',
+          subtext: '지점별, 시즌별로 가격이 상이할 수 있습니다.',
         },
       ],
       discountHighlight: [
@@ -470,11 +523,9 @@ export const translations = {
   en: {
     nav: {
       home: 'Home',
-      whyUs: 'Why Us',
-      locations: 'Locations',
-      schedule: 'Schedule',
-      pricing: 'Pricing',
-      events: 'Events',
+      locationInfo: 'Locations',
+      locationTours: 'Tours',
+      locationPricing: 'Pricing',
     },
     hero: {
       badge: 'PADI 5 Star Diving Shop',
@@ -585,6 +636,12 @@ export const translations = {
           nameKo: 'Philippines',
           description: '#1 Customer Satisfaction Dive Shop',
           features: ['Kontiki Point', 'Olango Island', 'Hilutungan'],
+          services: [
+            { icon: '🚗', name: 'Free Pick-up', highlight: true },
+            { icon: '🍽️', name: 'Lunch' },
+            { icon: '📷', name: 'Photo/Video' },
+            { icon: '🤿', name: 'Equipment' },
+          ],
         },
         {
           number: 'Branch 2',
@@ -592,6 +649,12 @@ export const translations = {
           nameKo: 'Philippines',
           description: 'Best point with Balicasag',
           features: ['Balicasag', 'Panglao', 'Balibol'],
+          services: [
+            { icon: '🍽️', name: 'Lunch' },
+            { icon: '📷', name: 'Photo/Video' },
+            { icon: '🤿', name: 'Equipment' },
+            { icon: '🎫', name: 'Fees Included' },
+          ],
         },
         {
           number: 'Branch 3',
@@ -599,6 +662,12 @@ export const translations = {
           nameKo: 'Malaysia',
           description: 'Diverse marine life and beautiful ocean',
           features: ['Tunku Abdul Rahman', 'Sapi Island', 'Mamutik Island'],
+          services: [
+            { icon: '🍽️', name: 'Lunch' },
+            { icon: '📷', name: 'Photo/Video' },
+            { icon: '🤿', name: 'Equipment' },
+            { icon: '🌴', name: 'Local Guide' },
+          ],
         },
         {
           number: 'Branch 4',
@@ -606,6 +675,12 @@ export const translations = {
           nameKo: 'Indonesia',
           description: 'Manta rays and Mola Mola paradise',
           features: ['Manta Bay', 'Nusa Dua', 'Tulamben'],
+          services: [
+            { icon: '🍽️', name: 'Lunch' },
+            { icon: '📷', name: 'Photo/Video' },
+            { icon: '🤿', name: 'Equipment' },
+            { icon: '🏝️', name: 'Resort Link' },
+          ],
         },
       ],
       trustIndicators: [
@@ -938,11 +1013,9 @@ export const translations = {
   zh: {
     nav: {
       home: '首页',
-      whyUs: '选择理由',
-      locations: '分店指南',
-      schedule: '行程安排',
-      pricing: '价格指南',
-      events: '活动',
+      locationInfo: '分店指南',
+      locationTours: '分店旅游',
+      locationPricing: '分店价格',
     },
     hero: {
       badge: 'PADI 5星潜水店',
@@ -1053,6 +1126,12 @@ export const translations = {
           nameKo: '宿务',
           description: '客户满意度第一的潜水店',
           features: ['康提基潜点', '奥兰戈岛', '希卢图安'],
+          services: [
+            { icon: '🚗', name: '免费接送', highlight: true },
+            { icon: '🍽️', name: '午餐' },
+            { icon: '📷', name: '摄影摄像' },
+            { icon: '🤿', name: '装备租赁' },
+          ],
         },
         {
           number: '2号店',
@@ -1060,6 +1139,12 @@ export const translations = {
           nameKo: '薄荷岛',
           description: '拥有巴里卡萨的最佳潜点',
           features: ['巴里卡萨', '邦劳', '巴利博尔'],
+          services: [
+            { icon: '🍽️', name: '午餐' },
+            { icon: '📷', name: '摄影摄像' },
+            { icon: '🤿', name: '装备租赁' },
+            { icon: '🎫', name: '费用包含' },
+          ],
         },
         {
           number: '3号店',
@@ -1067,6 +1152,12 @@ export const translations = {
           nameKo: '亚庇',
           description: '丰富的海洋生物和美丽的海洋',
           features: ['东姑阿都拉曼', '沙比岛', '马穆迪岛'],
+          services: [
+            { icon: '🍽️', name: '午餐' },
+            { icon: '📷', name: '摄影摄像' },
+            { icon: '🤿', name: '装备租赁' },
+            { icon: '🌴', name: '本地向导' },
+          ],
         },
         {
           number: '4号店',
@@ -1074,6 +1165,12 @@ export const translations = {
           nameKo: '巴厘岛',
           description: '蝠鲼和翻车鱼的天堂',
           features: ['蝠鲼湾', '努沙杜瓦', '图蓝本'],
+          services: [
+            { icon: '🍽️', name: '午餐' },
+            { icon: '📷', name: '摄影摄像' },
+            { icon: '🤿', name: '装备租赁' },
+            { icon: '🏝️', name: '度假村链接' },
+          ],
         },
       ],
       trustIndicators: [

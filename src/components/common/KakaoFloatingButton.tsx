@@ -16,12 +16,15 @@ const KakaoFloatingButton: React.FC = () => {
       {/* Tooltip */}
       <div
         className={`
-          bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg
-          transition-all duration-300 whitespace-nowrap
+          bg-slate-800 text-white px-4 py-3 rounded-xl shadow-xl
+          transition-all duration-300
           ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
         `}
       >
-        카카오톡 상담
+        <div className="flex flex-col gap-1">
+          <div className="text-sm font-bold text-parks-gold">24시간 상담 가능</div>
+          <div className="text-xs text-slate-300">한국어 · English · 中文</div>
+        </div>
       </div>
 
       {/* Button */}

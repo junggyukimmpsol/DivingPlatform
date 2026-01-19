@@ -61,21 +61,46 @@ const LocationsSection = () => {
               {/* Description */}
               <p className="mb-6 text-sm text-slate-400 border-b border-white/10 pb-4">{location.description}</p>
 
-              {/* Features */}
-              <div className="space-y-2">
-                {location.features.map((feature, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-2"
-                  >
-                    <span className="text-ocean-teal">📍</span>
-                    <span className="text-sm font-medium text-slate-300">{feature}</span>
-                  </div>
-                ))}
+              {/* Diving Points */}
+              <div className="mb-4">
+                <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">다이빙 포인트</h4>
+                <div className="space-y-2">
+                  {location.features.map((feature, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="text-ocean-teal">📍</span>
+                      <span className="text-sm font-medium text-slate-300">{feature}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
+              {/* Services */}
+              {location.services && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">제공 서비스</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    {location.services.map((service, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-1.5 text-xs rounded-lg px-2 py-1.5 ${
+                          service.highlight
+                            ? 'bg-parks-gold/20 border border-parks-gold/40 text-parks-gold font-bold'
+                            : 'bg-white/5 border border-white/10 text-slate-300'
+                        }`}
+                      >
+                        <span className="text-sm">{service.icon}</span>
+                        <span>{service.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* PADI Badge */}
-              <div className="mt-6 rounded-lg bg-white/5 border border-white/10 p-3 text-center transition-colors group-hover:bg-white/10">
+              <div className="mt-4 rounded-lg bg-white/5 border border-white/10 p-3 text-center transition-colors group-hover:bg-white/10">
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-2xl drop-shadow-md">⭐</span>
                   <div className="text-left">
