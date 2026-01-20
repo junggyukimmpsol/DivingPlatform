@@ -494,6 +494,35 @@ export const translations = {
       ctaSubtitle: '지금 바로 예약하고 잊지 못할 추억을 만들어보세요',
       ctaButton: '예약 문의하기',
     },
+    floating: {
+      mainButton: '상담하기',
+      closeMenu: '메뉴 닫기',
+      badge24h: '24/7',
+      availableNow: '지금 상담 가능',
+      multiLanguage: '다국어 상담',
+      languageSupport: '지원 언어',
+      responseTime: '응답 시간',
+      instant: '즉시 응답',
+      within1h: '1시간 이내',
+      channels: {
+        kakao: {
+          name: '카카오톡',
+          description: '한국어 상담 추천',
+        },
+        whatsapp: {
+          name: 'WhatsApp',
+          description: '해외 고객 추천',
+        },
+        instagram: {
+          name: 'Instagram DM',
+          description: '사진/영상 문의',
+        },
+        facebook: {
+          name: 'Facebook',
+          description: '페이지 방문',
+        },
+      },
+    },
     footer: {
       companyName: 'Parks 로컬 다이빙',
       companyDescription: '아시아 최고의 다이빙 포인트에서\n안전하고 즐거운 다이빙을 경험하세요',
@@ -984,6 +1013,35 @@ export const translations = {
       ctaSubtitle: 'Book now and create unforgettable memories',
       ctaButton: 'Inquire Now',
     },
+    floating: {
+      mainButton: 'Contact Us',
+      closeMenu: 'Close menu',
+      badge24h: '24/7',
+      availableNow: 'Available Now',
+      multiLanguage: 'Multilingual Support',
+      languageSupport: 'Languages',
+      responseTime: 'Response',
+      instant: 'Instant',
+      within1h: 'Within 1 hour',
+      channels: {
+        kakao: {
+          name: 'KakaoTalk',
+          description: 'Korean chat recommended',
+        },
+        whatsapp: {
+          name: 'WhatsApp',
+          description: 'International recommended',
+        },
+        instagram: {
+          name: 'Instagram DM',
+          description: 'Photo/Video inquiries',
+        },
+        facebook: {
+          name: 'Facebook',
+          description: 'Visit our page',
+        },
+      },
+    },
     footer: {
       companyName: 'Parks Local Diving',
       companyDescription: 'Experience safe and enjoyable diving\nat Asia\'s best diving spots',
@@ -1473,6 +1531,35 @@ export const translations = {
       ctaTitle: '想亲身体验吗？',
       ctaSubtitle: '立即预订，创造难忘的回忆',
       ctaButton: '立即咨询',
+    },
+    floating: {
+      mainButton: '联系我们',
+      closeMenu: '关闭菜单',
+      badge24h: '24/7',
+      availableNow: '现在可咨询',
+      multiLanguage: '多语言服务',
+      languageSupport: '支持语言',
+      responseTime: '响应时间',
+      instant: '即时响应',
+      within1h: '1小时内',
+      channels: {
+        kakao: {
+          name: 'KakaoTalk',
+          description: '韩语咨询推荐',
+        },
+        whatsapp: {
+          name: 'WhatsApp',
+          description: '国际客户推荐',
+        },
+        instagram: {
+          name: 'Instagram私信',
+          description: '照片/视频咨询',
+        },
+        facebook: {
+          name: 'Facebook',
+          description: '访问我们的页面',
+        },
+      },
     },
     footer: {
       companyName: 'Parks本地潜水',
