@@ -1,5 +1,6 @@
 import React from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
+import InteractiveMap from './map/InteractiveMap'
 
 const LocationsSection = () => {
   const { t } = useLanguage()
@@ -12,7 +13,7 @@ const LocationsSection = () => {
   ]
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-ocean-dark to-slate-950 py-16 md:py-24">
+    <section className="relative overflow-hidden bg-gradient-to-b from-ocean-dark to-slate-950 py-16 md:py-24" data-section="locations">
       {/* Decorative Background */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute left-0 top-0 h-[600px] w-[600px] rounded-full bg-ocean-accent/10 blur-[120px]"></div>
@@ -36,6 +37,11 @@ const LocationsSection = () => {
             <br />
             {t.locations.description2}
           </p>
+        </div>
+
+        {/* Interactive Map */}
+        <div className="mb-16">
+          <InteractiveMap />
         </div>
 
         {/* Locations Grid */}
