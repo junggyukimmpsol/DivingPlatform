@@ -1,67 +1,24 @@
-import React, { useState } from 'react'
-import Navigation from './components/Navigation'
-import HeroSection from './components/HeroSection'
-import VideoGallerySection from './components/VideoGallerySection'
-import ReviewsSection from './components/ReviewsSection'
-import WhyUsSection from './components/WhyUsSection'
-import LocationsSection from './components/LocationsSection'
-import TimelineSection from './components/TimelineSection'
-import PriceComparisonSection from './components/PriceComparisonSection'
-import EventsSection from './components/EventsSection'
-import Footer from './components/Footer'
-import SocialFloatingButtons from './components/common/SocialFloatingButtons'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import CenterLayout from './layouts/CenterLayout'
+import IntroductionTab from './pages/tabs/IntroductionTab'
+import ToursTab from './pages/tabs/ToursTab'
+import PricingTab from './pages/tabs/PricingTab'
+import ReviewsTab from './pages/tabs/ReviewsTab'
 
 function App() {
-  const [activeTab, setActiveTab] = useState('home')
-  const [isTransitioning, setIsTransitioning] = useState(false)
-
-  const handleTabChange = (newTab: string) => {
-    if (newTab !== activeTab) {
-      setIsTransitioning(true)
-      // Scroll to top smoothly
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      setTimeout(() => {
-        setActiveTab(newTab)
-        setIsTransitioning(false)
-      }, 150)
-    }
-  }
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case 'home':
-        return (
-          <>
-            <HeroSection />
-            <VideoGallerySection />
-            <ReviewsSection />
-            <WhyUsSection />
-            <EventsSection />
-          </>
-        )
-      case 'location-info':
-        return <LocationsSection />
-      case 'location-tours':
-        return <TimelineSection />
-      case 'location-pricing':
-        return <PriceComparisonSection />
-      default:
-        return <HeroSection />
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 relative selection:bg-parks-gold selection:text-ocean-dark">
-      <Navigation activeTab={activeTab} onTabChange={handleTabChange} />
-      <div
-        className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
-          }`}
-      >
-        {renderContent()}
-      </div>
-      <Footer />
-      <SocialFloatingButtons />
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/:centerId" element={<CenterLayout />}>
+        <Route index element={<Navigate to="introduction" replace />} />
+        <Route path="introduction" element={<IntroductionTab />} />
+        <Route path="tours" element={<ToursTab />} />
+        <Route path="pricing" element={<PricingTab />} />
+        <Route path="reviews" element={<ReviewsTab />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 

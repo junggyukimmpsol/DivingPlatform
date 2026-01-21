@@ -57,10 +57,14 @@ const SocialFloatingButtons: React.FC = () => {
   ]
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
+    <div
+      className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3"
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
       {/* Main Toggle Button */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
+      <div
+        role="button"
         aria-label={isExpanded ? '메뉴 닫기' : '문의하기'}
         aria-expanded={isExpanded}
         className={`
@@ -84,10 +88,10 @@ const SocialFloatingButtons: React.FC = () => {
             <FaComments className="h-7 w-7 text-ocean-dark" />
           )}
         </div>
-      </button>
+      </div>
 
       {/* Social Buttons */}
-      <div className={`flex flex-col-reverse gap-3 transition-all duration-500 ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`flex flex-col-reverse gap-3 transition-all duration-500 ${isExpanded ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'}`}>
         {socialButtons.map((button, index) => {
           const Icon = button.icon
           const isHovered = hoveredButton === button.id
@@ -140,14 +144,6 @@ const SocialFloatingButtons: React.FC = () => {
         })}
       </div>
 
-      {/* Backdrop overlay when expanded */}
-      {isExpanded && (
-        <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm -z-10 transition-opacity duration-300"
-          onClick={() => setIsExpanded(false)}
-          aria-hidden="true"
-        />
-      )}
     </div>
   )
 }
