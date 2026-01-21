@@ -6,40 +6,25 @@ import { DIVING_LOCATIONS, MAP_CONFIG } from '../../data/diving-locations'
 import { getGradientColors } from '../../utils/map-coordinates'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 
+import { useNavigate } from 'react-router-dom'
+
 // 상수 정의
-const SCROLL_DELAY_MS = 300
 const DESKTOP_BREAKPOINT = '(min-width: 768px)'
 
 /**
- * 2.5D 인터랙티브 다이빙 지도 메인 컴포넌트
+ * 2D 인터랙티브 다이빙 지도 메인 컴포넌트
  */
 const InteractiveMap: React.FC = () => {
   const [hoveredLocation, setHoveredLocation] = useState<string | null>(null)
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null)
+  const navigate = useNavigate()
 
   // 반응형 감지 (useMediaQuery 훅 사용)
   const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT)
 
-  // 마커 클릭 핸들러 - LocationsSection 카드로 스크롤
-  const handleMarkerClick = useCallback((locationId: string) => {
-    setSelectedLocation(locationId)
-
-    // 해당 location의 detailsRef를 찾아서 스크롤
-    const location = DIVING_LOCATIONS.find(loc => loc.id === locationId)
-    if (location) {
-      // LocationsSection의 그리드 아이템으로 스크롤
-      // 약간의 딜레이를 주고 스크롤 (애니메이션 효과)
-      setTimeout(() => {
-        const sectionElement = document.querySelector('[data-section="locations"]')
-        if (sectionElement) {
-          sectionElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          })
-        }
-      }, SCROLL_DELAY_MS)
-    }
-  }, [])
+  // 마커 클릭 핸들러 - 지역 페이지로 이동
+  const handleMarkerClick = useCallback((path: string) => {
+    navigate(path)
+  }, [navigate])
 
   // 호버 핸들러들
   const handleMarkerHover = useCallback((locationId: string) => {
@@ -58,39 +43,24 @@ const InteractiveMap: React.FC = () => {
     <div className="relative w-full">
       {/* 지도 제목 섹션 */}
       <div className="text-center mb-8">
-        <div className="inline-block rounded-full bg-ocean-teal/10 border border-ocean-teal/20 px-6 py-2 text-sm font-bold text-ocean-teal mb-4">
-          🗺️ Interactive Map
-        </div>
-        <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-          다이빙 샵 위치
+        <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
+          지역 선택
         </h3>
-        <p className="text-slate-400 text-sm md:text-base">
-          지도를 클릭하여 각 지점의 상세 정보를 확인하세요
+        <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto">
+          관심 있는 국가와 지역을 지도의 마커나 아래 리스트에서 클릭하세요.
+          각 지역은 독립적인 공간으로 구성되어 있습니다.
         </p>
       </div>
 
-      {/* 3D 지도 컨테이너 */}
+      {/* 2D 지도 컨테이너 */}
       <div
-        className="relative w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
+        className="relative w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-ocean-dark"
         style={{
-          height: isDesktop ? '600px' : '400px',
-          perspective: isDesktop ? `${MAP_CONFIG.perspective.value}px` : 'none',
-          perspectiveOrigin: 'center 40%',
+          height: isDesktop ? '600px' : '500px',
         }}
       >
-        {/* 배경 그라디언트 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark to-slate-950 opacity-50"></div>
-
-        {/* 2.5D 지도 레이어 */}
-        <div
-          className="relative w-full h-full transition-transform duration-700 ease-out"
-          style={{
-            transform: isDesktop
-              ? `rotateX(${MAP_CONFIG.perspective.rotateX}deg) rotateZ(${MAP_CONFIG.perspective.rotateZ}deg)`
-              : 'none',
-            transformStyle: 'preserve-3d',
-          }}
-        >
+        {/* 2D 지도 레이어 */}
+        <div className="relative w-full h-full">
           {/* SVG 지도 */}
           <MapSVG />
 
@@ -100,41 +70,22 @@ const InteractiveMap: React.FC = () => {
             className="absolute inset-0 w-full h-full pointer-events-auto"
             preserveAspectRatio="xMidYMid meet"
           >
-            {/* 모든 마커가 공유하는 그라디언트와 필터 정의 */}
+            {/* 마커 정의 생략 - 기존 defs 사용 */}
             <defs>
               {DIVING_LOCATIONS.map((location) => {
                 const colors = getGradientColors(location.color)
                 return (
-                  <React.Fragment key={location.id}>
-                    <linearGradient
-                      id={`marker-gradient-${location.id}`}
-                      x1="0%"
-                      y1="0%"
-                      x2="0%"
-                      y2="100%"
-                    >
-                      <stop offset="0%" stopColor={colors.start} />
-                      <stop offset="100%" stopColor={colors.end} />
-                    </linearGradient>
-
-                    <filter
-                      id={`marker-shadow-${location.id}`}
-                      x="-50%"
-                      y="-50%"
-                      width="200%"
-                      height="200%"
-                    >
-                      <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
-                      <feOffset dx="0" dy="4" result="offsetblur" />
-                      <feComponentTransfer>
-                        <feFuncA type="linear" slope="0.5" />
-                      </feComponentTransfer>
-                      <feMerge>
-                        <feMergeNode />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </React.Fragment>
+                  <linearGradient
+                    key={location.id}
+                    id={`marker-gradient-${location.id}`}
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                  >
+                    <stop offset="0%" stopColor={colors.start} />
+                    <stop offset="100%" stopColor={colors.end} />
+                  </linearGradient>
                 )
               })}
             </defs>
@@ -144,10 +95,10 @@ const InteractiveMap: React.FC = () => {
                 key={location.id}
                 location={location}
                 isHovered={hoveredLocation === location.id}
-                isSelected={selectedLocation === location.id}
+                isSelected={false}
                 onHover={() => handleMarkerHover(location.id)}
                 onLeave={handleMarkerLeave}
-                onClick={() => handleMarkerClick(location.id)}
+                onClick={() => handleMarkerClick(location.path)}
               />
             ))}
           </svg>
@@ -157,39 +108,29 @@ const InteractiveMap: React.FC = () => {
             <LocationTooltip location={hoveredLocationData} />
           )}
         </div>
-
-        {/* 안내 텍스트 (모바일) */}
-        {!isDesktop && (
-          <div className="absolute bottom-4 left-0 right-0 text-center">
-            <p className="text-xs text-slate-400 bg-slate-900/80 inline-block px-4 py-2 rounded-full">
-              위치를 탭하여 상세 정보 보기
-            </p>
-          </div>
-        )}
       </div>
 
       {/* 범례 (Legend) */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {DIVING_LOCATIONS.map((location) => (
           <button
             key={location.id}
-            onClick={() => handleMarkerClick(location.id)}
+            onClick={() => handleMarkerClick(location.path)}
             onMouseEnter={() => handleMarkerHover(location.id)}
             onMouseLeave={handleMarkerLeave}
             className={`
-              glass-card rounded-lg p-3 text-left transition-all duration-300
-              hover:scale-105 hover:bg-white/10
-              ${selectedLocation === location.id ? 'ring-2 ring-parks-gold' : ''}
-              ${hoveredLocation === location.id ? 'bg-white/10' : ''}
+              glass-card rounded-xl p-4 text-left transition-all duration-300
+              hover:scale-105 hover:bg-white/10 border border-white/5
+              ${hoveredLocation === location.id ? 'bg-white/10 border-parks-gold/30' : ''}
             `}
           >
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">{location.icon}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{location.icon}</span>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-semibold text-sm truncate">
+                <p className="text-white font-bold text-lg">
                   {location.nameKo}
                 </p>
-                <p className="text-slate-400 text-xs truncate">{location.name}</p>
+                <p className="text-slate-400 text-xs truncate">{location.description}</p>
               </div>
             </div>
           </button>

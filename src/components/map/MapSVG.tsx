@@ -60,58 +60,31 @@ const MapSVG: React.FC = () => {
         <circle cx="800" cy="300" r="80" fill="url(#glow-gradient)" />
       </g>
 
-      {/* 필리핀 섬 그룹 (간소화된 형태) */}
-      <g id="philippines" opacity="0.8">
-        {/* 루손 섬 (북부) */}
-        <path
-          d="M 600,200 L 650,220 L 680,280 L 670,320 L 640,340 L 610,330 L 580,280 L 590,230 Z"
-          fill="url(#island-gradient)"
-          stroke="#64ffda"
-          strokeWidth="1"
-          opacity="0.7"
-          className="transition-all duration-500 hover:opacity-90 hover:stroke-ocean-teal"
-        />
+      {/* 동남아시아 섬 그룹 (간소화된 형태) */}
+      <g opacity="0.8">
+        {/* 필리핀 (동쪽) */}
+        <g id="philippines">
+          <ellipse cx="820" cy="350" rx="50" ry="80" fill="url(#island-gradient)" stroke="#64ffda" strokeWidth="1" opacity="0.7" />
+          <ellipse cx="860" cy="430" rx="30" ry="20" fill="url(#island-gradient)" stroke="#64ffda" strokeWidth="1" opacity="0.7" />
+          <ellipse cx="800" cy="550" rx="60" ry="40" fill="url(#island-gradient)" stroke="#64ffda" strokeWidth="1" opacity="0.7" />
+        </g>
 
-        {/* 비사야 제도 (중부 - 세부/보홀 지역) */}
-        <ellipse
-          cx="640"
-          cy="400"
-          rx="60"
-          ry="40"
-          fill="url(#island-gradient)"
-          stroke="#64ffda"
-          strokeWidth="1"
-          opacity="0.7"
-          className="transition-all duration-500 hover:opacity-90 hover:stroke-ocean-teal"
-        />
+        {/* 보르네오 (중앙 - 코타키나발루 위치) */}
+        <g id="borneo">
+          <path
+            d="M 450,500 L 650,520 L 680,680 L 550,720 L 400,650 Z"
+            fill="url(#island-gradient)"
+            stroke="#64ffda"
+            strokeWidth="1"
+            opacity="0.7"
+          />
+        </g>
 
-        {/* 보홀 섬 */}
-        <ellipse
-          cx="680"
-          cy="430"
-          rx="35"
-          ry="25"
-          fill="url(#island-gradient)"
-          stroke="#64ffda"
-          strokeWidth="1"
-          opacity="0.7"
-          className="transition-all duration-500 hover:opacity-90 hover:stroke-ocean-teal"
-        />
-
-        {/* 민다나오 섬 (남부) */}
-        <path
-          d="M 620,520 L 680,510 L 720,550 L 710,600 L 660,620 L 610,600 L 590,560 Z"
-          fill="url(#island-gradient)"
-          stroke="#64ffda"
-          strokeWidth="1"
-          opacity="0.7"
-          className="transition-all duration-500 hover:opacity-90 hover:stroke-ocean-teal"
-        />
-
-        {/* 작은 섬들 (장식) */}
-        <circle cx="560" cy="380" r="8" fill="url(#island-gradient)" opacity="0.6" />
-        <circle cx="720" cy="360" r="6" fill="url(#island-gradient)" opacity="0.6" />
-        <circle cx="650" cy="480" r="7" fill="url(#island-gradient)" opacity="0.6" />
+        {/* 자바 / 발리 (남쪽) */}
+        <g id="indonesia-south">
+          <rect x="200" y="740" width="400" height="30" rx="15" fill="url(#island-gradient)" stroke="#64ffda" strokeWidth="1" opacity="0.7" />
+          <ellipse cx="520" cy="755" rx="20" ry="15" fill="url(#island-gradient)" stroke="#64ffda" strokeWidth="1" opacity="0.7" />
+        </g>
       </g>
 
       {/* 그리드 라인 (선택적 - 좌표 확인용) */}

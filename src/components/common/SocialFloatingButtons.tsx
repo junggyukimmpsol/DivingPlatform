@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { FaWhatsapp, FaInstagram, FaFacebookMessenger, FaComments, FaTimes, FaGlobe } from 'react-icons/fa'
 import { useLanguage } from '../../contexts/LanguageContext'
 
@@ -77,66 +77,44 @@ const SocialFloatingButtons: React.FC = () => {
     },
   ]
 
-  const toggleExpanded = useCallback(() => {
-    setIsExpanded((prev) => !prev)
-  }, [])
-
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
-      {/* Main Toggle Button with 24/7 Badge */}
+    <div
+      className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end"
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => {
+        setIsExpanded(false)
+        setHoveredButton(null)
+      }}
+    >
+      {/* Main Toggle Button */}
       <button
-        onClick={toggleExpanded}
         aria-label={isExpanded ? t.floating.closeMenu : t.floating.mainButton}
         aria-expanded={isExpanded}
-        aria-controls="social-buttons-menu"
         className={`
-          relative flex h-16 w-16 items-center justify-center rounded-full
+          relative z-20 flex h-16 w-16 items-center justify-center rounded-full
           bg-gradient-to-br from-parks-gold via-amber-400 to-orange-500
           shadow-lg transition-all duration-300 ease-out
-          hover:scale-110 hover:shadow-xl
+          ${isExpanded ? 'scale-110 shadow-xl' : 'scale-100 shadow-lg'}
           focus:outline-none focus:ring-2 focus:ring-parks-gold focus:ring-offset-2 focus:ring-offset-slate-900
         `}
       >
-        {/* 24/7 Badge - 정적 (애니메이션 없음) */}
         <div className="absolute -top-1 -right-1 z-10">
-          <span className="
-            flex items-center justify-center
-            bg-green-500 text-white text-[9px] font-bold
-            px-1.5 py-0.5 rounded-full
-            border border-green-400 shadow-md
-          ">
+          <span className="flex items-center justify-center bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-green-400 shadow-md">
             {t.floating.badge24h}
           </span>
         </div>
-
-        {/* Icon */}
         <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
-          {isExpanded ? (
-            <FaTimes className="h-7 w-7 text-ocean-dark" />
-          ) : (
-            <FaComments className="h-7 w-7 text-ocean-dark" />
-          )}
+          {isExpanded ? <FaTimes className="h-7 w-7 text-ocean-dark" /> : <FaComments className="h-7 w-7 text-ocean-dark" />}
         </div>
       </button>
 
-      {/* Multilingual Header (when expanded) */}
+      {/* Multilingual Header (Simplified & Absolute) */}
       {isExpanded && (
-        <div
-          className="
-            glass-card rounded-xl px-4 py-3
-            text-center min-w-[200px]
-            transition-opacity duration-300
-          "
-        >
-          {/* Multilingual badge */}
-          <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="absolute bottom-[calc(100%+16px)] right-0 bg-slate-900/95 border border-white/10 rounded-xl px-4 py-2 text-center min-w-[200px] shadow-2xl pointer-events-none transition-opacity duration-300">
+          <div className="flex items-center justify-center gap-2 mb-1">
             <FaGlobe className="text-ocean-teal h-4 w-4" />
-            <span className="text-sm font-bold text-white">
-              {t.floating.multiLanguage}
-            </span>
+            <span className="text-sm font-bold text-white">{t.floating.multiLanguage}</span>
           </div>
-
-          {/* Language flags */}
           <div className="flex items-center justify-center gap-3 text-xs text-slate-300">
             <span>{LANGUAGE_FLAGS.ko} 한국어</span>
             <span>{LANGUAGE_FLAGS.en} English</span>
@@ -145,13 +123,10 @@ const SocialFloatingButtons: React.FC = () => {
         </div>
       )}
 
-      {/* Social Buttons */}
+      {/* Social Buttons Stack (Zero Gap) */}
       <div
-        id="social-buttons-menu"
-        role="menu"
-        aria-label={t.floating.multiLanguage}
         className={`
-          flex flex-col-reverse gap-3 transition-all duration-300
+          flex flex-col-reverse transition-all duration-300 mb-0
           ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}
         `}
       >
@@ -160,93 +135,75 @@ const SocialFloatingButtons: React.FC = () => {
           const isHovered = hoveredButton === button.id
 
           return (
-            <a
+            <div
               key={button.id}
-              href={button.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              role="menuitem"
-              aria-label={`${t.floating.channels[button.id].name} - ${t.floating.channels[button.id].description}`}
               className={`
-                flex items-center gap-3 transition-all duration-300 ease-out
+                relative flex items-center justify-center h-14 w-16
+                transition-all duration-300 ease-out
                 ${isExpanded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'}
               `}
-              style={{
-                transitionDelay: isExpanded ? `${index * 50}ms` : '0ms',
-              }}
+              style={{ transitionDelay: isExpanded ? `${index * 50}ms` : '0ms' }}
               onMouseEnter={() => setHoveredButton(button.id)}
               onMouseLeave={() => setHoveredButton(null)}
             >
-              {/* Enhanced Tooltip */}
+              {/* Tooltip (Absolute, Non-Hit Area) */}
               <div
                 className={`
-                  glass-card rounded-xl px-4 py-3 shadow-xl min-w-[180px]
+                  absolute right-full mr-4 pointer-events-none
+                  bg-slate-900 border border-white/10 rounded-xl px-4 py-3 shadow-2xl min-w-[180px]
                   transition-all duration-300
-                  ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
+                  ${isHovered ? 'opacity-100 translate-x-0 outline-none' : 'opacity-0 translate-x-4'}
                 `}
               >
-                {/* Channel name */}
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="font-bold text-white text-sm">
-                    {t.floating.channels[button.id].name}
-                  </span>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="font-bold text-white text-sm">{t.floating.channels[button.id].name}</span>
                   {button.isPrimary && (
-                    <span className="bg-parks-gold/20 text-parks-gold text-[10px] px-2 py-0.5 rounded-full font-medium">
-                      추천
-                    </span>
+                    <span className="bg-parks-gold/20 text-parks-gold text-[10px] px-2 py-0.5 rounded-full font-medium">추천</span>
                   )}
                 </div>
-
-                {/* Description */}
-                <p className="text-xs text-slate-400 mb-2">
-                  {t.floating.channels[button.id].description}
-                </p>
-
-                {/* Supported languages */}
-                <div className="flex items-center gap-1.5 text-xs mb-1.5">
+                <p className="text-[11px] text-slate-400 mb-1.5">{t.floating.channels[button.id].description}</p>
+                <div className="flex items-center gap-1.5 text-[10px] mb-1">
                   <span className="text-slate-500">{t.floating.languageSupport}:</span>
                   <div className="flex gap-1">
-                    {button.supportedLanguages.map((lang) => (
-                      <span key={lang} className="text-base">
-                        {LANGUAGE_FLAGS[lang]}
-                      </span>
+                    {button.supportedLanguages.map(lang => (
+                      <span key={lang}>{LANGUAGE_FLAGS[lang]}</span>
                     ))}
                   </div>
                 </div>
-
-                {/* Response time indicator */}
-                <div className="flex items-center gap-1.5 text-xs">
-                  <div className="h-2 w-2 rounded-full bg-green-500" />
+                <div className="flex items-center gap-1.5 text-[10px]">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
                   <span className="text-green-400">
                     {button.responseTime === 'instant' ? t.floating.instant : t.floating.within1h}
                   </span>
                 </div>
               </div>
 
-              {/* Button */}
-              <div
+              {/* Tighter Icon Anchor */}
+              <a
+                href={button.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={`
-                  relative flex h-14 w-14 items-center justify-center rounded-full
+                  flex h-14 w-14 items-center justify-center rounded-full
                   ${button.bgColor} shadow-lg transition-all duration-300
-                  hover:scale-110 ${button.hoverShadow}
-                  focus:outline-none
+                  hover:scale-105 ${button.hoverShadow} focus:outline-none
                 `}
               >
-                <Icon
-                  className={`h-6 w-6 ${button.id === 'kakao' ? 'fill-[#3C1E1E]' : 'text-white'} drop-shadow-sm`}
-                />
-              </div>
-            </a>
+                <Icon className={`h-6 w-6 ${button.id === 'kakao' ? 'fill-[#3C1E1E]' : 'text-white'} drop-shadow-sm`} />
+              </a>
+            </div>
           )
         })}
       </div>
 
-      {/* Backdrop overlay when expanded */}
+      {/* Backdrop (Hit area fallback) */}
       {isExpanded && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm -z-10 transition-opacity duration-300"
-          onClick={toggleExpanded}
-          aria-hidden="true"
+          className="fixed inset-0 -z-10 bg-black/5"
+          onMouseEnter={() => {
+            setIsExpanded(false)
+            setHoveredButton(null)
+          }}
         />
       )}
     </div>

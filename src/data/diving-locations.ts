@@ -35,7 +35,7 @@ export const MAP_CONFIG: MapConfig = {
 
 // 다이빙 지점 데이터
 export const DIVING_LOCATIONS: DivingLocation[] = [
-  // 세부 (Cebu)
+  // 필리핀 - 세부 (Cebu)
   {
     id: 'cebu',
     name: 'Cebu',
@@ -43,16 +43,16 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     coordinates: {
       lat: 10.3157,
       lng: 123.8854,
-      x: 640, // SVG X 좌표
+      x: 820, // SVG X 좌표 (동쪽)
       y: 380, // SVG Y 좌표
     },
     color: 'from-blue-500 to-blue-700',
     icon: '🏝️',
     description: 'PADI 5 Star 공식 리조트',
-    detailsRef: 0, // LocationsSection의 첫 번째 카드
+    path: '/philippines/cebu',
   },
 
-  // 보홀 (Bohol)
+  // 필리핀 - 보홀 (Bohol)
   {
     id: 'bohol',
     name: 'Bohol',
@@ -60,47 +60,47 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     coordinates: {
       lat: 9.8500,
       lng: 124.1435,
-      x: 680, // SVG X 좌표
+      x: 860, // SVG X 좌표
       y: 430, // SVG Y 좌표
     },
     color: 'from-purple-500 to-purple-700',
     icon: '🌊',
     description: '청정 다이빙 포인트',
-    detailsRef: 1, // LocationsSection의 두 번째 카드
+    path: '/philippines/bohol',
   },
 
-  // 막탄 (Mactan)
+  // 말레이시아 - 코타키나발루 (Kota Kinabalu)
   {
-    id: 'mactan',
-    name: 'Mactan',
-    nameKo: '막탄',
+    id: 'kota-kinabalu',
+    name: 'Kota Kinabalu',
+    nameKo: '코타키나발루',
     coordinates: {
-      lat: 10.3117,
-      lng: 123.9625,
-      x: 660, // SVG X 좌표
-      y: 385, // SVG Y 좌표
+      lat: 5.9804,
+      lng: 116.0735,
+      x: 550, // SVG X 좌표 (서남쪽)
+      y: 580, // SVG Y 좌표
     },
     color: 'from-emerald-500 to-emerald-700',
     icon: '🐠',
-    description: '접근성 좋은 다이빙',
-    detailsRef: 2, // LocationsSection의 세 번째 카드
+    description: '선셋과 다이빙의 조화',
+    path: '/malaysia/kota-kinabalu',
   },
 
-  // 모알보알 (Moalboal)
+  // 인도네시아 - 발리 (Bali)
   {
-    id: 'moalboal',
-    name: 'Moalboal',
-    nameKo: '모알보알',
+    id: 'bali',
+    name: 'Bali',
+    nameKo: '발리',
     coordinates: {
-      lat: 9.9467,
-      lng: 123.3947,
-      x: 600, // SVG X 좌표
-      y: 420, // SVG Y 좌표
+      lat: -8.3405,
+      lng: 115.092,
+      x: 520, // SVG X 좌표 (최남단)
+      y: 750, // SVG Y 좌표
     },
     color: 'from-orange-500 to-orange-700',
     icon: '🐢',
-    description: '정어리 런 명소',
-    detailsRef: 3, // LocationsSection의 네 번째 카드
+    description: '4개의 지점 운영 중',
+    path: '/indonesia/bali',
   },
 ]
 

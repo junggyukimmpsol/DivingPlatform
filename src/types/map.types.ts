@@ -19,8 +19,8 @@ export interface DivingLocation {
   color: string // Tailwind gradient class (e.g., 'from-blue-500 to-blue-700')
   icon: string // Emoji or icon
   description: string
-  // LocationsSection 데이터 참조 인덱스
-  detailsRef: number
+  path: string // URL path for navigation
+  detailsRef?: number // Optional for legacy support
 }
 
 export interface MapConfig {
