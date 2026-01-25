@@ -1,43 +1,73 @@
-import React, { useState, useCallback } from 'react'
-import MapSVG from './MapSVG'
-import LocationMarker from './LocationMarker'
-import LocationTooltip from './LocationTooltip'
-import { DIVING_LOCATIONS, MAP_CONFIG } from '../../data/diving-locations'
-import { getGradientColors } from '../../utils/map-coordinates'
+import React, { useRef, useEffect } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import L from 'leaflet'
+import { DIVING_LOCATIONS } from '../../data/diving-locations'
+import { useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
 
-import { useNavigate } from 'react-router-dom'
+// Fix for default marker icon issues in React Leaflet
+import 'leaflet/dist/leaflet.css'
 
 // 상수 정의
 const DESKTOP_BREAKPOINT = '(min-width: 768px)'
 
-/**
- * 2D 인터랙티브 다이빙 지도 메인 컴포넌트
- */
+// Map Controller to handle flyTo animations
+const MapController = ({
+  selectedLocationId
+}: {
+  selectedLocationId: string | null
+}) => {
+  const map = useMap()
+
+  useEffect(() => {
+    if (selectedLocationId) {
+      const location = DIVING_LOCATIONS.find(loc => loc.id === selectedLocationId)
+      if (location) {
+        map.flyTo([location.coordinates.lat, location.coordinates.lng], 10, {
+          duration: 1.5
+        })
+      }
+    }
+  }, [selectedLocationId, map])
+
+  return null
+}
+
 const InteractiveMap: React.FC = () => {
-  const [hoveredLocation, setHoveredLocation] = useState<string | null>(null)
   const navigate = useNavigate()
-
-  // 반응형 감지 (useMediaQuery 훅 사용)
   const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT)
+  const [selectedLocationId, setSelectedLocationId] = React.useState<string | null>(null)
 
-  // 마커 클릭 핸들러 - 지역 페이지로 이동
-  const handleMarkerClick = useCallback((path: string) => {
+  // Center map on South East Asia
+  const centerPosition: [number, number] = [5.0, 120.0]
+  const zoomLevel = isDesktop ? 5 : 4
+
+  const handleLocationClick = (locationId: string) => {
+    setSelectedLocationId(locationId)
+  }
+
+  const handleNavigate = (path: string) => {
     navigate(path)
-  }, [navigate])
+  }
 
-  // 호버 핸들러들
-  const handleMarkerHover = useCallback((locationId: string) => {
-    setHoveredLocation(locationId)
-  }, [])
-
-  const handleMarkerLeave = useCallback(() => {
-    setHoveredLocation(null)
-  }, [])
-
-  const hoveredLocationData = hoveredLocation
-    ? DIVING_LOCATIONS.find(loc => loc.id === hoveredLocation)
-    : null
+  // Create custom icon for markers
+  const createCustomIcon = (icon: string, color: string) => {
+    return L.divIcon({
+      className: 'custom-marker',
+      html: `
+        <div class="relative group cursor-pointer">
+          <div class="absolute -inset-2 bg-gradient-to-r ${color} rounded-full opacity-75 group-hover:opacity-100 blur transition duration-200 animate-pulse"></div>
+          <div class="relative w-10 h-10 bg-slate-900 border-2 border-white rounded-full flex items-center justify-center text-2xl shadow-xl transform transition duration-200 group-hover:scale-110">
+            ${icon}
+          </div>
+          <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-slate-900"></div>
+        </div>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 48], // Point adjusts to bottom center
+      popupAnchor: [0, -50],
+    })
+  }
 
   return (
     <div className="relative w-full">
@@ -47,102 +77,145 @@ const InteractiveMap: React.FC = () => {
           지역 선택
         </h3>
         <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto">
-          관심 있는 국가와 지역을 지도의 마커나 아래 리스트에서 클릭하세요.
-          각 지역은 독립적인 공간으로 구성되어 있습니다.
+          지도에서 원하는 위치를 선택하여 Parks의 다이빙 센터를 확인하세요.
         </p>
       </div>
 
-      {/* 2D 지도 컨테이너 */}
-      <div
-        className="relative w-full overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-ocean-dark"
-        style={{
-          height: isDesktop ? '600px' : '500px',
-        }}
-      >
-        {/* 2D 지도 레이어 */}
-        <div className="relative w-full h-full">
-          {/* SVG 지도 */}
-          <MapSVG />
-
-          {/* SVG 마커들 오버레이 */}
-          <svg
-            viewBox={`0 0 ${MAP_CONFIG.viewBox.width} ${MAP_CONFIG.viewBox.height}`}
-            className="absolute inset-0 w-full h-full pointer-events-auto"
-            preserveAspectRatio="xMidYMid meet"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Map Container */}
+        <div className="lg:col-span-2 h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative z-0">
+          <MapContainer
+            center={centerPosition}
+            zoom={zoomLevel}
+            scrollWheelZoom={false}
+            className="w-full h-full bg-slate-900"
+            attributionControl={false} // Custom placing attribution if needed
           >
-            {/* 마커 정의 생략 - 기존 defs 사용 */}
-            <defs>
-              {DIVING_LOCATIONS.map((location) => {
-                const colors = getGradientColors(location.color)
-                return (
-                  <linearGradient
-                    key={location.id}
-                    id={`marker-gradient-${location.id}`}
-                    x1="0%"
-                    y1="0%"
-                    x2="0%"
-                    y2="100%"
-                  >
-                    <stop offset="0%" stopColor={colors.start} />
-                    <stop offset="100%" stopColor={colors.end} />
-                  </linearGradient>
-                )
-              })}
-            </defs>
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              className="map-tiles-filter" // We will add CSS to invert/darken tiles
+            />
+
+            <MapController selectedLocationId={selectedLocationId} />
 
             {DIVING_LOCATIONS.map((location) => (
-              <LocationMarker
+              <Marker
                 key={location.id}
-                location={location}
-                isHovered={hoveredLocation === location.id}
-                isSelected={false}
-                onHover={() => handleMarkerHover(location.id)}
-                onLeave={handleMarkerLeave}
-                onClick={() => handleMarkerClick(location.path)}
-              />
+                position={[location.coordinates.lat, location.coordinates.lng]}
+                icon={createCustomIcon(location.icon, location.color)}
+                eventHandlers={{
+                  click: () => handleLocationClick(location.id)
+                }}
+              >
+                <Popup className="custom-popup">
+                  <div className="text-center p-2 min-w-[200px]">
+                    <h3 className="font-display font-bold text-lg mb-1">{location.nameKo} ({location.name})</h3>
+                    <p className="text-sm text-gray-600 mb-3">{location.description}</p>
+                    <button
+                      onClick={() => handleNavigate(location.path)}
+                      className="w-full px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors"
+                    >
+                      자세히 보기
+                    </button>
+                  </div>
+                </Popup>
+              </Marker>
             ))}
-          </svg>
+          </MapContainer>
 
-          {/* 툴팁 */}
-          {hoveredLocationData && (
-            <LocationTooltip location={hoveredLocationData} />
-          )}
+          {/* Custom Attribution for Dark Mode aesthetic */}
+          <div className="absolute bottom-1 right-1 bg-black/50 px-2 py-1 rounded text-[10px] text-white/50 z-[1000] pointer-events-none">
+            © OpenStreetMap contributors
+          </div>
+        </div>
+
+        {/* Sidebar List */}
+        <div className="hidden lg:flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+          {DIVING_LOCATIONS.map((location) => (
+            <div
+              key={location.id}
+              onClick={() => handleLocationClick(location.id)}
+              className={`
+                text-left p-5 rounded-xl border transition-all duration-300 group cursor-pointer relative
+                ${selectedLocationId === location.id
+                  ? 'bg-white/10 border-parks-gold/50 shadow-lg scale-[1.02]'
+                  : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
+                }
+              `}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`
+                    w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform
+                `}>
+                  {location.icon}
+                </div>
+                <div>
+                  <h4 className="font-bold text-white text-lg">{location.nameKo}</h4>
+                  <p className="text-slate-400 text-sm">{location.name}</p>
+                </div>
+              </div>
+              <p className="mt-3 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-3 mb-3">
+                {location.description}
+              </p>
+
+              {/* Detailed View Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleNavigate(location.path)
+                }}
+                className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-slate-300 transition-colors flex items-center justify-center gap-2 group-hover:border-white/20 z-10 relative"
+              >
+                <span>자세히 보기</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 범례 (Legend) */}
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Mobile grid for locations (below map) */}
+      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
         {DIVING_LOCATIONS.map((location) => (
           <button
             key={location.id}
-            onClick={() => handleMarkerClick(location.path)}
-            onMouseEnter={() => handleMarkerHover(location.id)}
-            onMouseLeave={handleMarkerLeave}
+            onClick={() => handleLocationClick(location.id)}
             className={`
-              glass-card rounded-xl p-4 text-left transition-all duration-300
-              hover:scale-105 hover:bg-white/10 border border-white/5
-              ${hoveredLocation === location.id ? 'bg-white/10 border-parks-gold/30' : ''}
-            `}
+                text-left p-4 rounded-xl border transition-all duration-300
+                ${selectedLocationId === location.id
+                ? 'bg-white/10 border-parks-gold/50'
+                : 'glass-card border-white/5'
+              }
+              `}
           >
             <div className="flex items-center gap-3">
-              <span className="text-3xl">{location.icon}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-lg">
-                  {location.nameKo}
-                </p>
-                <p className="text-slate-400 text-xs truncate">{location.description}</p>
+              <span className="text-2xl">{location.icon}</span>
+              <div>
+                <h4 className="font-bold text-white">{location.nameKo}</h4>
+                <p className="text-xs text-slate-400">{location.description}</p>
               </div>
             </div>
           </button>
         ))}
       </div>
 
-      {/* 컨트롤 힌트 */}
-      <div className="mt-6 text-center">
-        <p className="text-sm text-ocean-teal font-medium">
-          💡 Tip: 지도를 호버하면 더 많은 정보를 볼 수 있습니다
-        </p>
-      </div>
+      <style>{`
+        .map-tiles-filter {
+          filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+        .leaflet-popup-content-wrapper {
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(10px);
+          border-radius: 1rem;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .leaflet-popup-tip {
+          background: rgba(255, 255, 255, 0.95);
+        }
+      `}</style>
     </div>
   )
 }
