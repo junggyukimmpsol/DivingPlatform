@@ -157,9 +157,8 @@ const VideoGallerySection: React.FC = () => {
 
               {/* Controls */}
               <div
-                className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-300 ${
-                  isHovered || !isPlaying ? 'opacity-100' : 'opacity-0'
-                }`}
+                className={`absolute top-4 right-4 flex gap-2 transition-opacity duration-300 ${isHovered || !isPlaying ? 'opacity-100' : 'opacity-0'
+                  }`}
               >
                 <button
                   onClick={toggleMute}
@@ -198,11 +197,10 @@ const VideoGallerySection: React.FC = () => {
               <button
                 key={video.id}
                 onClick={() => handleVideoChange(index)}
-                className={`group relative overflow-hidden rounded-2xl transition-all duration-300 ${
-                  activeVideo === index
+                className={`group relative overflow-hidden rounded-2xl transition-all duration-300 ${activeVideo === index
                     ? 'ring-2 ring-parks-gold shadow-glow-gold'
                     : 'hover:ring-1 hover:ring-white/30'
-                }`}
+                  }`}
               >
                 <div className="aspect-video relative">
                   <video
@@ -214,14 +212,12 @@ const VideoGallerySection: React.FC = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
 
                   {/* Play indicator */}
-                  <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${
-                    activeVideo === index ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                  }`}>
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-full ${
-                      activeVideo === index
+                  <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${activeVideo === index ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    }`}>
+                    <div className={`flex h-12 w-12 items-center justify-center rounded-full ${activeVideo === index
                         ? 'bg-parks-gold text-ocean-dark'
                         : 'bg-white/20 backdrop-blur-sm text-white'
-                    }`}>
+                      }`}>
                       {activeVideo === index && isPlaying ? (
                         <FaPause className="h-4 w-4" />
                       ) : (
@@ -263,7 +259,7 @@ const VideoGallerySection: React.FC = () => {
               </p>
             </div>
             <a
-              href="https://pf.kakao.com/_xhhbxcn"
+              href="http://pf.kakao.com/_xhhbxcn/chat"
               target="_blank"
               rel="noopener noreferrer"
               className="flex-shrink-0 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-parks-gold to-amber-400 px-8 py-3 font-body font-bold text-ocean-dark transition-all hover:scale-105 hover:shadow-glow-gold"

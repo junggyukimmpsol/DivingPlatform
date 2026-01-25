@@ -1,22 +1,82 @@
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom'
-// Note: These tabs will be refined later as requested by the user
-// For now, they are blocks within the BranchPage or separate components
+import React, { useRef, useState, useEffect } from 'react'
+import { useLocation, useSearchParams } from 'react-router-dom'
+import { DIVING_LOCATIONS } from '../data/diving-locations'
+// Note: Tabs are now managed by the Navigation component in Tier 2
 
 const BranchPage: React.FC = () => {
-  const { region, branch } = useParams<{ region: string; branch: string }>()
-  const [activeTab, setActiveTab] = useState<'intro' | 'tours' | 'reviews'>('intro')
+  const { pathname } = useLocation()
+  const [searchParams] = useSearchParams()
+  const activeTab = searchParams.get('tab') || 'intro'
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Mock data based on route
-  const getBranchData = () => {
-    if (branch === 'cebu') return { name: '세부 (Cebu)', flag: '🇵🇭' }
-    if (branch === 'bohol') return { name: '보홀 (Bohol)', flag: '🇵🇭' }
-    if (branch === 'kota-kinabalu') return { name: '코타키나발루 (Kota Kinabalu)', flag: '🇲🇾' }
-    if (branch === 'bali') return { name: '발리 (Bali)', flag: '🇮🇩', note: '발리에는 4개의 지점이 운영되고 있습니다.' }
-    return { name: branch || region, flag: '🌊' }
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const checkScrollLimits = () => {
+    if (!scrollContainerRef.current) return
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+    setCanScrollLeft(scrollLeft > 10)
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
   }
 
-  const data = getBranchData()
+  useEffect(() => {
+    const container = scrollContainerRef.current
+    if (container) {
+      checkScrollLimits()
+      container.addEventListener('scroll', checkScrollLimits)
+      window.addEventListener('resize', checkScrollLimits)
+      return () => {
+        container.removeEventListener('scroll', checkScrollLimits)
+        window.removeEventListener('resize', checkScrollLimits)
+      }
+    }
+  }, [activeTab]) // Re-run when tab changes as content might change
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (!scrollContainerRef.current) return
+    const scrollAmount = scrollContainerRef.current.clientWidth * 0.8
+    scrollContainerRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth'
+    })
+  }
+
+  const currentBranch = DIVING_LOCATIONS.find(loc => loc.path === pathname)
+
+  const BRANCH_GALLERIES: Record<string, { type: 'image' | 'video', src: string, alt?: string }[]> = {
+    cebu: [
+      { type: 'image', src: '/assets/cebu/cebu-intro-1.jpeg', alt: 'Cebu 1' },
+      { type: 'image', src: '/assets/cebu/cebu-intro-2.jpeg', alt: 'Cebu 2' },
+      { type: 'image', src: '/assets/cebu/cebu-intro-3.jpeg', alt: 'Cebu 3' },
+      { type: 'video', src: '/assets/cebu/cebu-intro-video-1.mp4' },
+      { type: 'video', src: '/assets/cebu/cebu-intro-video-2.mp4' },
+      { type: 'video', src: '/assets/cebu/cebu-intro-video-3.mp4' },
+    ],
+    bohol: [
+      { type: 'image', src: '/assets/bohol/bohol-intro-1.jpeg', alt: 'Bohol 1' },
+      { type: 'image', src: '/assets/bohol/bohol-intro-2.jpeg', alt: 'Bohol 2' },
+      { type: 'video', src: '/assets/bohol/bohol-intro-video-1.mp4' },
+      { type: 'video', src: '/assets/bohol/bohol-intro-video-2.mp4' },
+    ],
+    'kota-kinabalu': [
+      { type: 'image', src: '/assets/kota-kinabalu/kk-intro-1.jpeg', alt: 'Kota Kinabalu 1' },
+      { type: 'image', src: '/assets/kota-kinabalu/kk-intro-2.jpeg', alt: 'Kota Kinabalu 2' },
+      { type: 'video', src: '/assets/kota-kinabalu/kk-intro-video-1.mp4' },
+      { type: 'video', src: '/assets/kota-kinabalu/kk-intro-video-2.mp4' },
+    ],
+    bali: [
+      { type: 'video', src: '/assets/bali/bali-intro-video-1.mp4' },
+      { type: 'video', src: '/assets/bali/bali-intro-video-2.mp4' },
+      { type: 'video', src: '/assets/bali/bali-intro-video-3.mp4' },
+      { type: 'video', src: '/assets/bali/bali-intro-video-4.mp4' },
+    ],
+  }
+
+  if (!currentBranch) {
+    return <div className="pt-24 text-center text-white">지점을 찾을 수 없습니다.</div>
+  }
+
+  const gallery = BRANCH_GALLERIES[currentBranch.id]
 
   return (
     <div className="pt-24 pb-20">
@@ -24,41 +84,20 @@ const BranchPage: React.FC = () => {
         {/* Branch Header */}
         <div className="mb-12">
           <div className="flex items-center gap-4 mb-4">
-            <span className="text-4xl">{data.flag}</span>
-            <span className="text-sm font-bold text-parks-gold uppercase tracking-widest">{region}</span>
+            <span className="text-4xl">{currentBranch.icon}</span>
+            <span className="text-sm font-bold text-parks-gold uppercase tracking-widest">
+              {pathname.split('/')[1]}
+            </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-            {data.name}
+            {currentBranch.nameKo} ({currentBranch.name})
           </h1>
-          {data.note && (
-            <p className="text-parks-gold font-medium">{data.note}</p>
+          {currentBranch.id === 'bali' && (
+            <p className="text-parks-gold font-medium">발리에는 4개의 지점이 운영되고 있습니다.</p>
           )}
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10 mb-8 w-full md:w-fit">
-          <button
-            onClick={() => setActiveTab('intro')}
-            className={`flex-1 md:flex-none px-8 py-3 rounded-lg font-bold transition-all ${activeTab === 'intro' ? 'bg-parks-gold text-ocean-dark shadow-lg' : 'text-slate-400 hover:text-white'
-              }`}
-          >
-            소개
-          </button>
-          <button
-            onClick={() => setActiveTab('tours')}
-            className={`flex-1 md:flex-none px-8 py-3 rounded-lg font-bold transition-all ${activeTab === 'tours' ? 'bg-parks-gold text-ocean-dark shadow-lg' : 'text-slate-400 hover:text-white'
-              }`}
-          >
-            투어 & 가격
-          </button>
-          <button
-            onClick={() => setActiveTab('reviews')}
-            className={`flex-1 md:flex-none px-8 py-3 rounded-lg font-bold transition-all ${activeTab === 'reviews' ? 'bg-parks-gold text-ocean-dark shadow-lg' : 'text-slate-400 hover:text-white'
-              }`}
-          >
-            리뷰
-          </button>
-        </div>
+        {/* Content Area (Tabs are in the Navigation bar) */}
 
         {/* Tab Content */}
         <div className="min-h-[400px]">
@@ -67,12 +106,79 @@ const BranchPage: React.FC = () => {
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">지점 특징 및 갤러리</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  {data.name}의 멋진 다이빙 스팟과 시설을 소개합니다. (상세 내용은 추후 업데이트 예정)
+                  {currentBranch.nameKo}의 멋진 다이빙 스팟과 시설을 소개합니다. (상세 내용은 추후 업데이트 예정)
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600">Photo Placeholder</div>
-                  <div className="aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600">Photo Placeholder</div>
-                  <div className="aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600">Video Placeholder</div>
+
+                <div className="relative group">
+                  <div
+                    ref={scrollContainerRef}
+                    className="flex overflow-x-auto gap-4 pb-6 scrollbar-hide snap-x snap-mandatory"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {gallery && gallery.length > 0 ? (
+                      gallery.map((item, index) => (
+                        <div key={index} className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 overflow-hidden snap-start">
+                          {item.type === 'video' ? (
+                            <video
+                              src={item.src}
+                              className="w-full h-full object-cover"
+                              controls
+                              muted
+                              loop
+                              playsInline
+                            />
+                          ) : (
+                            <img
+                              src={item.src}
+                              alt={item.alt}
+                              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                            />
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600 font-medium snap-start">
+                          Photo Placeholder
+                        </div>
+                        <div className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600 font-medium snap-start">
+                          Photo Placeholder
+                        </div>
+                        <div className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600 font-medium snap-start">
+                          Video Placeholder
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {gallery && gallery.length > 3 && (
+                    <>
+                      <button
+                        onClick={() => scroll('left')}
+                        disabled={!canScrollLeft}
+                        className={`absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
+                          ${canScrollLeft
+                            ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                            : 'opacity-50 grayscale pointer-events-none'}`}
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => scroll('right')}
+                        disabled={!canScrollRight}
+                        className={`absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
+                          ${canScrollRight
+                            ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                            : 'opacity-50 grayscale pointer-events-none'}`}
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

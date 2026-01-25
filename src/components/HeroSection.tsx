@@ -138,7 +138,7 @@ const HeroSection = () => {
           >
             {/* Primary CTA */}
             <a
-              href="https://pf.kakao.com/_xhhbxcn"
+              href="http://pf.kakao.com/_xhhbxcn/chat"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative overflow-hidden rounded-full bg-gradient-to-r from-parks-gold via-amber-400 to-parks-gold-light px-10 py-4 shadow-glow-gold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(251,191,36,0.5)] active:scale-95"

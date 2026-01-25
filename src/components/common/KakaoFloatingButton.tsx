@@ -5,7 +5,7 @@ const KakaoFloatingButton: React.FC = () => {
 
   return (
     <a
-      href="https://pf.kakao.com/_xhhbxcn"
+      href="http://pf.kakao.com/_xhhbxcn/chat"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="카카오톡으로 상담하기"

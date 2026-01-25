@@ -72,7 +72,7 @@ const EventsSection = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row mb-8">
               <a
-                href="https://pf.kakao.com/_xhhbxcn"
+                href="http://pf.kakao.com/_xhhbxcn/chat"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full transform rounded-full bg-[#FEE500] px-8 py-4 text-lg font-bold text-[#3C1E1E] shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-[#FEE500]/50 sm:w-auto flex items-center justify-center gap-2"
