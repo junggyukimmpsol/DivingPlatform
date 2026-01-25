@@ -43,17 +43,14 @@ const Navigation: React.FC = () => {
             {/* Logo */}
             <Link
               to="/"
-              className="group flex items-center gap-3 transition-all duration-300 hover:scale-105"
+              className="group flex items-center transition-all duration-300 hover:scale-105"
             >
-              <div className="relative">
-                <div className="absolute inset-0 bg-parks-gold/30 rounded-xl blur-lg group-hover:bg-parks-gold/50 transition-all duration-300"></div>
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-parks-gold to-amber-500 shadow-lg">
-                  <span className="text-lg font-bold text-ocean-dark">P</span>
-                </div>
-              </div>
-              <div className="flex flex-col">
-                <span className="font-display text-xl font-bold text-white tracking-tight leading-tight">Parks</span>
-                <span className="text-[10px] font-body font-medium text-parks-gold tracking-widest uppercase">Local Diving</span>
+              <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-white/10 shadow-lg group-hover:border-parks-gold/50 transition-all duration-300">
+                <img
+                  src="/dive_logo.jpg"
+                  alt="Parks Local Diving Logo"
+                  className="h-full w-full object-cover"
+                />
               </div>
             </Link>
 

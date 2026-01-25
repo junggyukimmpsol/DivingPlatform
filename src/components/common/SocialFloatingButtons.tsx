@@ -80,7 +80,6 @@ const SocialFloatingButtons: React.FC = () => {
   return (
     <div
       className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end"
-      onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => {
         setIsExpanded(false)
         setHoveredButton(null)
@@ -88,6 +87,7 @@ const SocialFloatingButtons: React.FC = () => {
     >
       {/* Main Toggle Button */}
       <button
+        onMouseEnter={() => setIsExpanded(true)}
         aria-label={isExpanded ? t.floating.closeMenu : t.floating.mainButton}
         aria-expanded={isExpanded}
         className={`

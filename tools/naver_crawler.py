@@ -46,34 +46,8 @@ async def scrape_naver_smartstore(url):
 
             print(f"Product: {product_info['name']} | Price: {product_info['price']}")
 
-            # 2. Scrape Detailed Description (Text + Images)
-            print("Scraping detailed description content...")
-            await page.evaluate("window.scrollTo(0, 1000)")
-            await page.wait_for_timeout(1000)
-            await page.evaluate("window.scrollTo(0, 3000)")
-            await page.wait_for_timeout(1000)
-
-            container = await page.query_selector('.se-main-container') or \
-                        await page.query_selector('#INTRODUCE')
-
-            if container:
-                items = await container.query_selector_all('.se-component, .se-section')
-                for item in items:
-                    item_type = await item.get_attribute('class')
-
-                    if 'se-text' in item_type:
-                        text = await item.inner_text()
-                        if text.strip():
-                            product_info['description'].append({"type": "text", "content": text.strip()})
-
-                    elif 'se-image' in item_type or await item.query_selector('img'):
-                        imgs = await item.query_selector_all('img')
-                        for img in imgs:
-                            src = await img.get_attribute('src')
-                            data_src = await img.get_attribute('data-src')
-                            img_url = data_src or src
-                            if img_url and 'http' in img_url:
-                                product_info['description'].append({"type": "image", "content": img_url})
+            # 2. Skip Detailed Description (As requested)
+            print("Skipping detailed description scraping...")
 
             # 3. Go to Reviews Tab
             print("Looking for 'Reviews' tab...")
@@ -93,28 +67,72 @@ async def scrape_naver_smartstore(url):
                     await review_tab.click()
                     await page.wait_for_timeout(3000)
 
-            # 4. Scrape Reviews (Limit 10)
+            # 4. Scrape Reviews (Limit 10, Detailed)
             print("Scraping top 10 reviews...")
+
+            # Wait for reviews to load
+            await page.wait_for_selector('li[class*="ReviewList_item"], li.V5XROudBPi', timeout=10000)
+
             review_items = await page.query_selector_all('li[class*="ReviewList_item"]') or \
                            await page.query_selector_all('li.V5XROudBPi')
 
             target_items = review_items[:10]
-            for item in target_items:
+            for i, item in enumerate(target_items):
                 try:
+                    print(f"Processing review {i+1}...")
+
+                    # Click "More" button if exists to expand content
+                    # Often classes like ._2sRzW, .ReviewContent_more_btn
+                    more_btns = await item.query_selector_all('button[class*="more"], button[class*="ReviewContent_button"]')
+                    for btn in more_btns:
+                        if await btn.is_visible():
+                            await btn.click()
+                            await page.wait_for_timeout(300)
+
+                    # Extract Data
                     rating_el = await item.query_selector('em')
-                    rating = re.search(r'\d', await rating_el.inner_text()).group(0) if rating_el else "0"
+                    rating = re.search(r'\d+', await rating_el.inner_text()).group(0) if rating_el else "0"
+
                     writer_el = await item.query_selector('strong')
                     writer = await writer_el.inner_text() if writer_el else "N/A"
-                    content_el = await item.query_selector('span[class*="ReviewContent"]') or \
-                                 await item.query_selector('div[class*="ReviewContent"]')
+
+                    # Option
+                    # Often in div[class*="ReviewContent_option"] or similar
+                    option = "N/A"
+                    option_el = await item.query_selector('[class*="ReviewContent_option"], [class*="ReviewContent_text_option"]')
+                    if option_el:
+                        option = await option_el.inner_text()
+                        option = option.replace("선택옵션", "").strip()
+
+                    # Content
+                    content_el = await item.query_selector('span[class*="ReviewContent"], div[class*="ReviewContent_text"]')
                     content = await content_el.inner_text() if content_el else "N/A"
+
+                    # Date
                     date_match = re.search(r'\d{2}\.\d{2}\.\d{2}\.', await item.inner_text())
                     date = date_match.group(0) if date_match else "N/A"
 
+                    # Images
+                    images = []
+                    # Review images usually in ul > li > img or div > img
+                    img_els = await item.query_selector_all('img[src*="review"], img[class*="ReviewContent_image"]')
+                    for img in img_els:
+                        src = await img.get_attribute('src')
+                        if src:
+                            # Cleanup thumbnail params if needed, but keeping original is usually safer for availability
+                            images.append(src)
+
                     review_data.append({
-                        "writer": writer, "rating": rating, "date": date, "content": content.strip().replace('\n', ' ')
+                        "writer": writer,
+                        "rating": rating,
+                        "date": date,
+                        "option": option,
+                        "content": content.strip(),
+                        "images": images
                     })
-                except: continue
+                except Exception as e:
+                    print(f"Error processing review {i+1}: {e}")
+                    continue
 
         except Exception as e:
             print(f"Error: {e}")
@@ -123,33 +141,8 @@ async def scrape_naver_smartstore(url):
             base_folder = "crawled_data"
             sub_folder = sanitize_filename(product_info['name'])
             target_dir = os.path.join(base_folder, sub_folder)
-            desc_dir = os.path.join(target_dir, "description")
 
             os.makedirs(target_dir, exist_ok=True)
-            os.makedirs(desc_dir, exist_ok=True)
-
-            # Save Description Blocks as Individual Files
-            print(f"\nSaving description files to {desc_dir}...")
-            for i, block in enumerate(product_info['description'], 1):
-                filename_prefix = f"{i:02d}"
-                if block['type'] == 'text':
-                    filepath = os.path.join(desc_dir, f"{filename_prefix}_text.txt")
-                    with open(filepath, 'w', encoding='utf-8') as f:
-                        f.write(block['content'])
-                elif block['type'] == 'image':
-                    img_url = block['content']
-                    # Try to guess extension
-                    ext = ".jpg"
-                    if "png" in img_url.lower(): ext = ".png"
-                    elif "webp" in img_url.lower(): ext = ".webp"
-
-                    filepath = os.path.join(desc_dir, f"{filename_prefix}_image{ext}")
-                    try:
-                        img_data = requests.get(img_url, timeout=10).content
-                        with open(filepath, 'wb') as f:
-                            f.write(img_data)
-                    except:
-                        print(f"Failed to download image: {img_url}")
 
             # Save Main JSON (Reviews and Basic Info)
             result = {
@@ -166,7 +159,7 @@ async def scrape_naver_smartstore(url):
                 json.dump(result, f, ensure_ascii=False, indent=2)
 
             print(f"\n[SUCCESS] Saved data to: {target_dir}")
-            print(f"Total files saved in description: {len(product_info['description'])}")
+            print(f"Total reviews saved: {len(review_data)}")
 
             print("\nClosing browser in 5 seconds...")
             await asyncio.sleep(5)

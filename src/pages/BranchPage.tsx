@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
+import { REVIEW_DATA } from '../data/reviewData'
+import { CenterId } from '../types/center.types'
 // Note: Tabs are now managed by the Navigation component in Tier 2
 
 const BranchPage: React.FC = () => {
@@ -223,19 +225,71 @@ const BranchPage: React.FC = () => {
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">리뷰</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  실제 다이버들의 생생한 후기입니다. (상세 내용은 추후 업데이트 예정)
+                  {currentBranch.nameKo}의 생생한 실제 이용 후기입니다.
                 </p>
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="p-6 bg-white/5 rounded-xl border border-white/5">
-                      <div className="flex justify-between mb-2">
-                        <span className="text-white font-bold">Diver {i}</span>
-                        <div className="text-parks-gold">★★★★★</div>
+
+                {(() => {
+                  const reviews = REVIEW_DATA[currentBranch.id as CenterId] || []
+
+                  return (
+                    <div className="relative group">
+                      <div
+                        ref={scrollContainerRef}
+                        className="flex overflow-x-auto gap-4 pb-6 scrollbar-hide snap-x snap-mandatory"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                      >
+                        {reviews.length > 0 ? (
+                          reviews.map((review, i) => (
+                            <div key={i} className="flex-none w-[85vw] md:w-[400px] bg-white/5 rounded-xl border border-white/5 p-6 break-keep snap-start flex flex-col h-[300px]">
+                              <div className="flex justify-between items-start mb-4">
+                                <span className="text-xs text-slate-500 font-medium">Registered Review</span>
+                                <div className="text-parks-gold flex gap-1 text-sm">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <span key={i}>⭐</span>
+                                  ))}
+                                </div>
+                              </div>
+                              <p className="text-slate-300 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar">{review}</p>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="w-full text-center text-slate-500 italic py-12">
+                            등록된 리뷰가 없습니다.
+                          </div>
+                        )}
                       </div>
-                      <p className="text-slate-400 text-sm">정말 최고의 경험이었습니다. 강사님들이 친절하고 포인트가 환상적이에요!</p>
+
+                      {reviews.length > 0 && (
+                        <>
+                          <button
+                            onClick={() => scroll('left')}
+                            disabled={!canScrollLeft}
+                            className={`absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
+                              ${canScrollLeft
+                                ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                                : 'opacity-50 grayscale pointer-events-none'}`}
+                          >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => scroll('right')}
+                            disabled={!canScrollRight}
+                            className={`absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
+                              ${canScrollRight
+                                ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                                : 'opacity-50 grayscale pointer-events-none'}`}
+                          >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </>
+                      )}
                     </div>
-                  ))}
-                </div>
+                  )
+                })()}
               </div>
             </div>
           )}
