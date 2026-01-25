@@ -79,6 +79,7 @@ const SocialFloatingButtons: React.FC = () => {
 
   return (
     <div
+<<<<<<< HEAD
       className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end"
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => {
@@ -89,6 +90,16 @@ const SocialFloatingButtons: React.FC = () => {
       {/* Main Toggle Button */}
       <button
         aria-label={isExpanded ? t.floating.closeMenu : t.floating.mainButton}
+=======
+      className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3"
+      onMouseEnter={() => setIsExpanded(true)}
+      onMouseLeave={() => setIsExpanded(false)}
+    >
+      {/* Main Toggle Button */}
+      <div
+        role="button"
+        aria-label={isExpanded ? '메뉴 닫기' : '문의하기'}
+>>>>>>> e6d71ba04c125f85e414ea3fdf9b3aad65e63e70
         aria-expanded={isExpanded}
         className={`
           relative z-20 flex h-16 w-16 items-center justify-center rounded-full
@@ -106,107 +117,114 @@ const SocialFloatingButtons: React.FC = () => {
         <div className={`transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
           {isExpanded ? <FaTimes className="h-7 w-7 text-ocean-dark" /> : <FaComments className="h-7 w-7 text-ocean-dark" />}
         </div>
-      </button>
+    </div>
 
-      {/* Multilingual Header (Simplified & Absolute) */}
-      {isExpanded && (
-        <div className="absolute bottom-[calc(100%+16px)] right-0 bg-slate-900/95 border border-white/10 rounded-xl px-4 py-2 text-center min-w-[200px] shadow-2xl pointer-events-none transition-opacity duration-300">
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <FaGlobe className="text-ocean-teal h-4 w-4" />
-            <span className="text-sm font-bold text-white">{t.floating.multiLanguage}</span>
-          </div>
-          <div className="flex items-center justify-center gap-3 text-xs text-slate-300">
-            <span>{LANGUAGE_FLAGS.ko} 한국어</span>
-            <span>{LANGUAGE_FLAGS.en} English</span>
-            <span>{LANGUAGE_FLAGS.zh} 中文</span>
-          </div>
+      {/* Multilingual Header (Simplified & Absolute) */ }
+  {
+    isExpanded && (
+      <div className="absolute bottom-[calc(100%+16px)] right-0 bg-slate-900/95 border border-white/10 rounded-xl px-4 py-2 text-center min-w-[200px] shadow-2xl pointer-events-none transition-opacity duration-300">
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <FaGlobe className="text-ocean-teal h-4 w-4" />
+          <span className="text-sm font-bold text-white">{t.floating.multiLanguage}</span>
         </div>
-      )}
+        <div className="flex items-center justify-center gap-3 text-xs text-slate-300">
+          <span>{LANGUAGE_FLAGS.ko} 한국어</span>
+          <span>{LANGUAGE_FLAGS.en} English</span>
+          <span>{LANGUAGE_FLAGS.zh} 中文</span>
+        </div>
+      </div>
+    )
+  }
 
-      {/* Social Buttons Stack (Zero Gap) */}
-      <div
-        className={`
+  {/* Social Buttons Stack (Zero Gap) */ }
+  <div
+    className={`
           flex flex-col-reverse transition-all duration-300 mb-0
           ${isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'}
         `}
-      >
-        {socialButtons.map((button, index) => {
-          const Icon = button.icon
-          const isHovered = hoveredButton === button.id
+  >
+    {socialButtons.map((button, index) => {
+      const Icon = button.icon
+      const isHovered = hoveredButton === button.id
 
-          return (
-            <div
-              key={button.id}
-              className={`
+      return (
+        <div
+          key={button.id}
+          className={`
                 relative flex items-center justify-center h-14 w-16
                 transition-all duration-300 ease-out
                 ${isExpanded ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'}
               `}
-              style={{ transitionDelay: isExpanded ? `${index * 50}ms` : '0ms' }}
-              onMouseEnter={() => setHoveredButton(button.id)}
-              onMouseLeave={() => setHoveredButton(null)}
-            >
-              {/* Tooltip (Absolute, Non-Hit Area) */}
-              <div
-                className={`
+          style={{ transitionDelay: isExpanded ? `${index * 50}ms` : '0ms' }}
+          onMouseEnter={() => setHoveredButton(button.id)}
+          onMouseLeave={() => setHoveredButton(null)}
+        >
+          {/* Tooltip (Absolute, Non-Hit Area) */}
+          <div
+            className={`
                   absolute right-full mr-4 pointer-events-none
                   bg-slate-900 border border-white/10 rounded-xl px-4 py-3 shadow-2xl min-w-[180px]
                   transition-all duration-300
                   ${isHovered ? 'opacity-100 translate-x-0 outline-none' : 'opacity-0 translate-x-4'}
                 `}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-bold text-white text-sm">{t.floating.channels[button.id].name}</span>
-                  {button.isPrimary && (
-                    <span className="bg-parks-gold/20 text-parks-gold text-[10px] px-2 py-0.5 rounded-full font-medium">추천</span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-400 mb-1.5">{t.floating.channels[button.id].description}</p>
-                <div className="flex items-center gap-1.5 text-[10px] mb-1">
-                  <span className="text-slate-500">{t.floating.languageSupport}:</span>
-                  <div className="flex gap-1">
-                    {button.supportedLanguages.map(lang => (
-                      <span key={lang}>{LANGUAGE_FLAGS[lang]}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 text-[10px]">
-                  <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                  <span className="text-green-400">
-                    {button.responseTime === 'instant' ? t.floating.instant : t.floating.within1h}
-                  </span>
-                </div>
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-bold text-white text-sm">{t.floating.channels[button.id].name}</span>
+              {button.isPrimary && (
+                <span className="bg-parks-gold/20 text-parks-gold text-[10px] px-2 py-0.5 rounded-full font-medium">추천</span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-400 mb-1.5">{t.floating.channels[button.id].description}</p>
+            <div className="flex items-center gap-1.5 text-[10px] mb-1">
+              <span className="text-slate-500">{t.floating.languageSupport}:</span>
+              <div className="flex gap-1">
+                {button.supportedLanguages.map(lang => (
+                  <span key={lang}>{LANGUAGE_FLAGS[lang]}</span>
+                ))}
               </div>
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px]">
+              <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              <span className="text-green-400">
+                {button.responseTime === 'instant' ? t.floating.instant : t.floating.within1h}
+              </span>
+            </div>
+          </div>
 
-              {/* Tighter Icon Anchor */}
-              <a
-                href={button.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`
+          {/* Tighter Icon Anchor */}
+          <a
+            href={button.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`
                   flex h-14 w-14 items-center justify-center rounded-full
                   ${button.bgColor} shadow-lg transition-all duration-300
                   hover:scale-105 ${button.hoverShadow} focus:outline-none
                 `}
-              >
-                <Icon className={`h-6 w-6 ${button.id === 'kakao' ? 'fill-[#3C1E1E]' : 'text-white'} drop-shadow-sm`} />
-              </a>
-            </div>
-          )
-        })}
-      </div>
+          >
+            <Icon className={`h-6 w-6 ${button.id === 'kakao' ? 'fill-[#3C1E1E]' : 'text-white'} drop-shadow-sm`} />
+          </a>
+        </div>
+      )
+    })}
+  </div>
 
-      {/* Backdrop (Hit area fallback) */}
-      {isExpanded && (
-        <div
-          className="fixed inset-0 -z-10 bg-black/5"
-          onMouseEnter={() => {
-            setIsExpanded(false)
-            setHoveredButton(null)
-          }}
-        />
-      )}
-    </div>
+<<<<<<< HEAD
+  {/* Backdrop (Hit area fallback) */ }
+  {
+    isExpanded && (
+      <div
+        className="fixed inset-0 -z-10 bg-black/5"
+        onMouseEnter={() => {
+          setIsExpanded(false)
+          setHoveredButton(null)
+        }}
+      />
+    )
+  }
+=======
+>>>>>>> e6d71ba04c125f85e414ea3fdf9b3aad65e63e70
+    </div >
   )
 }
 
