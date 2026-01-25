@@ -159,7 +159,11 @@ const Navigation: React.FC = () => {
                     }`}
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{loc.icon}</span>
+                    <img
+                      src={`https://flagcdn.com/w80/${loc.icon}.png`}
+                      alt={`${displayName} flag`}
+                      className="w-8 h-8 object-cover rounded-md"
+                    />
                     <span className="font-bold">{displayName}</span>
                   </div>
                   <div className="text-xs opacity-50 uppercase tracking-tighter">{loc.id.replace('-', ' ')}</div>

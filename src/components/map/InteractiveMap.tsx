@@ -56,9 +56,9 @@ const InteractiveMap: React.FC = () => {
   const [selectedLocationId, setSelectedLocationId] = React.useState<string | null>(null)
   const markerRefs = useRef<Map<string, L.Marker>>(new Map())
 
-  // Center map on South East Asia
-  const centerPosition: [number, number] = [5.0, 120.0]
-  const zoomLevel = isDesktop ? 5 : 4
+  // Center map on South East Asia (adjusted to show all locations including Bali)
+  const centerPosition: [number, number] = [1.5, 119.5]
+  const zoomLevel = isDesktop ? 4 : 3.5
 
   const handleLocationClick = (locationId: string) => {
     setSelectedLocationId(locationId)
@@ -75,8 +75,8 @@ const InteractiveMap: React.FC = () => {
       html: `
         <div class="relative group cursor-pointer">
           <div class="absolute -inset-2 bg-gradient-to-r ${color} rounded-full opacity-75 group-hover:opacity-100 blur transition duration-200 animate-pulse"></div>
-          <div class="relative w-10 h-10 bg-slate-900 border-2 border-white rounded-full flex items-center justify-center text-2xl shadow-xl transform transition duration-200 group-hover:scale-110">
-            ${icon}
+          <div class="relative w-10 h-10 bg-slate-900 border-2 border-white rounded-full overflow-hidden shadow-xl transform transition duration-200 group-hover:scale-110 p-1">
+            <img src="https://flagcdn.com/w80/${icon}.png" alt="flag" class="w-full h-full object-cover rounded-full" />
           </div>
           <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-slate-900"></div>
         </div>
@@ -171,9 +171,13 @@ const InteractiveMap: React.FC = () => {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`
-                      w-9 h-9 rounded-full flex items-center justify-center text-lg bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform flex-shrink-0
+                      w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform flex-shrink-0 overflow-hidden p-0.5
                   `}>
-                    {location.icon}
+                    <img
+                      src={`https://flagcdn.com/w80/${location.icon}.png`}
+                      alt={`${location.name} flag`}
+                      className="w-full h-full object-cover rounded-full"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-bold text-white text-sm leading-tight">{locT.name}</h4>
@@ -219,7 +223,13 @@ const InteractiveMap: React.FC = () => {
               `}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-xl">{location.icon}</span>
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                  <img
+                    src={`https://flagcdn.com/w80/${location.icon}.png`}
+                    alt={`${location.name} flag`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
                 <div className="min-w-0">
                   <h4 className="font-bold text-white text-sm truncate">{locT.name}</h4>
                   <p className="text-[10px] text-slate-400 truncate">{locT.description}</p>

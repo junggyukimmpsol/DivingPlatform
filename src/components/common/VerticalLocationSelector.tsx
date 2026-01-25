@@ -36,10 +36,12 @@ const VerticalLocationSelector: React.FC = () => {
               `}
               aria-label={`Go to ${displayName}`}
             >
-              {/* Icon only */}
-              <span className="text-lg transition-transform group-hover:scale-110">
-                {loc.icon}
-              </span>
+              {/* Flag Icon */}
+              <img
+                src={`https://flagcdn.com/w80/${loc.icon}.png`}
+                alt={`${displayName} flag`}
+                className="w-8 h-8 object-cover rounded-md transition-transform group-hover:scale-110"
+              />
 
               {/* Tooltip on hover */}
               <div

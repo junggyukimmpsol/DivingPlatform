@@ -23,10 +23,10 @@ const KakaoIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 )
 
-const LANGUAGE_FLAGS: Record<SupportedLanguage, string> = {
-  ko: '🇰🇷',
-  en: '🇺🇸',
-  zh: '🇨🇳',
+const LANGUAGE_FLAGS: Record<SupportedLanguage, { code: string; label: string }> = {
+  ko: { code: 'kr', label: '한국어' },
+  en: { code: 'us', label: 'English' },
+  zh: { code: 'cn', label: '中文' },
 }
 
 const SocialFloatingButtons: React.FC = () => {
@@ -116,9 +116,18 @@ const SocialFloatingButtons: React.FC = () => {
             <span className="text-sm font-bold text-white">{t.floating.multiLanguage}</span>
           </div>
           <div className="flex items-center justify-center gap-3 text-xs text-slate-300">
-            <span>{LANGUAGE_FLAGS.ko} 한국어</span>
-            <span>{LANGUAGE_FLAGS.en} English</span>
-            <span>{LANGUAGE_FLAGS.zh} 中文</span>
+            {Object.entries(LANGUAGE_FLAGS).map(([key, value]) => (
+              <span key={key} className="flex items-center gap-1.5">
+                <img
+                  src={`https://flagcdn.com/w80/${value.code}.png`}
+                  srcSet={`https://flagcdn.com/w80/${value.code}.png 2x`}
+                  alt={value.label}
+                  className="w-6 h-4 object-cover rounded border border-white/20"
+                  loading="eager"
+                />
+                {value.label}
+              </span>
+            ))}
           </div>
         </div>
       )}
@@ -166,7 +175,14 @@ const SocialFloatingButtons: React.FC = () => {
                   <span className="text-slate-500">{t.floating.languageSupport}:</span>
                   <div className="flex gap-1">
                     {button.supportedLanguages.map(lang => (
-                      <span key={lang}>{LANGUAGE_FLAGS[lang]}</span>
+                      <img
+                        key={lang}
+                        src={`https://flagcdn.com/w80/${LANGUAGE_FLAGS[lang].code}.png`}
+                        srcSet={`https://flagcdn.com/w80/${LANGUAGE_FLAGS[lang].code}.png 2x`}
+                        alt={LANGUAGE_FLAGS[lang].label}
+                        className="w-5 h-4 object-cover rounded border border-white/20"
+                        loading="eager"
+                      />
                     ))}
                   </div>
                 </div>

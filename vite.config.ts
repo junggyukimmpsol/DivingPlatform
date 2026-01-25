@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
     allowedHosts: [
-      'latashia-unbonded-meaningfully.ngrok-free.dev'
+      'many-grapes-fix.loca.lt'
     ]
   }
 })

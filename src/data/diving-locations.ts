@@ -47,7 +47,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
       y: 380, // SVG Y 좌표
     },
     color: 'from-blue-500 to-blue-700',
-    icon: '🏝️',
+    icon: 'ph',
     description: '막탄 내 픽드랍 무료 & 한식 점심 제공 프리미엄 보트 다이빙',
     path: '/philippines/cebu',
   },
@@ -64,7 +64,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
       y: 430, // SVG Y 좌표
     },
     color: 'from-purple-500 to-purple-700',
-    icon: '🌊',
+    icon: 'ph',
     description: '알로나 비치 연안 다이빙 및 발리카삭/파밀라칸 아일랜드 보트 다이빙',
     path: '/philippines/bohol',
   },
@@ -81,7 +81,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
       y: 580, // SVG Y 좌표
     },
     color: 'from-emerald-500 to-emerald-700',
-    icon: '🐠',
+    icon: 'my',
     description: '툰쿠 압둘 라만 해상국립공원 다이빙 & 가야섬 레스토랑 중식',
     path: '/malaysia/kota-kinabalu',
   },
@@ -98,7 +98,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
       y: 750, // SVG Y 좌표
     },
     color: 'from-orange-500 to-orange-700',
-    icon: '🐢',
+    icon: 'id',
     description: '만타 가오리 & 개복치 포인트(Nusa Penida) 포함 발리 전역 다이빙',
     path: '/indonesia/bali',
   },

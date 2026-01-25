@@ -200,7 +200,7 @@ const BranchPage: React.FC = () => {
                         <tr key={index} className="hover:bg-white/5 transition-colors">
                           <td className="py-4 px-6 font-medium">{item.program}</td>
                           <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
-                            ₩{item.balance.toLocaleString()}
+                            ${item.balance.toLocaleString()}
                           </td>
                         </tr>
                       )) || (
