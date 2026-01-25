@@ -3,9 +3,11 @@ import LanguageSwitcher from './LanguageSwitcher'
 import { FaHome, FaInfoCircle, FaShip, FaStar } from 'react-icons/fa'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const Navigation: React.FC = () => {
   const { pathname } = useLocation()
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -22,9 +24,9 @@ const Navigation: React.FC = () => {
   const isHome = pathname === '/'
 
   const tabs = [
-    { id: 'intro', label: '소개', icon: FaInfoCircle },
-    { id: 'tours', label: '투어 & 가격', icon: FaShip },
-    { id: 'reviews', label: '리뷰', icon: FaStar },
+    { id: 'intro', label: t.nav.intro, icon: FaInfoCircle },
+    { id: 'tours', label: t.nav.tours, icon: FaShip },
+    { id: 'reviews', label: t.nav.reviews, icon: FaStar },
   ]
 
   return (
@@ -56,7 +58,7 @@ const Navigation: React.FC = () => {
 
             {/* Branch Links (Tier 1) */}
             <div className="hidden md:flex items-center gap-1 p-1 bg-white/5 rounded-full border border-white/5">
-              {DIVING_LOCATIONS.map((loc) => (
+              {DIVING_LOCATIONS.map((loc, index) => (
                 <Link
                   key={loc.id}
                   to={loc.path}
@@ -65,7 +67,7 @@ const Navigation: React.FC = () => {
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                     }`}
                 >
-                  {loc.nameKo}
+                  {t.locations.locations[index].name}
                 </Link>
               ))}
             </div>
@@ -79,7 +81,7 @@ const Navigation: React.FC = () => {
                 className="hidden md:flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-parks-gold transition-colors"
               >
                 <FaHome size={18} />
-                <span>지도</span>
+                <span>{t.nav.home}</span>
               </Link>
             )}
             <div className="w-px h-8 bg-white/10 mx-2 hidden md:block"></div>

@@ -5,6 +5,9 @@ export const translations = {
       locationInfo: '지점안내',
       locationTours: '지점별투어',
       locationPricing: '지점별가격',
+      intro: '소개',
+      tours: '투어 & 가격',
+      reviews: '리뷰',
     },
     hero: {
       badge: 'PADI 5 Star Diving Shop',
@@ -108,6 +111,10 @@ export const translations = {
       subtitleEnd: '다이빙 샵 운영',
       description1: '고객 만족도 1위, 재구매율 1위 다이빙샵을',
       description2: '운영하여 소중한 여행을 저희에게 맡겨주세요!!',
+      homeTitle: 'Explore Your Next Dive Adventure',
+      homeSubtitle: '본질에 집중하는 프리미엄 다이빙 서비스. 지도를 클릭하여 원하는 지역의 지점을 선택하세요.',
+      divingPointsLabel: '다이빙 포인트',
+      servicesLabel: '제공 서비스',
       locations: [
         {
           number: '1호점',
@@ -548,6 +555,80 @@ export const translations = {
       allRightsReserved: 'All rights reserved.',
       tagline: '비싸기만 했던 스쿠버 다이빙, Parks 로컬 다이빙에서 저렴하고 안전하게 함께 해봐요',
     },
+    branchDetails: {
+      cebu: {
+        title: '지점 특징 및 갤러리',
+        features: [
+          '막탄 내 픽업/드랍 무료 제공',
+          '정성스러운 한식 점심 제공',
+          '안전하고 쾌적한 보트 다이빙 진행',
+        ],
+      },
+      bohol: {
+        title: '지점 특징 및 갤러리',
+        features: [
+          '비치 다이빙: 알로나 비치 근방의 아름다운 연안 다이빙',
+          '보트 다이빙: 알로나 비치 산호 직벽 포인트 또는 파말라칸 아일랜드 선택 가능',
+        ],
+      },
+      'kota-kinabalu': {
+        title: '지점 특징 및 갤러리',
+        features: [
+          'Tunku Abdul Rahman Marine Park의 청정 해역에서 모든 다이빙 진행',
+          '가야섬 레스토랑 내 10가지 이상의 다양한 점심 메뉴 선택 가능',
+          '운이 좋으면 고래상어를 만날 수 있는 포인트 보유',
+        ],
+      },
+      bali: {
+        title: '지점 특징 및 갤러리',
+        features: [
+          '발리에서만 볼 수 있는 만타 가오리와 개복치(Mola Mola) 포인트 (Nusa Penida)',
+          '발리 본섬 동부 뚤람벤 등 다양한 포인트 운영',
+          '쿠타/사누르 픽드랍 및 페리 서비스 포함 올인클루시브 케어',
+        ],
+      },
+    },
+    branchPricing: {
+      title: '투어 일정 및 옵션 별 가격',
+      subtitle: '의 투어 프로그램 가격표입니다. (2025년 기준)',
+      headers: {
+        program: '프로그램',
+        price: '가격 (KRW)',
+      },
+      empty: '가격 정보가 준비 중입니다.',
+      cebu: [
+        { program: '보트 체험다이빙 2회(+장비렌탈 + 점심)', balance: 140000 },
+        { program: '보트 펀다이빙 2회(+장비렌탈 + 점심)', balance: 120000 },
+        { program: '보트 펀다이빙 3회(+장비렌탈 + 점심)', balance: 120000 },
+        { program: '비치다이빙 2회(+장비 렌탈 X + 점심)', balance: 80000 },
+      ],
+      bohol: [
+        { program: '알로나 비치 체험 다이빙 2회(+장비렌탈)', balance: 140000 },
+        { program: '알로나 비치 펀 다이빙 2회 (+장비렌탈)', balance: 120000 },
+        { program: '나팔링 체험 다이빙 2회(+장비렌탈)', balance: 150000 },
+        { program: '나팔링 펀 다이빙 2회 (+장비렌탈)', balance: 130000 },
+        { program: '발리카삭 펀 다이빙 2회 (+장비렌탈+ 점심)', balance: 140000 },
+        { program: '발리카삭 펀 다이빙 3회 (+장비렌탈+ 점심)', balance: 180000 },
+        { program: '파밀라칸 펀 다이빙 2회 (+장비렌탈+ 점심)', balance: 140000 },
+        { program: '파밀라칸 펀 다이빙 3회 (+장비렌탈+ 점심)', balance: 180000 },
+      ],
+      'kota-kinabalu': [
+        { program: '아일랜드 보트 체험다이빙 2회(올 인클루시브)', balance: 150000 },
+        { program: '아일랜드 보트 펀다이빙 3회(올 인클루시브)', balance: 150000 },
+      ],
+      bali: [
+        { program: '뚤람벤 체험다이빙 2회(+장비렌탈 + 점심)', balance: 140000 },
+        { program: '뚤람벤 체험다이빙 3회(+장비렌탈 + 점심)', balance: 160000 },
+        { program: '뚤람벤 펀다이빙 2회(+장비렌탈 + 점심)', balance: 140000 },
+        { program: '뚤람벤 펀다이빙 3회(+장비렌탈 + 점심)', balance: 170000 },
+        { program: '누사두아 체험다이빙 2회(+장비 렌탈+점심)', balance: 180000 },
+        { program: '누사두아 펀다이빙 2회(+장비 렌탈+점심)', balance: 150000 },
+        { program: '누사두아 펀다이빙 3회(+장비 렌탈+점심)', balance: 190000 },
+        { program: '누사 페니다 펀다이빙 2회', balance: 170000 },
+        { program: '누사 페니다 펀다이빙 3회', balance: 210000 },
+        { program: '누사 페니다 체험다이빙 2회', balance: 230000 },
+      ],
+    },
   },
   en: {
     nav: {
@@ -555,6 +636,9 @@ export const translations = {
       locationInfo: 'Locations',
       locationTours: 'Tours',
       locationPricing: 'Pricing',
+      intro: 'Intro',
+      tours: 'Tours & Prices',
+      reviews: 'Reviews',
     },
     hero: {
       badge: 'PADI 5 Star Diving Shop',
@@ -658,6 +742,10 @@ export const translations = {
       subtitleEnd: ' Dive Shop Operations',
       description1: '#1 in customer satisfaction and rebooking rate',
       description2: 'Trust us with your precious vacation!!',
+      homeTitle: 'Explore Your Next Dive Adventure',
+      homeSubtitle: 'Premium diving service focusing on essence. Click the map to select your desired location.',
+      divingPointsLabel: 'Diving Points',
+      servicesLabel: 'Services',
       locations: [
         {
           number: 'Branch 1',
@@ -1067,6 +1155,80 @@ export const translations = {
       allRightsReserved: 'All rights reserved.',
       tagline: 'Experience affordable and safe scuba diving with Parks Local Diving',
     },
+    branchDetails: {
+      cebu: {
+        title: 'Branch Features & Gallery',
+        features: [
+          'Free pick-up/drop-off within Mactan',
+          'Quality Korean lunch provided',
+          'Safe and comfortable boat diving',
+        ],
+      },
+      bohol: {
+        title: 'Branch Features & Gallery',
+        features: [
+          'Beach Diving: Beautiful coastal diving near Alona Beach',
+          'Boat Diving: Choose between Alona Beach coral wall or Pamilacan Island',
+        ],
+      },
+      'kota-kinabalu': {
+        title: 'Branch Features & Gallery',
+        features: [
+          'All dives held in the pristine waters of Tunku Abdul Rahman Marine Park',
+          'Choose from over 10 different lunch menus at Gaya Island restaurant',
+          'Points where you might spot whale sharks if you\'re lucky',
+        ],
+      },
+      bali: {
+        title: 'Branch Features & Gallery',
+        features: [
+          'Manta Ray and Mola Mola points exclusive to Bali (Nusa Penida)',
+          'Various points operated including Tulamben in eastern Bali',
+          'All-inclusive care including Kuta/Sanur pick-up/drop-off and ferry service',
+        ],
+      },
+    },
+    branchPricing: {
+      title: 'Tour Schedule & Pricing by Option',
+      subtitle: '\'s tour program price list. (As of 2025)',
+      headers: {
+        program: 'Program',
+        price: 'Price (KRW)',
+      },
+      empty: 'Pricing information is being prepared.',
+      cebu: [
+        { program: 'Boat Discovery Diving 2x (+Rental + Lunch)', balance: 140000 },
+        { program: 'Boat Fun Diving 2x (+Rental + Lunch)', balance: 120000 },
+        { program: 'Boat Fun Diving 3x (+Rental + Lunch)', balance: 120000 },
+        { program: 'Beach Diving 2x (No Rental + Lunch)', balance: 80000 },
+      ],
+      bohol: [
+        { program: 'Alona Beach Discovery Diving 2x (+Rental)', balance: 140000 },
+        { program: 'Alona Beach Fun Diving 2x (+Rental)', balance: 120000 },
+        { program: 'Napaling Discovery Diving 2x (+Rental)', balance: 150000 },
+        { program: 'Napaling Fun Diving 2x (+Rental)', balance: 130000 },
+        { program: 'Balicasag Fun Diving 2x (+Rental + Lunch)', balance: 140000 },
+        { program: 'Balicasag Fun Diving 3x (+Rental + Lunch)', balance: 180000 },
+        { program: 'Pamilacan Fun Diving 2x (+Rental + Lunch)', balance: 140000 },
+        { program: 'Pamilacan Fun Diving 3x (+Rental + Lunch)', balance: 180000 },
+      ],
+      'kota-kinabalu': [
+        { program: 'Island Boat Discovery Diving 2x (All-inclusive)', balance: 150000 },
+        { program: 'Island Boat Fun Diving 3x (All-inclusive)', balance: 150000 },
+      ],
+      bali: [
+        { program: 'Tulamben Discovery Diving 2x (+Rental + Lunch)', balance: 140000 },
+        { program: 'Tulamben Discovery Diving 3x (+Rental + Lunch)', balance: 160000 },
+        { program: 'Tulamben Fun Diving 2x (+Rental + Lunch)', balance: 140000 },
+        { program: 'Tulamben Fun Diving 3x (+Rental + Lunch)', balance: 170000 },
+        { program: 'Nusa Dua Discovery Diving 2x (+Rental + Lunch)', balance: 180000 },
+        { program: 'Nusa Dua Fun Diving 2x (+Rental + Lunch)', balance: 150000 },
+        { program: 'Nusa Dua Fun Diving 3x (+Rental + Lunch)', balance: 190000 },
+        { program: 'Nusa Penida Fun Diving 2x', balance: 170000 },
+        { program: 'Nusa Penida Fun Diving 3x', balance: 210000 },
+        { program: 'Nusa Penida Discovery Diving 2x', balance: 230000 },
+      ],
+    },
   },
   zh: {
     nav: {
@@ -1074,6 +1236,9 @@ export const translations = {
       locationInfo: '分店指南',
       locationTours: '分店旅游',
       locationPricing: '分店价格',
+      intro: '简介',
+      tours: '项目与价格',
+      reviews: '评价',
     },
     hero: {
       badge: 'PADI 5星潜水店',
@@ -1177,6 +1342,10 @@ export const translations = {
       subtitleEnd: ' 潜水店运营',
       description1: '客户满意度第一、复购率第一',
       description2: '把您珍贵的假期交给我们吧！！',
+      homeTitle: '探索您的下一次潜水冒险',
+      homeSubtitle: '专注于本质的尊贵潜水服务。点击地图选择您心仪的地区。',
+      divingPointsLabel: '潜水点',
+      servicesLabel: '提供服务',
       locations: [
         {
           number: '1号店',
@@ -1585,6 +1754,80 @@ export const translations = {
       certifications: ['PADI 5星', '满意度第一', '1,000+客户', '复购率第一'],
       allRightsReserved: '版权所有。',
       tagline: '在Parks本地潜水体验实惠又安全的水肺潜水',
+    },
+    branchDetails: {
+      cebu: {
+        title: '分店特点与相册',
+        features: [
+          '麦克坦区域内免费接送',
+          '精心准备的韩式午餐',
+          '安全舒心的船潜体验',
+        ],
+      },
+      bohol: {
+        title: '分店特点与相册',
+        features: [
+          '岸潜：阿罗纳海滩附近的优美海岸潜水',
+          '船潜：可选阿罗纳海滩珊瑚墙潜点或帕米拉坎岛',
+        ],
+      },
+      'kota-kinabalu': {
+        title: '分店特点与相册',
+        features: [
+          '在东姑阿都拉曼海洋公园的纯净海域进行所有潜水',
+          '伽耶岛餐厅内10种以上多样午餐菜单供选',
+          '有机会遇见鲸鲨的特色潜点',
+        ],
+      },
+      bali: {
+        title: '分店特点与相册',
+        features: [
+          '只有在巴厘岛才能看到的蝠鲼和翻车鱼(Mola Mola)潜点 (Nusa Penida)',
+          '运营巴厘岛本岛东部图蓝本等多样潜点',
+          '包含库塔/萨努尔接送及轮渡服务的全包式照顾',
+        ],
+      },
+    },
+    branchPricing: {
+      title: '行程安排与各选项价格',
+      subtitle: '的旅游方案价格表。（2025年基准）',
+      headers: {
+        program: '项目',
+        price: '价格 (KRW)',
+      },
+      empty: '价格信息正在准备中。',
+      cebu: [
+        { program: '船潜体验潜水 2次 (+装备租赁 + 午餐)', balance: 140000 },
+        { program: '船潜休闲潜水 2次 (+装备租赁 + 午餐)', balance: 120000 },
+        { program: '船潜休闲潜水 3次 (+装备租赁 + 午餐)', balance: 120000 },
+        { program: '岸潜 2次 (不含装备 + 午餐)', balance: 80000 },
+      ],
+      bohol: [
+        { program: '阿罗纳海滩体验潜水 2次 (+装备租赁)', balance: 140000 },
+        { program: '阿罗纳海滩休闲潜水 2次 (+装备租赁)', balance: 120000 },
+        { program: '纳帕林体验潜水 2次 (+装备租赁)', balance: 150000 },
+        { program: '纳帕林休闲潜水 2次 (+装备租赁)', balance: 130000 },
+        { program: '巴里卡萨休闲潜水 2次 (+装备租赁 + 午餐)', balance: 140000 },
+        { program: '巴里卡萨休闲潜水 3次 (+装备租赁 + 午餐)', balance: 180000 },
+        { program: '帕米拉坎休闲潜水 2次 (+装备租赁 + 午餐)', balance: 140000 },
+        { program: '帕米拉坎休闲潜水 3次 (+装备租赁 + 午餐)', balance: 180000 },
+      ],
+      'kota-kinabalu': [
+        { program: '海岛船潜体验潜水 2次 (全包)', balance: 150000 },
+        { program: '海岛船潜休闲潜水 3次 (全包)', balance: 150000 },
+      ],
+      bali: [
+        { program: '图蓝本体验潜水 2次 (+装备租赁 + 午餐)', balance: 140000 },
+        { program: '图蓝本体验潜水 3次 (+装备租赁 + 午餐)', balance: 160000 },
+        { program: '图蓝本休闲潜水 2次 (+装备租赁 + 午餐)', balance: 140000 },
+        { program: '图蓝本休闲潜水 3次 (+装备租赁 + 午餐)', balance: 170000 },
+        { program: '努沙杜瓦体验潜水 2次 (+装备租赁 + 午餐)', balance: 180000 },
+        { program: '努沙杜瓦休闲潜水 2次 (+装备租赁 + 午餐)', balance: 150000 },
+        { program: '努沙杜瓦休闲潜水 3次 (+装备租赁 + 午餐)', balance: 190000 },
+        { program: '佩尼达岛休闲潜水 2次', balance: 170000 },
+        { program: '佩尼达岛休闲潜水 3次', balance: 210000 },
+        { program: '佩尼达岛体验潜水 2次', balance: 230000 },
+      ],
     },
   },
 }

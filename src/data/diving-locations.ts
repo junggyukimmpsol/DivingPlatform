@@ -48,7 +48,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     },
     color: 'from-blue-500 to-blue-700',
     icon: '🏝️',
-    description: 'PADI 5 Star 공식 리조트',
+    description: '막탄 내 픽드랍 무료 & 한식 점심 제공 프리미엄 보트 다이빙',
     path: '/philippines/cebu',
   },
 
@@ -65,7 +65,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     },
     color: 'from-purple-500 to-purple-700',
     icon: '🌊',
-    description: '청정 다이빙 포인트',
+    description: '알로나 비치 연안 다이빙 및 발리카삭/파밀라칸 아일랜드 보트 다이빙',
     path: '/philippines/bohol',
   },
 
@@ -82,7 +82,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     },
     color: 'from-emerald-500 to-emerald-700',
     icon: '🐠',
-    description: '선셋과 다이빙의 조화',
+    description: '툰쿠 압둘 라만 해상국립공원 다이빙 & 가야섬 레스토랑 중식',
     path: '/malaysia/kota-kinabalu',
   },
 
@@ -99,7 +99,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     },
     color: 'from-orange-500 to-orange-700',
     icon: '🐢',
-    description: '4개의 지점 운영 중',
+    description: '만타 가오리 & 개복치 포인트(Nusa Penida) 포함 발리 전역 다이빙',
     path: '/indonesia/bali',
   },
 ]

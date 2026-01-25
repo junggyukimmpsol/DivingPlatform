@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { DIVING_LOCATIONS } from '../../data/diving-locations'
 import { useNavigate } from 'react-router-dom'
 import { useMediaQuery } from '../../hooks/useMediaQuery'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 // Fix for default marker icon issues in React Leaflet
 import 'leaflet/dist/leaflet.css'
@@ -35,6 +36,7 @@ const MapController = ({
 
 const InteractiveMap: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT)
   const [selectedLocationId, setSelectedLocationId] = React.useState<string | null>(null)
 
@@ -74,10 +76,10 @@ const InteractiveMap: React.FC = () => {
       {/* 지도 제목 섹션 */}
       <div className="text-center mb-8">
         <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-          지역 선택
+          {t.locations.title}
         </h3>
         <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto">
-          지도에서 원하는 위치를 선택하여 Parks의 다이빙 센터를 확인하세요.
+          {t.locations.description1} {t.locations.description2}
         </p>
       </div>
 
@@ -89,42 +91,44 @@ const InteractiveMap: React.FC = () => {
             zoom={zoomLevel}
             scrollWheelZoom={false}
             className="w-full h-full bg-slate-900"
-            attributionControl={false} // Custom placing attribution if needed
+            attributionControl={false}
           >
             <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              attribution='&copy; OpenStreetMap contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              className="map-tiles-filter" // We will add CSS to invert/darken tiles
+              className="map-tiles-filter"
             />
 
             <MapController selectedLocationId={selectedLocationId} />
 
-            {DIVING_LOCATIONS.map((location) => (
-              <Marker
-                key={location.id}
-                position={[location.coordinates.lat, location.coordinates.lng]}
-                icon={createCustomIcon(location.icon, location.color)}
-                eventHandlers={{
-                  click: () => handleLocationClick(location.id)
-                }}
-              >
-                <Popup className="custom-popup">
-                  <div className="text-center p-2 min-w-[200px]">
-                    <h3 className="font-display font-bold text-lg mb-1">{location.nameKo} ({location.name})</h3>
-                    <p className="text-sm text-gray-600 mb-3">{location.description}</p>
-                    <button
-                      onClick={() => handleNavigate(location.path)}
-                      className="w-full px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors"
-                    >
-                      자세히 보기
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+            {DIVING_LOCATIONS.map((location, index) => {
+              const locT = t.locations.locations[index]
+              return (
+                <Marker
+                  key={location.id}
+                  position={[location.coordinates.lat, location.coordinates.lng]}
+                  icon={createCustomIcon(location.icon, location.color)}
+                  eventHandlers={{
+                    click: () => handleLocationClick(location.id)
+                  }}
+                >
+                  <Popup className="custom-popup">
+                    <div className="text-center p-2 min-w-[200px]">
+                      <h3 className="font-display font-bold text-lg mb-1">{locT.name} ({locT.nameKo})</h3>
+                      <p className="text-sm text-gray-600 mb-3">{locT.description}</p>
+                      <button
+                        onClick={() => handleNavigate(location.path)}
+                        className="w-full px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors"
+                      >
+                        {t.nav.locationInfo}
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              )
+            })}
           </MapContainer>
 
-          {/* Custom Attribution for Dark Mode aesthetic */}
           <div className="absolute bottom-1 right-1 bg-black/50 px-2 py-1 rounded text-[10px] text-white/50 z-[1000] pointer-events-none">
             © OpenStreetMap contributors
           </div>
@@ -132,74 +136,79 @@ const InteractiveMap: React.FC = () => {
 
         {/* Sidebar List */}
         <div className="hidden lg:flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-          {DIVING_LOCATIONS.map((location) => (
-            <div
-              key={location.id}
-              onClick={() => handleLocationClick(location.id)}
-              className={`
-                text-left p-5 rounded-xl border transition-all duration-300 group cursor-pointer relative
-                ${selectedLocationId === location.id
-                  ? 'bg-white/10 border-parks-gold/50 shadow-lg scale-[1.02]'
-                  : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
-                }
-              `}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`
-                    w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform
-                `}>
-                  {location.icon}
-                </div>
-                <div>
-                  <h4 className="font-bold text-white text-lg">{location.nameKo}</h4>
-                  <p className="text-slate-400 text-sm">{location.name}</p>
-                </div>
-              </div>
-              <p className="mt-3 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-3 mb-3">
-                {location.description}
-              </p>
-
-              {/* Detailed View Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleNavigate(location.path)
-                }}
-                className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-slate-300 transition-colors flex items-center justify-center gap-2 group-hover:border-white/20 z-10 relative"
+          {DIVING_LOCATIONS.map((location, index) => {
+            const locT = t.locations.locations[index]
+            return (
+              <div
+                key={location.id}
+                onClick={() => handleLocationClick(location.id)}
+                className={`
+                  text-left p-5 rounded-xl border transition-all duration-300 group cursor-pointer relative
+                  ${selectedLocationId === location.id
+                    ? 'bg-white/10 border-parks-gold/50 shadow-lg scale-[1.02]'
+                    : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
+                  }
+                `}
               >
-                <span>자세히 보기</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center gap-4">
+                  <div className={`
+                      w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform
+                  `}>
+                    {location.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-white text-lg">{locT.name}</h4>
+                    <p className="text-slate-400 text-sm">{locT.nameKo}</p>
+                  </div>
+                </div>
+                <p className="mt-3 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-3 mb-3">
+                  {locT.description}
+                </p>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleNavigate(location.path)
+                  }}
+                  className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-slate-300 transition-colors flex items-center justify-center gap-2 group-hover:border-white/20 z-10 relative"
+                >
+                  <span>{t.nav.locationInfo}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )
+          })}
         </div>
       </div>
 
       {/* Mobile grid for locations (below map) */}
       <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-        {DIVING_LOCATIONS.map((location) => (
-          <button
-            key={location.id}
-            onClick={() => handleLocationClick(location.id)}
-            className={`
+        {DIVING_LOCATIONS.map((location, index) => {
+          const locT = t.locations.locations[index]
+          return (
+            <button
+              key={location.id}
+              onClick={() => handleLocationClick(location.id)}
+              className={`
                 text-left p-4 rounded-xl border transition-all duration-300
                 ${selectedLocationId === location.id
-                ? 'bg-white/10 border-parks-gold/50'
-                : 'glass-card border-white/5'
-              }
+                  ? 'bg-white/10 border-parks-gold/50'
+                  : 'glass-card border-white/5'
+                }
               `}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{location.icon}</span>
-              <div>
-                <h4 className="font-bold text-white">{location.nameKo}</h4>
-                <p className="text-xs text-slate-400">{location.description}</p>
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{location.icon}</span>
+                <div>
+                  <h4 className="font-bold text-white">{locT.name}</h4>
+                  <p className="text-xs text-slate-400">{locT.description}</p>
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          )
+        })}
       </div>
 
       <style>{`

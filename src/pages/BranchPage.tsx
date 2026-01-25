@@ -2,12 +2,13 @@ import React, { useRef, useState, useEffect } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { REVIEW_DATA } from '../data/reviewData'
-import { PRICING_DATA } from '../data/pricingData'
 import { CenterId } from '../types/center.types'
+import { useLanguage } from '../contexts/LanguageContext'
 // Note: Tabs are now managed by the Navigation component in Tier 2
 
 const BranchPage: React.FC = () => {
   const { pathname } = useLocation()
+  const { t, language } = useLanguage()
   const [searchParams] = useSearchParams()
   const activeTab = searchParams.get('tab') || 'intro'
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -107,10 +108,14 @@ const BranchPage: React.FC = () => {
           {activeTab === 'intro' && (
             <div className="animate-fade-in space-y-8">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">지점 특징 및 갤러리</h3>
-                <p className="text-slate-400 leading-relaxed mb-6">
-                  {currentBranch.nameKo}의 멋진 다이빙 스팟과 시설을 소개합니다. (상세 내용은 추후 업데이트 예정)
-                </p>
+                <h3 className="text-2xl font-bold text-white mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
+                <div className="text-slate-400 leading-relaxed mb-6 space-y-4">
+                  <ul className="list-disc list-inside space-y-2">
+                    {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
+                      <li key={idx}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
 
                 <div className="relative group">
                   <div
@@ -191,46 +196,37 @@ const BranchPage: React.FC = () => {
           {activeTab === 'tours' && (
             <div className="animate-fade-in space-y-8">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">투어 일정 및 옵션 별 가격</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">{t.branchPricing.title}</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  {currentBranch.nameKo}의 투어 프로그램 가격표입니다. (2025년 기준)
+                  {currentBranch.nameKo}{t.branchPricing.subtitle}
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left bg-white/5 rounded-xl overflow-hidden">
                     <thead>
                       <tr className="bg-white/10 text-white">
-                        <th className="py-4 px-6 font-bold">프로그램</th>
-                        <th className="py-4 px-6 text-right font-bold text-slate-300">예약금 (KRW)</th>
-                        <th className="py-4 px-6 text-right font-bold text-parks-gold">현지지불 (KRW)</th>
+                        <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
+                        <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-300 divide-y divide-white/5">
-                      {PRICING_DATA[currentBranch.id as CenterId]?.map((item, index) => (
+                      {(t.branchPricing[currentBranch.id as CenterId] as any[])?.map((item, index) => (
                         <tr key={index} className="hover:bg-white/5 transition-colors">
                           <td className="py-4 px-6 font-medium">{item.program}</td>
-                          <td className="py-4 px-6 text-right tabular-nums text-slate-400">
-                            {item.deposit > 0 ? `₩${item.deposit.toLocaleString()}` : '-'}
-                          </td>
                           <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
                             ₩{item.balance.toLocaleString()}
                           </td>
                         </tr>
                       )) || (
                           <tr>
-                            <td colSpan={3} className="py-8 text-center text-slate-500 italic">
-                              가격 정보가 준비 중입니다.
+                            <td colSpan={2} className="py-8 text-center text-slate-500 italic">
+                              {t.branchPricing.empty}
                             </td>
                           </tr>
                         )}
                     </tbody>
                   </table>
                 </div>
-                <div className="mt-6 p-4 bg-parks-gold/10 border border-parks-gold/20 rounded-lg">
-                  <p className="text-sm text-parks-gold/90">
-                    * 예약금은 계좌 입금, 잔금은 현지에서 지불해주시면 됩니다.<br />
-                    * 포함 내역: 다이빙 장비 렌탈, 중식 포함 (체험/펀 다이빙 기준)
-                  </p>
-                </div>
+
               </div>
             </div>
           )}
@@ -244,7 +240,7 @@ const BranchPage: React.FC = () => {
                 </p>
 
                 {(() => {
-                  const reviews = REVIEW_DATA[currentBranch.id as CenterId] || []
+                  const reviews = REVIEW_DATA[language]?.[currentBranch.id as CenterId] || []
 
                   return (
                     <div className="relative group">
@@ -254,7 +250,7 @@ const BranchPage: React.FC = () => {
                         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                       >
                         {reviews.length > 0 ? (
-                          reviews.map((review, i) => (
+                          reviews.map((review: string, i: number) => (
                             <div key={i} className="flex-none w-[85vw] md:w-[400px] bg-white/5 rounded-xl border border-white/5 p-6 break-keep snap-start flex flex-col h-[300px]">
                               <div className="flex justify-between items-start mb-4">
                                 <span className="text-xs text-slate-500 font-medium">Registered Review</span>

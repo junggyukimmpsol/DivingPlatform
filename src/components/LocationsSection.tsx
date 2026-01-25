@@ -1,4 +1,3 @@
-import React from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 import InteractiveMap from './map/InteractiveMap'
 
@@ -69,7 +68,7 @@ const LocationsSection = () => {
 
               {/* Diving Points */}
               <div className="mb-4">
-                <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">다이빙 포인트</h4>
+                <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">{t.locations.divingPointsLabel}</h4>
                 <div className="space-y-2">
                   {location.features.map((feature, idx) => (
                     <div
@@ -86,16 +85,15 @@ const LocationsSection = () => {
               {/* Services */}
               {location.services && (
                 <div className="mb-4">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">제공 서비스</h4>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase mb-2">{t.locations.servicesLabel}</h4>
                   <div className="grid grid-cols-2 gap-2">
                     {location.services.map((service, idx) => (
                       <div
                         key={idx}
-                        className={`flex items-center gap-1.5 text-xs rounded-lg px-2 py-1.5 ${
-                          service.highlight
-                            ? 'bg-parks-gold/20 border border-parks-gold/40 text-parks-gold font-bold'
-                            : 'bg-white/5 border border-white/10 text-slate-300'
-                        }`}
+                        className={`flex items-center gap-1.5 text-xs rounded-lg px-2 py-1.5 ${service.highlight
+                          ? 'bg-parks-gold/20 border border-parks-gold/40 text-parks-gold font-bold'
+                          : 'bg-white/5 border border-white/10 text-slate-300'
+                          }`}
                       >
                         <span className="text-sm">{service.icon}</span>
                         <span>{service.name}</span>
