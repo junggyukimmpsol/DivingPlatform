@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import { useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { REVIEW_DATA } from '../data/reviewData'
+import { PRICING_DATA } from '../data/pricingData'
 import { CenterId } from '../types/center.types'
 // Note: Tabs are now managed by the Navigation component in Tier 2
 
@@ -186,35 +187,49 @@ const BranchPage: React.FC = () => {
             </div>
           )}
 
+
           {activeTab === 'tours' && (
             <div className="animate-fade-in space-y-8">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">투어 일정 및 옵션 별 가격</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  전문화된 투어 프로그램과 합리적인 가격표입니다. (상세 내용은 추후 업데이트 예정)
+                  {currentBranch.nameKo}의 투어 프로그램 가격표입니다. (2025년 기준)
                 </p>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left">
+                  <table className="w-full text-left bg-white/5 rounded-xl overflow-hidden">
                     <thead>
-                      <tr className="border-b border-white/10">
-                        <th className="py-4 text-white">프로그램</th>
-                        <th className="py-4 text-white">기간</th>
-                        <th className="py-4 text-white text-right">가격</th>
+                      <tr className="bg-white/10 text-white">
+                        <th className="py-4 px-6 font-bold">프로그램</th>
+                        <th className="py-4 px-6 text-right font-bold text-slate-300">예약금 (KRW)</th>
+                        <th className="py-4 px-6 text-right font-bold text-parks-gold">현지지불 (KRW)</th>
                       </tr>
                     </thead>
-                    <tbody className="text-slate-400">
-                      <tr className="border-b border-white/5">
-                        <td className="py-4">펀 다이빙 (2회)</td>
-                        <td className="py-4">1일</td>
-                        <td className="py-4 text-right text-parks-gold">$120</td>
-                      </tr>
-                      <tr className="border-b border-white/5">
-                        <td className="py-4">자격증 코스 (OW)</td>
-                        <td className="py-4">3일</td>
-                        <td className="py-4 text-right text-parks-gold">$350</td>
-                      </tr>
+                    <tbody className="text-slate-300 divide-y divide-white/5">
+                      {PRICING_DATA[currentBranch.id as CenterId]?.map((item, index) => (
+                        <tr key={index} className="hover:bg-white/5 transition-colors">
+                          <td className="py-4 px-6 font-medium">{item.program}</td>
+                          <td className="py-4 px-6 text-right tabular-nums text-slate-400">
+                            {item.deposit > 0 ? `₩${item.deposit.toLocaleString()}` : '-'}
+                          </td>
+                          <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
+                            ₩{item.balance.toLocaleString()}
+                          </td>
+                        </tr>
+                      )) || (
+                          <tr>
+                            <td colSpan={3} className="py-8 text-center text-slate-500 italic">
+                              가격 정보가 준비 중입니다.
+                            </td>
+                          </tr>
+                        )}
                     </tbody>
                   </table>
+                </div>
+                <div className="mt-6 p-4 bg-parks-gold/10 border border-parks-gold/20 rounded-lg">
+                  <p className="text-sm text-parks-gold/90">
+                    * 예약금은 계좌 입금, 잔금은 현지에서 지불해주시면 됩니다.<br />
+                    * 포함 내역: 다이빙 장비 렌탈, 중식 포함 (체험/펀 다이빙 기준)
+                  </p>
                 </div>
               </div>
             </div>
