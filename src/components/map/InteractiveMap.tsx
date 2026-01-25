@@ -153,8 +153,8 @@ const InteractiveMap: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar List */}
-        <div className="hidden lg:flex flex-col gap-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+        {/* Sidebar List - 2x2 Grid */}
+        <div className="hidden lg:grid grid-cols-2 grid-rows-2 gap-3 h-[450px]">
           {DIVING_LOCATIONS.map((location, index) => {
             const locT = t.locations.locations[index]
             return (
@@ -162,25 +162,25 @@ const InteractiveMap: React.FC = () => {
                 key={location.id}
                 onClick={() => handleLocationClick(location.id)}
                 className={`
-                  text-left p-5 rounded-xl border transition-all duration-300 group cursor-pointer relative
+                  text-left p-3 rounded-xl border transition-all duration-300 group cursor-pointer relative flex flex-col
                   ${selectedLocationId === location.id
-                    ? 'bg-white/10 border-parks-gold/50 shadow-lg scale-[1.02]'
+                    ? 'bg-white/10 border-parks-gold/50 shadow-lg scale-[1.01]'
                     : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
                   }
                 `}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 mb-2">
                   <div className={`
-                      w-12 h-12 rounded-full flex items-center justify-center text-2xl bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform
+                      w-9 h-9 rounded-full flex items-center justify-center text-lg bg-gradient-to-br ${location.color} shadow-lg group-hover:scale-110 transition-transform flex-shrink-0
                   `}>
                     {location.icon}
                   </div>
-                  <div>
-                    <h4 className="font-bold text-white text-lg">{locT.name}</h4>
-                    <p className="text-slate-400 text-sm">{locT.nameKo}</p>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-white text-sm leading-tight">{locT.name}</h4>
+                    <p className="text-slate-400 text-[10px]">{locT.nameKo}</p>
                   </div>
                 </div>
-                <p className="mt-3 text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-3 mb-3">
+                <p className="text-slate-300 text-[10px] leading-snug border-t border-white/5 pt-2 mb-2 flex-1 overflow-hidden">
                   {locT.description}
                 </p>
 
@@ -189,10 +189,10 @@ const InteractiveMap: React.FC = () => {
                     e.stopPropagation()
                     handleNavigate(location.path)
                   }}
-                  className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm text-slate-300 transition-colors flex items-center justify-center gap-2 group-hover:border-white/20 z-10 relative"
+                  className="w-full py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-[10px] text-slate-300 transition-colors flex items-center justify-center gap-1 group-hover:border-white/20 z-10 relative"
                 >
                   <span>{t.nav.locationInfo}</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>

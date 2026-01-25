@@ -103,17 +103,3 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     path: '/indonesia/bali',
   },
 ]
-
-/**
- * 위치 ID로 지점 찾기
- */
-export const getLocationById = (id: string): DivingLocation | undefined => {
-  return DIVING_LOCATIONS.find(location => location.id === id)
-}
-
-/**
- * 인덱스로 지점 찾기
- */
-export const getLocationByIndex = (index: number): DivingLocation | undefined => {
-  return DIVING_LOCATIONS[index]
-}

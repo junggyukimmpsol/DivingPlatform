@@ -44,8 +44,3 @@ export interface MapConfig {
     rotateZ: number // deg
   }
 }
-
-export interface MapInteractionState {
-  hoveredLocation: string | null
-  selectedLocation: string | null
-}

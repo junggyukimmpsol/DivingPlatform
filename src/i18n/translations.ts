@@ -653,7 +653,6 @@ export const translations = {
         title: '가격 안내',
         description: '투어 옵션별 상세 가격 정보를 준비 중입니다. 가장 합리적인 가격으로 최고의 다이빙을 약속드립니다.',
       },
-      baliNotice: '발리에는 4개의 지점이 운영되고 있습니다.',
       registeredReview: '후기 인증',
     },
   },
@@ -1280,7 +1279,6 @@ export const translations = {
         title: 'Pricing Guide',
         description: 'Detailed pricing information for each tour option is being prepared. We promise the best diving at the most reasonable price.',
       },
-      baliNotice: 'There are 4 branches operating in Bali.',
       registeredReview: 'Verified Review',
     },
   },
@@ -1907,11 +1905,9 @@ export const translations = {
         title: '价格指南',
         description: '正在准备各行程选项的详细价格信息。我们承诺以最合理的价格提供最优质的潜水。',
       },
-      baliNotice: '巴厘岛有4个分店正在运营。',
       registeredReview: '验证评价',
     },
   },
 }
 
 export type Language = keyof typeof translations
-export type TranslationKey = typeof translations.ko

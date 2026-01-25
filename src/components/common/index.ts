@@ -1,8 +1,0 @@
-export { default as Badge } from './Badge'
-export { default as SectionHeader } from './SectionHeader'
-export { default as StarRating } from './StarRating'
-export { default as KakaoFloatingButton } from './KakaoFloatingButton'
-export { default as WhatsAppFloatingButton } from './WhatsAppFloatingButton'
-export { default as InstagramFloatingButton } from './InstagramFloatingButton'
-export { default as FacebookFloatingButton } from './FacebookFloatingButton'
-export { default as SocialFloatingButtons } from './SocialFloatingButtons'

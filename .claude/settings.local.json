@@ -9,7 +9,10 @@
       "Bash(npx tsc:*)",
       "Bash(npx typescript:*)",
       "Bash(node_modules/.bin/tsc:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(npx knip:*)",
+      "Bash(npx depcheck:*)",
+      "Bash(npx ts-prune:*)"
     ]
   },
   "hooks": {

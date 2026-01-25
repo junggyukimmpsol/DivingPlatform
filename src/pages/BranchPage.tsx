@@ -88,13 +88,6 @@ const BranchPage: React.FC = () => {
   return (
     <div className="pt-32 md:pt-40 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Branch Header */}
-        {currentBranch.id === 'bali' && (
-          <div className="mb-12">
-            <p className="text-parks-gold font-medium">{t.branchTabs.baliNotice}</p>
-          </div>
-        )}
-
         {/* Content Area (Tabs are in the Navigation bar) */}
 
         {/* Tab Content */}
