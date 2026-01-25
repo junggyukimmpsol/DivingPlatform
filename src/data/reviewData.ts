@@ -13,7 +13,6 @@ export const REVIEW_DATA: Record<Language, Record<CenterId, string[]>> = {
       "보홀에서 처음으로 펀다이빙을 해봤는데, 물도 너무 깨끗하고 거북이도 정말 많이 볼 수 있었어요. 발리카삭은 하루 인원 제한이 있어서 미리 예약을 하고 가야겠다고 생각하던 중 이 업체를 알게 되었습니다. 다른 업체들은 숙소가 포함된 상품만 있거나 다이빙 시간이 명확하게 적혀 있지 않아 선택 장애가 오고 있었는데, 여기는 그런 부분이 잘 안내되어 있어서 바로 선택하게 되었어요. 달러 계산이 아닌 카드 결제와 한국 돈 결제가 가능한 점도 마음에 들었습니다. 바다에 들어가서 약 1시간 정도 스킨스쿠버를 했는데, 정말 너무나도 행복한 시간이었어요. 3년 만에 다시 스킨스쿠버를 하는 거라 잘할 수 있을지 걱정이 되었는데, 마스터님이 잘 리드해 주셔서 편하게 다이빙할 수 있었습니다. 다음에 보홀에 오게 된다면 펀다이빙 3번 코스로 다시 이용할 예정이에요.",
       "보홀에서 스킨스쿠버 체험 투어를 진행했는데 정말 최고예요. 스노쿨링으로는 절대 볼 수 없는 진짜 바닷속 세계를 직접 느낄 수 있었어요. 산호초가 정말 예뻤고, 물고기들도 다양해서 사진과 영상 남기기에도 최고였습니다. 특히 빅터, 호세가 꼼꼼하게 안전 교육도 해주고 계속해서 케어해줘서 처음 하시는 분들도 걱정 없이 참여할 수 있을 것 같아요. 보홀 여행 일정 중에 무조건 추천하는 필수 코스입니다!",
       "보홀 두 번째 오는데 새로운 경험을 해보고 싶어서 신청했어요. 남편은 물을 무서워하고 저는 수영을 못하고 아들만 수영을 조금 합니다. 걱정이 무색하게 친절하게 하나하나 설명해주셔서 즐겁게 할 수 있었어요. 처음에 한국 분이 있을 줄 알았는데 현지 분들만 있어서 당황했어요. 영어가 짧은데 쉬운 단어와 바디 랭귀지로 다 이해할 수 있었습니다! 이번 기회로 아들은 여기서 자격증 바로 도전합니다! 좋은 경험 감사합니다!",
-      "구매할 때 옵션에 점심 포함이라고 적혀있어 구매하였고 점심을 안 주시길래 점심 포함 아닌가요 물어보니 아니라네요.. 옵션 캡처해서 보내드리니 죄송하다 하고 아무런 조치가 없으시네요. 이거는 뭐 그렇다 할게요.. 보트 다이빙 1회는 비치에서 5분 걸어가서 20분 2회째는 보트 타고 5분 나가서 40분 하십니다. 저도 많은 여행 해봤지만 이거는 아닌 것 같네요..",
       "단순 체험하러 갔다가 아들이 너무 재밌어해서 바로 다이빙 자격증까지 땄습니다! 체험일 포함 3일 만에 땄어요~ 다음엔 두 번째 단계 따러 세부 가려고 합니다. 자격증에 대한 친절한 상담 감사합니다! 올해 안에 세부 가면 또 예약하겠습니다! ㅎ"
     ],
     cebu: [
@@ -42,7 +41,6 @@ export const REVIEW_DATA: Record<Language, Record<CenterId, string[]>> = {
       "I tried fun diving in Bohol for the first time, and the water was so clear with so many turtles! I chose this shop because Balicasag has limited daily slots and they handled the reservation perfectly. Unlike other shops that only offered accommodation packages, this place provided clear details and transparent pricing. I also loved that they accept card and KRW payments. We spend about an hour underwater, and it was pure bliss. My master led us exceptionally well, making me feel secure even after a 3-year break from diving. I'll definitely do the 3-dive course next time.",
       "The discovery diving tour in Bohol was absolute perfection. You get to see a world underwater that snorkeling just can't touch. The coral reefs were stunning, and the variety of fish was incredible for photos and videos. Victor and Jose gave detailed safety briefings and 1:1 care throughout, so even beginners can join without worry. A must-do if you're visiting Bohol!",
       "This was my second time in Bohol, and I wanted a new experience. My husband is afraid of water and I can't swim, but they explained everything so kindly that even we could enjoy it. I was initially surprised that only local staff were there, but their simple English and body language made everything easy to understand. My son is now going for his certification here! Thank you for the great experience!",
-      "I booked an option that said lunch was included, but then they told me it wasn't when I was there. Even after showing a screenshot, they just apologized without taking action. Also, the first dive was just a 5-minute walk from the beach for 20 minutes, which felt short. However, the second dive was a boat trip with 40 minutes of diving which was better.",
       "We went for a discovery dive and my son enjoyed it so much he ended up getting his diving license right away! He finished it in 3 days including the trial day. We plan to head to Cebu for the next level soon. Thank you for the kind consultation regarding the certifications!"
     ],
     cebu: [
@@ -71,7 +69,6 @@ export const REVIEW_DATA: Record<Language, Record<CenterId, string[]>> = {
       "在薄荷岛第一次尝试休闲潜水，水非常清澈，海龟也很多！我选择这家店是因为巴里卡萨每天有名额限制，他们帮我提前处理好了预订。不像其他店只提供含住宿的套餐，这里的价格透明且细节清晰。让我惊喜的是他们接受刷卡和韩币支付。我们在水下待了大约一小时，非常享受。潜导带队很专业，即便我三年没潜水了也感到非常有安全感。下次来薄荷岛，我会选择三连潜。 ",
       "薄荷岛的体验潜水之旅简直完美。在水下看到的世界是浮潜完全无法比拟的。珊瑚礁非常漂亮，鱼类种类繁多，非常适合拍照和视频。教练Victor和Jose提供了细致的安全讲解和一对一照顾，即使是初学者也可以放心参加。薄荷岛旅行必选项目！",
       "这是我第二次来薄荷岛。我丈夫怕水，我不会游泳，但教练们讲解得非常耐心，甚至连我们也都能轻松享受。起初我惊讶于全是当地员工，但通过简单的英语和肢体语言完全能够顺畅沟通。我儿子现在准备在这里考证了！感谢这段美好的经历！",
-      "预订时选项写着包含午餐，但到现场却被告知不含。即便出示了截图，对方也只是道歉并无实际行动。此外，第一次潜水只是从海滩步行5分钟潜了20分钟，感觉很短。不过第二次船潜潜了40分钟，体验好多了。",
       "本来只是去体验，但我儿子觉得太有意思了，直接在这里考了潜水证！包含体验日只用了3天。我们打算很快去宿务考下一级。感谢针对证书进行的亲切咨询！"
     ],
     cebu: [

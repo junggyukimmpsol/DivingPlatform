@@ -89,21 +89,18 @@ const BranchPage: React.FC = () => {
     <div className="pt-32 md:pt-40 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Branch Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-            {displayName}
-          </h1>
-          {currentBranch.id === 'bali' && (
+        {currentBranch.id === 'bali' && (
+          <div className="mb-12">
             <p className="text-parks-gold font-medium">{t.branchTabs.baliNotice}</p>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Content Area (Tabs are in the Navigation bar) */}
 
         {/* Tab Content */}
         <div className="min-h-[400px]">
           {activeTab === 'intro' && (
-            <div className="animate-fade-in space-y-8">
+            <div className="space-y-8 animate-fade-in">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
                 <div className="text-slate-400 leading-relaxed mb-6 space-y-4">
@@ -163,7 +160,7 @@ const BranchPage: React.FC = () => {
                         disabled={!canScrollLeft}
                         className={`absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
                           ${canScrollLeft
-                            ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                            ? 'opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
                             : 'opacity-50 grayscale pointer-events-none'}`}
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +172,7 @@ const BranchPage: React.FC = () => {
                         disabled={!canScrollRight}
                         className={`absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
                           ${canScrollRight
-                            ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                            ? 'opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
                             : 'opacity-50 grayscale pointer-events-none'}`}
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +188,7 @@ const BranchPage: React.FC = () => {
 
 
           {activeTab === 'tours' && (
-            <div className="animate-fade-in space-y-8">
+            <div className="space-y-8 animate-fade-in">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">{t.branchPricing.title}</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
@@ -229,7 +226,7 @@ const BranchPage: React.FC = () => {
           )}
 
           {activeTab === 'reviews' && (
-            <div className="animate-fade-in space-y-8">
+            <div className="space-y-8 animate-fade-in">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">리뷰</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
@@ -247,16 +244,16 @@ const BranchPage: React.FC = () => {
                       >
                         {reviews.length > 0 ? (
                           reviews.map((review: string, i: number) => (
-                            <div key={i} className="flex-none w-[85vw] md:w-[400px] bg-white/5 rounded-xl border border-white/5 p-6 snap-start flex flex-col h-[300px]">
+                            <div key={i} className="flex-none w-[85vw] sm:w-[400px] md:w-[450px] lg:w-[500px] bg-white/5 rounded-xl border border-white/5 p-6 snap-start flex flex-col min-h-[300px] max-h-[400px]">
                               <div className="flex justify-between items-start mb-4">
                                 <span className="text-xs text-slate-500 font-medium">{t.branchTabs.registeredReview}</span>
-                                <div className="text-parks-gold flex gap-1 text-sm">
+                                <div className="text-parks-gold flex gap-1 text-sm flex-shrink-0">
                                   {Array.from({ length: 5 }).map((_, i) => (
                                     <span key={i}>⭐</span>
                                   ))}
                                 </div>
                               </div>
-                              <p className="text-slate-300 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words">{review}</p>
+                              <p className="text-slate-300 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar break-words hyphens-auto">{review}</p>
                             </div>
                           ))
                         ) : (
@@ -273,7 +270,7 @@ const BranchPage: React.FC = () => {
                             disabled={!canScrollLeft}
                             className={`absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
                               ${canScrollLeft
-                                ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                                ? 'opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
                                 : 'opacity-50 grayscale pointer-events-none'}`}
                           >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -285,7 +282,7 @@ const BranchPage: React.FC = () => {
                             disabled={!canScrollRight}
                             className={`absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-white transition-all duration-300 z-10
                               ${canScrollRight
-                                ? 'opacity-0 group-hover:opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
+                                ? 'opacity-100 hover:bg-parks-gold hover:text-black cursor-pointer'
                                 : 'opacity-50 grayscale pointer-events-none'}`}
                           >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

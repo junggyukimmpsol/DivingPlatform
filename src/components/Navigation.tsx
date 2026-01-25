@@ -62,8 +62,8 @@ const Navigation: React.FC = () => {
                 </div>
               </Link>
 
-              {/* Branch Links (Tier 1 - Desktop & Mobile Scroll) */}
-              <div className="flex items-center gap-1 p-1 bg-white/5 md:bg-white/5 rounded-full border border-white/5 overflow-x-auto no-scrollbar max-w-[200px] sm:max-w-none">
+              {/* Branch Links (Tier 1 - Desktop only) */}
+              <div className="hidden md:flex items-center gap-1 p-1 bg-white/5 rounded-full border border-white/5">
                 {DIVING_LOCATIONS.map((loc, index) => {
                   const locT = t.locations.locations[index];
                   const displayName = language === 'en' ? loc.name : locT.nameKo;
@@ -71,7 +71,7 @@ const Navigation: React.FC = () => {
                     <Link
                       key={loc.id}
                       to={loc.path}
-                      className={`flex-shrink-0 px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-bold transition-all ${pathname === loc.path
+                      className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-bold transition-all ${pathname === loc.path
                         ? 'bg-parks-gold text-ocean-dark shadow-md'
                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                         }`}
