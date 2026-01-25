@@ -629,6 +629,33 @@ export const translations = {
         { program: '누사 페니다 체험다이빙 2회', balance: 230000 },
       ],
     },
+    branchTabs: {
+      intro: {
+        title: '소개',
+        descriptionSuffix: '. 환상적인 다이빙 경험을 Parks Local Diving과 함께하세요.',
+        updatingNotice: '상세한 스팟 특징과 사진, 영상 등은 곧 업데이트될 예정입니다.',
+        placeholderPhotos: '센터 전경 / 활동 사진 준비 중...',
+        placeholderVideo: '소개 영상 준비 중...',
+        spotFeaturesTitle: '📍 스팟 특징',
+        feature1: '맑은 시야와 풍부한 수중 생태계',
+        feature2: '초보자부터 전문가까지 아우르는 다양한 포인트',
+        feature3: 'Parks Local 만의 전문 가이드 시스템',
+      },
+      tours: {
+        title: '투어 일정',
+        featuresTitle: '투어 특징',
+        priceLabel: '가격',
+        updatingNotice: '상세 내용은 곧 업데이트될 예정입니다.',
+        preparing: '준비 중입니다.',
+        loading: '상세 투어 테이블 및 타임라인 데이터 로딩 예정...',
+      },
+      pricing: {
+        title: '가격 안내',
+        description: '투어 옵션별 상세 가격 정보를 준비 중입니다. 가장 합리적인 가격으로 최고의 다이빙을 약속드립니다.',
+      },
+      baliNotice: '발리에는 4개의 지점이 운영되고 있습니다.',
+      registeredReview: '후기 인증',
+    },
   },
   en: {
     nav: {
@@ -1229,6 +1256,33 @@ export const translations = {
         { program: 'Nusa Penida Discovery Diving 2x', balance: 230000 },
       ],
     },
+    branchTabs: {
+      intro: {
+        title: 'Introduction',
+        descriptionSuffix: '. Enjoy a fantastic diving experience with Parks Local Diving.',
+        updatingNotice: 'Detailed spot features, photos, and videos will be updated soon.',
+        placeholderPhotos: 'Center view / Activity photos coming soon...',
+        placeholderVideo: 'Introduction video coming soon...',
+        spotFeaturesTitle: '📍 Spot Features',
+        feature1: 'Clear visibility and rich underwater ecosystem',
+        feature2: 'Diverse points for beginners to experts',
+        feature3: "Parks Local's professional guide system",
+      },
+      tours: {
+        title: 'Tour Schedule',
+        featuresTitle: 'Tour Features',
+        priceLabel: 'Price',
+        updatingNotice: 'Detailed information will be updated soon.',
+        preparing: 'Coming soon.',
+        loading: 'Detailed tour table and timeline data loading soon...',
+      },
+      pricing: {
+        title: 'Pricing Guide',
+        description: 'Detailed pricing information for each tour option is being prepared. We promise the best diving at the most reasonable price.',
+      },
+      baliNotice: 'There are 4 branches operating in Bali.',
+      registeredReview: 'Verified Review',
+    },
   },
   zh: {
     nav: {
@@ -1828,6 +1882,33 @@ export const translations = {
         { program: '佩尼达岛休闲潜水 3次', balance: 210000 },
         { program: '佩尼达岛体验潜水 2次', balance: 230000 },
       ],
+    },
+    branchTabs: {
+      intro: {
+        title: '简介',
+        descriptionSuffix: '。与 Parks Local Diving 一起享受美妙的潜水体验。',
+        updatingNotice: '详细的景点特色、照片和视频将很快更新。',
+        placeholderPhotos: '中心景观 / 活动照片即将推出...',
+        placeholderVideo: '介绍视频即将推出...',
+        spotFeaturesTitle: '📍 景点特色',
+        feature1: '清晰的能见度和丰富的水下生态系统',
+        feature2: '适合从初学者到专家的各种潜点',
+        feature3: 'Parks Local 专业的导潜系统',
+      },
+      tours: {
+        title: '行程安排',
+        featuresTitle: '行程特色',
+        priceLabel: '价格',
+        updatingNotice: '详细信息将很快更新。',
+        preparing: '正在准备中。',
+        loading: '详细的行程表和时间表数据即将加载...',
+      },
+      pricing: {
+        title: '价格指南',
+        description: '正在准备各行程选项的详细价格信息。我们承诺以最合理的价格提供最优质的潜水。',
+      },
+      baliNotice: '巴厘岛有4个分店正在运营。',
+      registeredReview: '验证评价',
     },
   },
 }

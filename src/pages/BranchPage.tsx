@@ -80,24 +80,21 @@ const BranchPage: React.FC = () => {
     return <div className="pt-24 text-center text-white">지점을 찾을 수 없습니다.</div>
   }
 
+  const locationIndex = DIVING_LOCATIONS.findIndex(loc => loc.id === currentBranch.id)
+  const locT = t.locations.locations[locationIndex]
+  const displayName = language === 'en' ? currentBranch.name : locT.nameKo
   const gallery = BRANCH_GALLERIES[currentBranch.id]
 
   return (
-    <div className="pt-24 pb-20">
+    <div className="pt-32 md:pt-40 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Branch Header */}
         <div className="mb-12">
-          <div className="flex items-center gap-4 mb-4">
-            <span className="text-4xl">{currentBranch.icon}</span>
-            <span className="text-sm font-bold text-parks-gold uppercase tracking-widest">
-              {pathname.split('/')[1]}
-            </span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4">
-            {currentBranch.nameKo} ({currentBranch.name})
+            {displayName}
           </h1>
           {currentBranch.id === 'bali' && (
-            <p className="text-parks-gold font-medium">발리에는 4개의 지점이 운영되고 있습니다.</p>
+            <p className="text-parks-gold font-medium">{t.branchTabs.baliNotice}</p>
           )}
         </div>
 
@@ -246,21 +243,20 @@ const BranchPage: React.FC = () => {
                     <div className="relative group">
                       <div
                         ref={scrollContainerRef}
-                        className="flex overflow-x-auto gap-4 pb-6 scrollbar-hide snap-x snap-mandatory"
-                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        className="flex overflow-x-auto gap-4 pb-6 no-scrollbar snap-x snap-mandatory"
                       >
                         {reviews.length > 0 ? (
                           reviews.map((review: string, i: number) => (
-                            <div key={i} className="flex-none w-[85vw] md:w-[400px] bg-white/5 rounded-xl border border-white/5 p-6 break-keep snap-start flex flex-col h-[300px]">
+                            <div key={i} className="flex-none w-[85vw] md:w-[400px] bg-white/5 rounded-xl border border-white/5 p-6 snap-start flex flex-col h-[300px]">
                               <div className="flex justify-between items-start mb-4">
-                                <span className="text-xs text-slate-500 font-medium">Registered Review</span>
+                                <span className="text-xs text-slate-500 font-medium">{t.branchTabs.registeredReview}</span>
                                 <div className="text-parks-gold flex gap-1 text-sm">
                                   {Array.from({ length: 5 }).map((_, i) => (
                                     <span key={i}>⭐</span>
                                   ))}
                                 </div>
                               </div>
-                              <p className="text-slate-300 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar">{review}</p>
+                              <p className="text-slate-300 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words">{review}</p>
                             </div>
                           ))
                         ) : (

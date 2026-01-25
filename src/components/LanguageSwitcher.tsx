@@ -12,17 +12,16 @@ const LanguageSwitcher = () => {
   ]
 
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-0.5 md:gap-1">
       {languages.map((lang) => (
         <button
           key={lang.code}
           onClick={() => setLanguage(lang.code)}
           className={`
             px-3 py-1.5 rounded-md font-body text-sm font-medium transition-all duration-200
-            ${
-              language === lang.code
-                ? 'bg-parks-yellow/20 text-parks-yellow border border-parks-yellow/40'
-                : 'text-slate-400 hover:bg-navy hover:text-white'
+            ${language === lang.code
+              ? 'bg-parks-yellow/20 text-parks-yellow border border-parks-yellow/40'
+              : 'text-slate-400 hover:bg-navy hover:text-white'
             }
           `}
           title={lang.label}

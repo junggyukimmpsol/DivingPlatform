@@ -66,4 +66,17 @@
   .text-gradient-ocean {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-600;
   }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
 }

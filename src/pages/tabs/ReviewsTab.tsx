@@ -3,17 +3,16 @@ import { useOutletContext } from 'react-router-dom'
 import { CenterOutletContext } from '../../types/center.types'
 
 import { REVIEW_DATA } from '../../data/reviewData'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { CenterId } from '../../types/center.types'
 
 const ReviewsTab: React.FC = () => {
   const { center } = useOutletContext<CenterOutletContext>()
+  const { language } = useLanguage()
 
   // Get reviews for the current center
-  const reviews = REVIEW_DATA[center.id] || []
+  const reviews = REVIEW_DATA[language]?.[center.id as CenterId] || []
   const showScroll = reviews.length > 3
-
-  console.log('Current Center ID:', center.id);
-  console.log('Reviews Data:', reviews);
-  console.log('All Review Data:', REVIEW_DATA);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 text-center py-20">
@@ -31,8 +30,8 @@ const ReviewsTab: React.FC = () => {
       <div className={`max-w-4xl mx-auto ${showScroll ? 'max-h-[600px] overflow-y-auto pr-2 custom-scrollbar' : ''}`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {reviews.length > 0 ? (
-            reviews.map((review, i) => (
-              <div key={i} className="bg-white/5 border border-white/5 rounded-xl p-6 text-left h-fit break-keep">
+            reviews.map((review: string, i: number) => (
+              <div key={i} className="bg-white/5 border border-white/5 rounded-xl p-6 text-left h-fit">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex gap-1">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -43,7 +42,7 @@ const ReviewsTab: React.FC = () => {
                   </div>
                   <span className="text-xs text-slate-500">Registered Review</span>
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed">{review}</p>
+                <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap break-words">{review}</p>
               </div>
             ))
           ) : (

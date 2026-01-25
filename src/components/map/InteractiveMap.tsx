@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { DIVING_LOCATIONS } from '../../data/diving-locations'
@@ -12,11 +12,13 @@ import 'leaflet/dist/leaflet.css'
 // 상수 정의
 const DESKTOP_BREAKPOINT = '(min-width: 768px)'
 
-// Map Controller to handle flyTo animations
+// Map Controller to handle flyTo animations and auto-popups
 const MapController = ({
-  selectedLocationId
+  selectedLocationId,
+  markerRefs
 }: {
   selectedLocationId: string | null
+  markerRefs: React.MutableRefObject<Map<string, L.Marker>>
 }) => {
   const map = useMap()
 
@@ -24,12 +26,25 @@ const MapController = ({
     if (selectedLocationId) {
       const location = DIVING_LOCATIONS.find(loc => loc.id === selectedLocationId)
       if (location) {
-        map.flyTo([location.coordinates.lat, location.coordinates.lng], 10, {
+        // Offset latitude further north so the marker appears even lower on the screen
+        // This gives more room for the popup below the navigation bar
+        const offsetLat = location.coordinates.lat + 0.08
+
+        // Fly to offset location
+        map.flyTo([offsetLat, location.coordinates.lng], 10, {
           duration: 1.5
         })
+
+        // Open popup automatically
+        const marker = markerRefs.current.get(selectedLocationId)
+        if (marker) {
+          setTimeout(() => {
+            marker.openPopup()
+          }, 1000) // Delay to wait for the pan/zoom animation to progress
+        }
       }
     }
-  }, [selectedLocationId, map])
+  }, [selectedLocationId, map, markerRefs])
 
   return null
 }
@@ -39,6 +54,7 @@ const InteractiveMap: React.FC = () => {
   const { t } = useLanguage()
   const isDesktop = useMediaQuery(DESKTOP_BREAKPOINT)
   const [selectedLocationId, setSelectedLocationId] = React.useState<string | null>(null)
+  const markerRefs = useRef<Map<string, L.Marker>>(new Map())
 
   // Center map on South East Asia
   const centerPosition: [number, number] = [5.0, 120.0]
@@ -85,7 +101,7 @@ const InteractiveMap: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Map Container */}
-        <div className="lg:col-span-2 h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative z-0">
+        <div className="lg:col-span-2 h-[300px] sm:h-[400px] lg:h-[450px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl relative z-0">
           <MapContainer
             center={centerPosition}
             zoom={zoomLevel}
@@ -99,7 +115,7 @@ const InteractiveMap: React.FC = () => {
               className="map-tiles-filter"
             />
 
-            <MapController selectedLocationId={selectedLocationId} />
+            <MapController selectedLocationId={selectedLocationId} markerRefs={markerRefs} />
 
             {DIVING_LOCATIONS.map((location, index) => {
               const locT = t.locations.locations[index]
@@ -108,17 +124,20 @@ const InteractiveMap: React.FC = () => {
                   key={location.id}
                   position={[location.coordinates.lat, location.coordinates.lng]}
                   icon={createCustomIcon(location.icon, location.color)}
+                  ref={(el) => {
+                    if (el) markerRefs.current.set(location.id, el)
+                  }}
                   eventHandlers={{
                     click: () => handleLocationClick(location.id)
                   }}
                 >
                   <Popup className="custom-popup">
-                    <div className="text-center p-2 min-w-[200px]">
-                      <h3 className="font-display font-bold text-lg mb-1">{locT.name} ({locT.nameKo})</h3>
-                      <p className="text-sm text-gray-600 mb-3">{locT.description}</p>
+                    <div className="text-center p-1 md:p-2 min-w-[140px] md:min-w-[200px]">
+                      <h3 className="font-display font-bold text-sm md:text-lg mb-0.5 md:mb-1">{locT.name} ({locT.nameKo})</h3>
+                      <p className="text-[10px] md:text-sm text-gray-600 mb-2 md:mb-3">{locT.description}</p>
                       <button
                         onClick={() => handleNavigate(location.path)}
-                        className="w-full px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors"
+                        className="w-full px-3 py-1.5 md:px-4 md:py-2 bg-slate-900 text-white text-[10px] md:text-sm font-bold rounded-lg hover:bg-slate-800 transition-colors"
                       >
                         {t.nav.locationInfo}
                       </button>
@@ -184,29 +203,42 @@ const InteractiveMap: React.FC = () => {
       </div>
 
       {/* Mobile grid for locations (below map) */}
-      <div className="lg:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+      <div className="lg:hidden grid grid-cols-2 gap-2 mt-4">
         {DIVING_LOCATIONS.map((location, index) => {
           const locT = t.locations.locations[index]
           return (
-            <button
+            <div
               key={location.id}
               onClick={() => handleLocationClick(location.id)}
               className={`
-                text-left p-4 rounded-xl border transition-all duration-300
+                text-left p-3 rounded-xl border transition-all duration-300 cursor-pointer
                 ${selectedLocationId === location.id
                   ? 'bg-white/10 border-parks-gold/50'
                   : 'glass-card border-white/5'
                 }
               `}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{location.icon}</span>
-                <div>
-                  <h4 className="font-bold text-white">{locT.name}</h4>
-                  <p className="text-xs text-slate-400">{locT.description}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xl">{location.icon}</span>
+                <div className="min-w-0">
+                  <h4 className="font-bold text-white text-sm truncate">{locT.name}</h4>
+                  <p className="text-[10px] text-slate-400 truncate">{locT.description}</p>
                 </div>
               </div>
-            </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleNavigate(location.path)
+                }}
+                className="w-full py-1.5 bg-parks-gold text-ocean-dark font-bold rounded-lg text-[10px] transition-all flex items-center justify-center gap-1"
+              >
+                <span>{t.nav.locationInfo}</span>
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+            </div>
           )
         })}
       </div>
