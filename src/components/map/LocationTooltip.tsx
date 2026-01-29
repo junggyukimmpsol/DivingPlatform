@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { DivingLocation } from '../../types/map.types'
-import { MAP_CONFIG } from '../../data/diving-locations'
+import { MAP_CONFIG, DIVING_LOCATIONS } from '../../data/diving-locations'
 import { useLanguage } from '../../contexts/LanguageContext'
 
 interface LocationTooltipProps {
@@ -15,8 +15,14 @@ const TOOLTIP_FADE_IN_DELAY_MS = 50
  */
 const LocationTooltip: React.FC<LocationTooltipProps> = ({ location }) => {
   const [isVisible, setIsVisible] = useState(false)
-  const { t } = useLanguage()
-  const { coordinates, name, nameKo, description, icon } = location
+  const { t, language } = useLanguage()
+  const { coordinates, icon } = location
+
+  // Get location index from DIVING_LOCATIONS
+  const locationIndex = DIVING_LOCATIONS.findIndex(loc => loc.id === location.id)
+  const locT = t.locations.locations[locationIndex]
+  const displayName = language === 'en' ? locT.name : locT.nameKo
+  const displayDescription = locT.description
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), TOOLTIP_FADE_IN_DELAY_MS)
@@ -50,14 +56,14 @@ const LocationTooltip: React.FC<LocationTooltipProps> = ({ location }) => {
         <div className="flex items-center gap-2 mb-2">
           <span className="text-2xl">{icon}</span>
           <div>
-            <h4 className="text-white font-bold text-lg leading-tight">{nameKo}</h4>
-            <p className="text-slate-400 text-sm">{name}</p>
+            <h4 className="text-white font-bold text-lg leading-tight">{displayName}</h4>
+            <p className="text-slate-400 text-sm">{locT.name}</p>
           </div>
         </div>
 
         {/* 설명 */}
         <p className="text-slate-300 text-sm border-t border-white/10 pt-2 mt-2">
-          {description}
+          {displayDescription}
         </p>
 
         {/* 클릭 안내 */}

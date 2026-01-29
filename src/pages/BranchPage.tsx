@@ -185,7 +185,7 @@ const BranchPage: React.FC = () => {
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">{t.branchPricing.title}</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  {currentBranch.nameKo}{t.branchPricing.subtitle}
+                  {displayName}{t.branchPricing.subtitle}
                 </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left bg-white/5 rounded-xl overflow-hidden">
@@ -223,7 +223,7 @@ const BranchPage: React.FC = () => {
               <div className="glass-card p-8 rounded-2xl border border-white/10">
                 <h3 className="text-2xl font-bold text-white mb-4">{t.branchPage.reviewsTitle}</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  {currentBranch.nameKo}{t.branchPage.reviewsSubtitle}
+                  {displayName}{t.branchPage.reviewsSubtitle}
                 </p>
 
                 {(() => {

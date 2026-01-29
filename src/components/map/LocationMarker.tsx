@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { DivingLocation } from '../../types/map.types'
 import { getGradientColors } from '../../utils/map-coordinates'
 import { useLanguage } from '../../contexts/LanguageContext'
+import { DIVING_LOCATIONS } from '../../data/diving-locations'
 
 interface LocationMarkerProps {
   location: DivingLocation
@@ -24,9 +25,14 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
   onLeave,
   onClick,
 }) => {
-  const { t } = useLanguage()
-  const { coordinates, color, icon, name, nameKo } = location
+  const { t, language } = useLanguage()
+  const { coordinates, color, icon } = location
   const { x, y } = coordinates
+
+  // Get location index from DIVING_LOCATIONS
+  const locationIndex = DIVING_LOCATIONS.findIndex(loc => loc.id === location.id)
+  const locT = t.locations.locations[locationIndex]
+  const displayName = language === 'en' ? locT.name : locT.nameKo
 
   const colors = useMemo(() => getGradientColors(color), [color])
   const scale = isHovered ? 1.3 : isSelected ? 1.2 : 1
@@ -50,7 +56,7 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
       style={gStyle}
       role="button"
       tabIndex={0}
-      aria-label={`${nameKo} (${name}) ${t.common.divingShopLocation}`}
+      aria-label={`${displayName} (${locT.name}) ${t.common.divingShopLocation}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
@@ -128,7 +134,7 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
             textShadow: '0 2px 4px rgba(0,0,0,0.8)',
           }}
         >
-          {nameKo}
+          {displayName}
         </text>
       )}
 
