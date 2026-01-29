@@ -548,7 +548,7 @@ export const translations = {
       },
     },
     footer: {
-      companyName: 'Parks 로컬 다이빙',
+      companyName: 'Parks Local Diving',
       companyDescription: '아시아 최고의 다이빙 포인트에서\n안전하고 즐거운 다이빙을 경험하세요',
       instagramAriaLabel: '인스타그램 페이지 방문',
       facebookAriaLabel: '페이스북 페이지 방문',
@@ -1860,7 +1860,7 @@ export const translations = {
       },
     },
     footer: {
-      companyName: 'Parks本地潜水',
+      companyName: 'Parks Local Diving',
       companyDescription: '在亚洲最佳潜水点\n体验安全愉快的潜水',
       instagramAriaLabel: '访问我们的Instagram页面',
       facebookAriaLabel: '访问我们的Facebook页面',
@@ -1881,7 +1881,7 @@ export const translations = {
       hoursLabel: '营业时间：',
       hoursValue: '全年无休24小时咨询',
       certifications: ['PADI 5星', '满意度第一', '1,000+客户', '复购率第一'],
-      allRightsReserved: '版权所有。',
+      allRightsReserved: 'All rights reserved.',
       tagline: '在Parks本地潜水体验实惠又安全的水肺潜水',
     },
     common: {
