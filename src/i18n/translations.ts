@@ -14,7 +14,7 @@ export const translations = {
       title1: 'Discover the',
       title2: "Ocean's Magic",
       subtitle: '세부 · 보홀 · 코타키나발루 · 발리',
-      subtitleHighlight: 'Parks 로컬 다이빙',
+      subtitleHighlight: 'Parks Local Diving',
       subtitleEnd: '과 함께하는',
       subtitlePremium: '프리미엄 다이빙',
       subtitleExperience: '경험',
@@ -36,7 +36,7 @@ export const translations = {
     whyUs: {
       badge: '올 인클루시브 다이빙 투어!',
       title: 'Why us?',
-      subtitle: 'Parks 로컬 다이빙',
+      subtitle: 'Parks Local Diving',
       subtitleEnd: '과 함께 해야하는 이유',
       features: [
         {
@@ -106,7 +106,7 @@ export const translations = {
     },
     locations: {
       badge: 'PADI 5 Star 공식 리조트',
-      title: 'Parks 로컬 다이빙',
+      title: 'Parks Local Diving',
       subtitle: '전세계 4개 지점',
       subtitleEnd: '다이빙 샵 운영',
       description1: '고객 만족도 1위, 재구매율 1위',
@@ -239,7 +239,7 @@ export const translations = {
       ctaSubtitle: '진짜 다이빙을 경험하세요. 사진만 찍고 끝나는 다이빙이 아닙니다.',
     },
     pricing: {
-      badge: 'Parks 로컬 다이빙',
+      badge: 'Parks Local Diving',
       title: '다이빙 투어 가격',
       subtitle: '타업체 대비',
       subtitleHighlight: '최저가 보장',
@@ -247,7 +247,7 @@ export const translations = {
         location: '다이빙 지역',
         product: '다이빙 상품',
         competitor: '타업체(원보)',
-        parks: "Park's 로컬 다이빙",
+        parks: "Parks Local Diving",
       },
       mobileCompetitorLabel: '타업체 평균',
       priceData: [
@@ -344,7 +344,7 @@ export const translations = {
         {
           number: '1',
           text: '모든 투어는 올인클루시브 패키지입니다. (장비 렌탈, 픽드랍, 점심 식사, 환경세, 입장료, 수중 촬영 포함)',
-          highlight: 'Parks 로컬 다이빙',
+          highlight: 'Parks Local Diving',
         },
         {
           number: '2',
@@ -425,9 +425,9 @@ export const translations = {
       },
     },
     events: {
-      badge: 'Only Parks 로컬 다이빙에서만',
+      badge: 'Only Parks Local Diving에서만',
       title: 'Special Event',
-      subtitle: 'Parks 로컬 다이빙',
+      subtitle: 'Parks Local Diving',
       subtitleEnd: '이 드리는 혜택',
       events: [
         {
@@ -467,7 +467,7 @@ export const translations = {
     videoGallery: {
       badge: '실제 다이빙 영상',
       title: '직접 눈으로 확인하세요',
-      subtitle: 'Parks 로컬 다이빙에서 촬영한 실제 영상입니다.',
+      subtitle: 'Parks Local Diving에서 촬영한 실제 영상입니다.',
       subtitleEnd: '당신도 이 순간의 주인공이 될 수 있습니다.',
       highlights: '다이빙 하이라이트',
       unmute: '소리 켜기',
@@ -570,7 +570,7 @@ export const translations = {
       hoursValue: '연중무휴 24시간 문의 가능',
       certifications: ['PADI 5 Star', '고객 만족도 1위', '1,000+ 고객', '재구매율 1위'],
       allRightsReserved: 'All rights reserved.',
-      tagline: '비싸기만 했던 스쿠버 다이빙, Parks 로컬 다이빙에서 저렴하고 안전하게 함께 해봐요',
+      tagline: '비싸기만 했던 스쿠버 다이빙, Parks Local Diving에서 저렴하고 안전하게 함께 해봐요',
     },
     common: {
       logoAlt: 'Parks Local Diving 로고',
@@ -1357,7 +1357,7 @@ export const translations = {
       title1: 'Discover the',
       title2: "Ocean's Magic",
       subtitle: '宿务 · 薄荷岛 · 亚庇 · 巴厘岛',
-      subtitleHighlight: 'Parks本地潜水',
+      subtitleHighlight: 'Parks Local Diving',
       subtitleEnd: ' - 您的',
       subtitlePremium: '尊贵潜水',
       subtitleExperience: '体验',
@@ -1379,7 +1379,7 @@ export const translations = {
     whyUs: {
       badge: '全包式潜水之旅！',
       title: 'Why us?',
-      subtitle: 'Parks本地潜水',
+      subtitle: 'Parks Local Diving',
       subtitleEnd: ' - 选择我们的理由',
       features: [
         {
@@ -1449,7 +1449,7 @@ export const translations = {
     },
     locations: {
       badge: 'PADI 5星官方度假村',
-      title: 'Parks本地潜水',
+      title: 'Parks Local Diving',
       subtitle: '全球4个分店',
       subtitleEnd: ' 潜水店运营',
       description1: '客户满意度第一、复购率第一',
@@ -1582,7 +1582,7 @@ export const translations = {
       ctaSubtitle: '体验真正的潜水。不仅仅是拍照。',
     },
     pricing: {
-      badge: 'Parks本地潜水',
+      badge: 'Parks Local Diving',
       title: '潜水之旅价格',
       subtitle: '与其他相比',
       subtitleHighlight: '最低价保证',
@@ -1737,9 +1737,9 @@ export const translations = {
       },
     },
     events: {
-      badge: '仅在Parks本地潜水',
+      badge: '仅在Parks Local Diving',
       title: 'Special Event',
-      subtitle: 'Parks本地潜水',
+      subtitle: 'Parks Local Diving',
       subtitleEnd: ' 为您提供的福利',
       events: [
         {
@@ -1779,7 +1779,7 @@ export const translations = {
     videoGallery: {
       badge: '真实潜水视频',
       title: '亲眼见证',
-      subtitle: 'Parks本地潜水的真实拍摄。',
+      subtitle: 'Parks Local Diving的真实拍摄。',
       subtitleEnd: '您也可以成为这些时刻的主角。',
       highlights: '潜水精彩集锦',
       unmute: '取消静音',
@@ -1882,10 +1882,10 @@ export const translations = {
       hoursValue: '全年无休24小时咨询',
       certifications: ['PADI 5星', '满意度第一', '1,000+客户', '复购率第一'],
       allRightsReserved: 'All rights reserved.',
-      tagline: '在Parks本地潜水体验实惠又安全的水肺潜水',
+      tagline: '在Parks Local Diving体验实惠又安全的水肺潜水',
     },
     common: {
-      logoAlt: 'Parks本地潜水标志',
+      logoAlt: 'Parks Local Diving标志',
       clickToViewDetails: '点击查看详情',
       divingShopLocation: '潜水店位置',
       branchNotFound: '未找到分店。',
