@@ -509,9 +509,24 @@ export const translations = {
       responseTime: '응답 시간',
       instant: '즉시 응답',
       within1h: '1시간 이내',
+      recommended: '추천',
       kakao: {
         available24h: '24시간 상담 가능',
-        languages: '한국어 · English · 中文'
+        languages: '한국어 · English · 中文',
+        ariaLabel: '카카오톡으로 상담하기',
+        tooltip: '24시간 상담 가능',
+      },
+      whatsapp: {
+        ariaLabel: 'WhatsApp으로 상담하기',
+        tooltip: 'WhatsApp 상담',
+      },
+      instagram: {
+        ariaLabel: 'Instagram으로 문의하기',
+        tooltip: 'Instagram DM',
+      },
+      facebook: {
+        ariaLabel: 'Facebook으로 문의하기',
+        tooltip: 'Facebook 문의',
       },
       channels: {
         kakao: {
@@ -556,6 +571,14 @@ export const translations = {
       certifications: ['PADI 5 Star', '고객 만족도 1위', '1,000+ 고객', '재구매율 1위'],
       allRightsReserved: 'All rights reserved.',
       tagline: '비싸기만 했던 스쿠버 다이빙, Parks 로컬 다이빙에서 저렴하고 안전하게 함께 해봐요',
+    },
+    common: {
+      logoAlt: 'Parks Local Diving 로고',
+      clickToViewDetails: '클릭하여 자세히 보기',
+      divingShopLocation: '다이빙 샵 위치',
+      branchNotFound: '지점을 찾을 수 없습니다.',
+      photoPlaceholder: '사진 준비 중',
+      videoPlaceholder: '영상 준비 중',
     },
     branchDetails: {
       cebu: {
@@ -1142,9 +1165,24 @@ export const translations = {
       responseTime: 'Response',
       instant: 'Instant',
       within1h: 'Within 1 hour',
+      recommended: 'Recommended',
       kakao: {
         available24h: '24/7 Consultation Available',
-        languages: '한국어 · English · 中文'
+        languages: '한국어 · English · 中文',
+        ariaLabel: 'Chat on KakaoTalk',
+        tooltip: '24/7 Available',
+      },
+      whatsapp: {
+        ariaLabel: 'Chat on WhatsApp',
+        tooltip: 'WhatsApp Chat',
+      },
+      instagram: {
+        ariaLabel: 'Contact via Instagram',
+        tooltip: 'Instagram DM',
+      },
+      facebook: {
+        ariaLabel: 'Contact via Facebook',
+        tooltip: 'Facebook Chat',
       },
       channels: {
         kakao: {
@@ -1189,6 +1227,14 @@ export const translations = {
       certifications: ['PADI 5 Star', '#1 Satisfaction', '1,000+ Customers', '#1 Rebooking'],
       allRightsReserved: 'All rights reserved.',
       tagline: 'Experience affordable and safe scuba diving with Parks Local Diving',
+    },
+    common: {
+      logoAlt: 'Parks Local Diving Logo',
+      clickToViewDetails: 'Click to view details',
+      divingShopLocation: 'Diving Shop Location',
+      branchNotFound: 'Branch not found.',
+      photoPlaceholder: 'Photo Coming Soon',
+      videoPlaceholder: 'Video Coming Soon',
     },
     branchDetails: {
       cebu: {
@@ -1775,9 +1821,24 @@ export const translations = {
       responseTime: '响应时间',
       instant: '即时响应',
       within1h: '1小时内',
+      recommended: '推荐',
       kakao: {
         available24h: '24小时咨询服务',
-        languages: '한국어 · English · 中文'
+        languages: '한국어 · English · 中文',
+        ariaLabel: '在KakaoTalk上咨询',
+        tooltip: '24小时可用',
+      },
+      whatsapp: {
+        ariaLabel: '在WhatsApp上聊天',
+        tooltip: 'WhatsApp聊天',
+      },
+      instagram: {
+        ariaLabel: '通过Instagram联系',
+        tooltip: 'Instagram私信',
+      },
+      facebook: {
+        ariaLabel: '通过Facebook联系',
+        tooltip: 'Facebook咨询',
       },
       channels: {
         kakao: {
@@ -1822,6 +1883,14 @@ export const translations = {
       certifications: ['PADI 5星', '满意度第一', '1,000+客户', '复购率第一'],
       allRightsReserved: '版权所有。',
       tagline: '在Parks本地潜水体验实惠又安全的水肺潜水',
+    },
+    common: {
+      logoAlt: 'Parks本地潜水标志',
+      clickToViewDetails: '点击查看详情',
+      divingShopLocation: '潜水店位置',
+      branchNotFound: '未找到分店。',
+      photoPlaceholder: '照片准备中',
+      videoPlaceholder: '视频准备中',
     },
     branchDetails: {
       cebu: {
@@ -1921,6 +1990,12 @@ export const translations = {
         description: '正在准备各行程选项的详细价格信息。我们承诺以最合理的价格提供最优质的潜水。',
       },
       registeredReview: '验证评价',
+    },
+    branchPage: {
+      notFound: '未找到分店。',
+      reviewsTitle: '评价',
+      reviewsSubtitle: ' - 真实客户评价。',
+      noReviews: '暂无评价。'
     },
   },
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { DivingLocation } from '../../types/map.types'
 import { MAP_CONFIG } from '../../data/diving-locations'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 interface LocationTooltipProps {
   location: DivingLocation
@@ -14,6 +15,7 @@ const TOOLTIP_FADE_IN_DELAY_MS = 50
  */
 const LocationTooltip: React.FC<LocationTooltipProps> = ({ location }) => {
   const [isVisible, setIsVisible] = useState(false)
+  const { t } = useLanguage()
   const { coordinates, name, nameKo, description, icon } = location
 
   useEffect(() => {
@@ -61,7 +63,7 @@ const LocationTooltip: React.FC<LocationTooltipProps> = ({ location }) => {
         {/* 클릭 안내 */}
         <div className="flex items-center gap-1 mt-3 text-ocean-teal text-xs font-medium">
           <span>👆</span>
-          <span>클릭하여 자세히 보기</span>
+          <span>{t.common.clickToViewDetails}</span>
         </div>
       </div>
 

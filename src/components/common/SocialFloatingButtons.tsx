@@ -167,7 +167,7 @@ const SocialFloatingButtons: React.FC = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-bold text-white text-sm">{t.floating.channels[button.id].name}</span>
                   {button.isPrimary && (
-                    <span className="bg-parks-gold/20 text-parks-gold text-[10px] px-2 py-0.5 rounded-full font-medium">추천</span>
+                    <span className="bg-parks-gold/20 text-parks-gold text-[10px] px-2 py-0.5 rounded-full font-medium">{t.floating.recommended}</span>
                   )}
                 </div>
                 <p className="text-[11px] text-slate-400 mb-1.5">{t.floating.channels[button.id].description}</p>

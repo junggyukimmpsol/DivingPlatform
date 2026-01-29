@@ -56,7 +56,7 @@ const Navigation: React.FC = () => {
                 <div className="relative h-10 w-10 md:h-12 md:w-12 overflow-hidden rounded-xl border border-white/10 shadow-lg group-hover:border-parks-gold/50 transition-all duration-300">
                   <img
                     src="/dive_logo.jpg"
-                    alt="Parks Local Diving Logo"
+                    alt={t.common.logoAlt}
                     className="h-full w-full object-cover"
                   />
                 </div>
@@ -183,8 +183,8 @@ const Navigation: React.FC = () => {
           </div>
 
           <div className="mt-auto pb-10 text-center">
-            <p className="text-xs text-slate-500 mb-2">Parks Local Diving</p>
-            <p className="text-[10px] text-slate-600">All rights reserved.</p>
+            <p className="text-xs text-slate-500 mb-2">{t.footer.companyName}</p>
+            <p className="text-[10px] text-slate-600">{t.footer.allRightsReserved}</p>
           </div>
         </div>
       </div>

@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import { FaInstagram } from 'react-icons/fa'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 const InstagramFloatingButton: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false)
+  const { t } = useLanguage()
 
   return (
     <a
       href="https://www.instagram.com/parks_local_diving"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Instagram으로 문의하기"
+      aria-label={t.floating.instagram.ariaLabel}
       className="fixed bottom-[10.5rem] right-6 z-50 flex items-center gap-3 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -22,7 +24,7 @@ const InstagramFloatingButton: React.FC = () => {
           ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
         `}
       >
-        Instagram DM
+        {t.floating.instagram.tooltip}
       </div>
 
       {/* Button */}
