@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import { FaFacebookMessenger } from 'react-icons/fa'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 const FacebookFloatingButton: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false)
+  const { t } = useLanguage()
 
   return (
     <a
       href="https://www.facebook.com/share/1Xyev7V9hL/?mibextid=wwXIfr"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Facebook으로 문의하기"
+      aria-label={t.floating.facebook.ariaLabel}
       className="fixed bottom-[14.5rem] right-6 z-50 flex items-center gap-3 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -22,7 +24,7 @@ const FacebookFloatingButton: React.FC = () => {
           ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
         `}
       >
-        Facebook 문의
+        {t.floating.facebook.tooltip}
       </div>
 
       {/* Button */}

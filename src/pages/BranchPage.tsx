@@ -77,7 +77,7 @@ const BranchPage: React.FC = () => {
   }
 
   if (!currentBranch) {
-    return <div className="pt-24 text-center text-white">지점을 찾을 수 없습니다.</div>
+    return <div className="pt-24 text-center text-white">{t.branchPage.notFound}</div>
   }
 
   const locationIndex = DIVING_LOCATIONS.findIndex(loc => loc.id === currentBranch.id)
@@ -134,13 +134,13 @@ const BranchPage: React.FC = () => {
                     ) : (
                       <>
                         <div className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600 font-medium snap-start">
-                          Photo Placeholder
+                          {t.common.photoPlaceholder}
                         </div>
                         <div className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600 font-medium snap-start">
-                          Photo Placeholder
+                          {t.common.photoPlaceholder}
                         </div>
                         <div className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-slate-600 font-medium snap-start">
-                          Video Placeholder
+                          {t.common.videoPlaceholder}
                         </div>
                       </>
                     )}
@@ -221,9 +221,9 @@ const BranchPage: React.FC = () => {
           {activeTab === 'reviews' && (
             <div className="space-y-8 animate-fade-in">
               <div className="glass-card p-8 rounded-2xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">리뷰</h3>
+                <h3 className="text-2xl font-bold text-white mb-4">{t.branchPage.reviewsTitle}</h3>
                 <p className="text-slate-400 leading-relaxed mb-6">
-                  {currentBranch.nameKo}의 생생한 실제 이용 후기입니다.
+                  {currentBranch.nameKo}{t.branchPage.reviewsSubtitle}
                 </p>
 
                 {(() => {
@@ -251,7 +251,7 @@ const BranchPage: React.FC = () => {
                           ))
                         ) : (
                           <div className="w-full text-center text-slate-500 italic py-12">
-                            등록된 리뷰가 없습니다.
+                            {t.branchPage.noReviews}
                           </div>
                         )}
                       </div>

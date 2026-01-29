@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { FaWhatsapp } from 'react-icons/fa'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 const WhatsAppFloatingButton: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false)
+  const { t } = useLanguage()
 
   // WhatsApp 링크 - ParksLocalDiving (+82 10 5064 1330)
   const whatsappLink = 'https://wa.me/821050641330'
@@ -12,7 +14,7 @@ const WhatsAppFloatingButton: React.FC = () => {
       href={whatsappLink}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="WhatsApp으로 상담하기"
+      aria-label={t.floating.whatsapp.ariaLabel}
       className="fixed bottom-24 right-6 z-50 flex items-center gap-3 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -25,7 +27,7 @@ const WhatsAppFloatingButton: React.FC = () => {
           ${isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}
         `}
       >
-        WhatsApp 상담
+        {t.floating.whatsapp.tooltip}
       </div>
 
       {/* Button */}

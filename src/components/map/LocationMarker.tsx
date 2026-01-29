@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { DivingLocation } from '../../types/map.types'
 import { getGradientColors } from '../../utils/map-coordinates'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 interface LocationMarkerProps {
   location: DivingLocation
@@ -23,6 +24,7 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
   onLeave,
   onClick,
 }) => {
+  const { t } = useLanguage()
   const { coordinates, color, icon, name, nameKo } = location
   const { x, y } = coordinates
 
@@ -48,7 +50,7 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
       style={gStyle}
       role="button"
       tabIndex={0}
-      aria-label={`${nameKo} (${name}) 다이빙 샵 위치`}
+      aria-label={`${nameKo} (${name}) ${t.common.divingShopLocation}`}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()

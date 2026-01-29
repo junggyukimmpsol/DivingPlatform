@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext'
 
 const KakaoFloatingButton: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false)
+  const { t } = useLanguage()
 
   return (
     <a
       href="http://pf.kakao.com/_xhhbxcn/chat"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="카카오톡으로 상담하기"
+      aria-label={t.floating.kakao.ariaLabel}
       className="fixed bottom-6 right-6 z-50 flex items-center gap-3 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -22,8 +24,8 @@ const KakaoFloatingButton: React.FC = () => {
         `}
       >
         <div className="flex flex-col gap-1">
-          <div className="text-sm font-bold text-parks-gold">24시간 상담 가능</div>
-          <div className="text-xs text-slate-300">한국어 · English · 中文</div>
+          <div className="text-sm font-bold text-parks-gold">{t.floating.kakao.available24h}</div>
+          <div className="text-xs text-slate-300">{t.floating.kakao.languages}</div>
         </div>
       </div>
 
