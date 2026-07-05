@@ -2,11 +2,15 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from '../pages/HomePage'
 import BranchPage from '../pages/BranchPage'
+import AuthPage from '../pages/AuthPage'
+import ProfilePage from '../pages/ProfilePage'
 
 const AppRouter: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
 
       {/* Philippines */}
       <Route path="/philippines/cebu" element={<BranchPage />} />

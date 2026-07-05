@@ -1,11 +1,7 @@
-import React from 'react'
-import { FaInstagram, FaFacebookF, FaEnvelope, FaMapMarkerAlt, FaStar, FaTrophy, FaUsers, FaPercent } from 'react-icons/fa'
 import { useLanguage } from '../contexts/LanguageContext'
 
 const Footer = () => {
   const { t } = useLanguage()
-  const certificationIcons = [FaStar, FaTrophy, FaUsers, FaPercent]
-  const certificationColors = ['text-parks-gold', 'text-ocean-teal', 'text-slate-300', 'text-parks-gold']
 
   return (
     <footer className="relative bg-ocean-dark py-16 text-slate-300 overflow-hidden">

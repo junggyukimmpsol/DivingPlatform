@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import LanguageSwitcher from './LanguageSwitcher'
-import { FaHome, FaInfoCircle, FaShip, FaStar, FaBars, FaTimes } from 'react-icons/fa'
+import { FaHome, FaInfoCircle, FaShip, FaStar, FaBars, FaTimes, FaUserCircle } from 'react-icons/fa'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { useLanguage } from '../contexts/LanguageContext'
+import { useAuth } from '../contexts/AuthContext'
 
 const Navigation: React.FC = () => {
   const { pathname } = useLocation()
   const { t, language } = useLanguage()
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -97,6 +99,16 @@ const Navigation: React.FC = () => {
                 )}
               </div>
               <div className="hidden md:block w-px h-8 bg-white/10 mx-1"></div>
+              <Link
+                to={user ? '/profile' : '/auth'}
+                className={`hidden md:flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition ${pathname === '/profile' || pathname === '/auth'
+                  ? 'bg-parks-gold text-ocean-dark'
+                  : 'bg-white/5 text-slate-200 hover:bg-white/10 hover:text-parks-gold'
+                  }`}
+              >
+                <FaUserCircle size={16} />
+                <span>{user ? '내 정보' : '로그인'}</span>
+              </Link>
               <div className="scale-85 md:scale-100 origin-right flex-shrink-0">
                 <LanguageSwitcher />
               </div>
@@ -179,6 +191,13 @@ const Navigation: React.FC = () => {
             >
               <FaHome className="text-parks-gold" />
               <span>{t.nav.home}</span>
+            </Link>
+            <Link
+              to={user ? '/profile' : '/auth'}
+              className="flex items-center gap-3 p-4 text-white font-bold bg-white/5 rounded-xl border border-white/5"
+            >
+              <FaUserCircle className="text-parks-gold" />
+              <span>{user ? '내 다이빙 정보' : '로그인 / 회원가입'}</span>
             </Link>
           </div>
 

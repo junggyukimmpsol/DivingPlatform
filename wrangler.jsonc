@@ -1,8 +1,26 @@
 {
-  "name": "divingplatform",
-  "compatibility_date": "2026-07-01",
-  "assets": {
-    "directory": "./dist",
-    "not_found_handling": "single-page-application"
-  }
+	"name": "divingplatform",
+	"compatibility_date": "2026-07-01",
+	"main": "./worker/index.ts",
+	"assets": {
+		"directory": "./dist",
+		"not_found_handling": "single-page-application",
+		"binding": "ASSETS",
+		"run_worker_first": [
+			"/api/*"
+		]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "divingplatform-db",
+			"database_id": "e25a8375-e623-47c1-a04f-c4ba9691a525"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "CERT_BUCKET",
+			"bucket_name": "divingplatform-certificates"
+		}
+	]
 }
