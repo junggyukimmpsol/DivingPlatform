@@ -9,34 +9,70 @@ const AuthPage: React.FC = () => {
   const [searchParams] = useSearchParams()
   const mode = searchParams.get('mode') === 'register' ? 'register' : 'login'
   const isRegister = mode === 'register'
-  const { user, login, register } = useAuth()
+  const { user, login, register, resendVerification } = useAuth()
   const navigate = useNavigate()
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [verificationEmail, setVerificationEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isResending, setIsResending] = useState(false)
 
   if (user) return <Navigate to="/profile" replace />
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError('')
+    setSuccess('')
     setIsSubmitting(true)
 
     try {
       const formData = new FormData(event.currentTarget)
+      const name = String(formData.get('name') || '').trim()
+      const email = String(formData.get('email') || '').trim()
+      const password = String(formData.get('password') || '')
+
+      if (isRegister && !name) throw new Error('이름을 입력해주세요.')
+      if (!email) throw new Error('이메일을 입력해주세요.')
+      if (!password) throw new Error('비밀번호를 입력해주세요.')
+      if (password.length < 8) throw new Error('비밀번호는 8자 이상이어야 합니다.')
+
       const image = formData.get('certificationImage')
       const imageError = getCertificateImageSizeError(image instanceof File && image.size > 0 ? image : null)
       if (imageError) throw new Error(imageError)
 
       if (isRegister) {
-        await register(formData)
+        const result = await register(formData)
+        setVerificationEmail(email)
+        setSuccess(result.message || '인증 메일을 보냈습니다. 이메일 인증 후 로그인해주세요.')
       } else {
-        await login(String(formData.get('email') || ''), String(formData.get('password') || ''))
+        await login(email, String(formData.get('password') || ''))
+        navigate('/profile')
       }
-      navigate('/profile')
     } catch (caught) {
+      const emailInput = event.currentTarget.elements.namedItem('email')
+      if (emailInput instanceof HTMLInputElement) setVerificationEmail(emailInput.value)
       setError(caught instanceof Error ? caught.message : '처리 중 오류가 발생했습니다.')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleResendVerification = async () => {
+    if (!verificationEmail) {
+      setError('인증 메일을 받을 이메일을 입력해주세요.')
+      return
+    }
+
+    setError('')
+    setSuccess('')
+    setIsResending(true)
+    try {
+      const message = await resendVerification(verificationEmail)
+      setSuccess(message)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '인증 메일 재발송에 실패했습니다.')
+    } finally {
+      setIsResending(false)
     }
   }
 
@@ -81,7 +117,7 @@ const AuthPage: React.FC = () => {
             </Link>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit} noValidate>
             {isRegister && <FormField label="이름" name="name" required placeholder="홍길동" />}
             <FormField label="이메일" name="email" type="email" required placeholder="diver@example.com" />
             <FormField label="비밀번호" name="password" type="password" required placeholder="8자 이상" />
@@ -122,9 +158,29 @@ const AuthPage: React.FC = () => {
             )}
 
             {error && (
-              <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <div className="rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm leading-6 text-red-200" role="alert">
                 {error}
               </div>
+            )}
+            {success && (
+              <div className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-sm leading-6 text-emerald-100" role="status">
+                {success}
+              </div>
+            )}
+            {isSubmitting && (
+              <div className="rounded-lg border border-parks-gold/30 bg-parks-gold/10 px-4 py-3 text-sm font-bold text-parks-gold" role="status">
+                서버에 요청 중입니다. 잠시만 기다려주세요.
+              </div>
+            )}
+            {(success || error.includes('이메일 인증')) && (
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="w-full rounded-lg border border-parks-gold/40 bg-parks-gold/10 px-5 py-3 text-sm font-black text-parks-gold transition hover:bg-parks-gold hover:text-ocean-dark disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isResending ? '다시 보내는 중...' : '인증 메일 다시 보내기'}
+              </button>
             )}
 
             <button
@@ -132,7 +188,7 @@ const AuthPage: React.FC = () => {
               disabled={isSubmitting}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-parks-gold px-5 py-4 text-sm font-black text-ocean-dark transition hover:bg-parks-gold-light disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? '처리 중...' : isRegister ? '회원가입 완료' : '로그인'}
+              {isSubmitting ? '처리 중...' : isRegister ? '가입하고 인증 메일 받기' : '로그인'}
               <FaArrowRight />
             </button>
           </form>

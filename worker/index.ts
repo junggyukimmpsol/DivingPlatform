@@ -20,10 +20,20 @@ type R2Bucket = {
   get: (key: string) => Promise<{ body: ReadableStream | null; httpMetadata?: { contentType?: string } } | null>
 }
 
+type WorkerExecutionContext = {
+  waitUntil: (promise: Promise<unknown>) => void
+}
+
 type Env = {
   DB?: D1Database
   CERT_BUCKET?: R2Bucket
   AUTH_SECRET?: string
+  RESEND_API_KEY?: string
+  EMAIL_FROM?: string
+  OPENAI_API_KEY?: string
+  OPENAI_IMAGE_MODEL?: string
+  OPENAI_IMAGE_PROXY_URL?: string
+  OPENAI_IMAGE_PROXY_TOKEN?: string
 }
 
 type UserRow = {
@@ -32,6 +42,9 @@ type UserRow = {
   name: string
   password_hash: string
   password_salt: string
+  email_verified_at: string | null
+  email_verification_token_hash: string | null
+  email_verification_expires_at: string | null
 }
 
 type ProfileRow = {
@@ -51,6 +64,12 @@ const SESSION_COOKIE = 'diving_session'
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 const MAX_CERTIFICATE_IMAGE_BYTES = 2 * 1024 * 1024
 const MAX_CERTIFICATE_IMAGE_MB = MAX_CERTIFICATE_IMAGE_BYTES / 1024 / 1024
+const EMAIL_VERIFICATION_MAX_AGE_MS = 1000 * 60 * 60 * 24
+const PASSWORD_HASH_ITERATIONS = 100000
+const FREE_PHOTO_CREDITS = 5
+const MAX_ENHANCE_IMAGE_BYTES = 2 * 1024 * 1024
+const MAX_ENHANCE_UPLOADS = 5
+const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-1-mini'
 
 const json = (body: unknown, init: ResponseInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -67,6 +86,20 @@ const requireBindings = (env: Env) => {
       {
         error:
           'Cloudflare D1/R2/AUTH_SECRET 설정이 필요합니다. README_LOGIN_SETUP.md 안내대로 리소스를 연결해주세요.',
+      },
+      { status: 503 },
+    )
+  }
+
+  return null
+}
+
+const requireEmailBindings = (env: Env) => {
+  if (!env.RESEND_API_KEY || !env.EMAIL_FROM) {
+    return json(
+      {
+        error:
+          '이메일 인증 발송을 위해 RESEND_API_KEY와 EMAIL_FROM 설정이 필요합니다.',
       },
       { status: 503 },
     )
@@ -108,7 +141,7 @@ const hashPassword = async (password: string, salt = randomToken(16)) => {
       name: 'PBKDF2',
       hash: 'SHA-256',
       salt: textEncoder.encode(salt),
-      iterations: 120000,
+      iterations: PASSWORD_HASH_ITERATIONS,
     },
     key,
     256,
@@ -120,6 +153,11 @@ const hashPassword = async (password: string, salt = randomToken(16)) => {
 const verifyPassword = async (password: string, hash: string, salt: string) => {
   const next = await hashPassword(password, salt)
   return next.hash === hash
+}
+
+const sha256 = async (value: string) => {
+  const digest = await crypto.subtle.digest('SHA-256', textEncoder.encode(value))
+  return toBase64Url(digest)
 }
 
 const signSession = async (userId: string, secret: string) => {
@@ -195,10 +233,26 @@ const sanitizeText = (value: FormDataEntryValue | null) => {
   return trimmed || null
 }
 
+const base64ToArrayBuffer = (value: string) => {
+  const binary = atob(value)
+  const bytes = new Uint8Array(binary.length)
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+  return bytes.buffer
+}
+
+const getAuthenticatedUserId = async (request: Request, env: Env) => {
+  const userId = await getCurrentUserId(request, env)
+  if (!userId) return null
+  return userId
+}
+
 const publicUser = (user: UserRow, profile: ProfileRow | null) => ({
   id: user.id,
   email: user.email,
   name: user.name,
+  emailVerified: Boolean(user.email_verified_at),
   profile: {
     phone: profile?.phone || '',
     certificationAgency: profile?.certification_agency || '',
@@ -211,6 +265,62 @@ const publicUser = (user: UserRow, profile: ProfileRow | null) => ({
     memo: profile?.memo || '',
   },
 })
+
+const sendVerificationEmail = async (request: Request, env: Env, email: string, name: string, token: string) => {
+  const origin = new URL(request.url).origin
+  const verifyUrl = `${origin}/verify-email?token=${encodeURIComponent(token)}`
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: env.EMAIL_FROM,
+      to: [email],
+      subject: 'Parks Local Diving 이메일 인증',
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
+          <h2>이메일 인증을 완료해주세요</h2>
+          <p>${name}님, Parks Local Diving 회원가입을 계속하려면 아래 버튼을 눌러 이메일을 인증해주세요.</p>
+          <p>
+            <a href="${verifyUrl}" style="display:inline-block;background:#fbbf24;color:#020617;padding:12px 18px;border-radius:8px;font-weight:700;text-decoration:none">
+              이메일 인증하기
+            </a>
+          </p>
+          <p style="font-size:13px;color:#64748b">이 링크는 24시간 동안 유효합니다.</p>
+        </div>
+      `,
+    }),
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    return json({ error: '인증 메일 발송에 실패했습니다.', detail }, { status: 502 })
+  }
+
+  return null
+}
+
+const createVerificationToken = async (env: Env, userId: string) => {
+  const token = randomToken(32)
+  const tokenHash = await sha256(token)
+  const expiresAt = new Date(Date.now() + EMAIL_VERIFICATION_MAX_AGE_MS).toISOString()
+
+  await env
+    .DB!.prepare(
+      `UPDATE users
+       SET email_verification_token_hash = ?,
+           email_verification_expires_at = ?,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+    )
+    .bind(tokenHash, expiresAt, userId)
+    .run()
+
+  return token
+}
 
 const getUserWithProfile = async (env: Env, userId: string) => {
   const user = await env.DB!.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>()
@@ -289,6 +399,8 @@ const saveProfile = async (env: Env, userId: string, form: FormData) => {
 const handleRegister = async (request: Request, env: Env) => {
   const setupError = requireBindings(env)
   if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
 
   const form = await request.formData()
   const email = sanitizeText(form.get('email'))?.toLowerCase()
@@ -320,16 +432,79 @@ const handleRegister = async (request: Request, env: Env) => {
   const profileError = await saveProfile(env, userId, form)
   if (profileError) return profileError
 
-  const token = await signSession(userId, env.AUTH_SECRET!)
-  const user = await getUserWithProfile(env, userId)
+  const verificationToken = await createVerificationToken(env, userId)
+  const emailError = await sendVerificationEmail(request, env, email, name, verificationToken)
+  if (emailError) return emailError
 
   return json(
-    { user },
+    {
+      needsEmailVerification: true,
+      message: '가입 이메일로 인증 링크를 보냈습니다. 이메일 인증 후 로그인할 수 있습니다.',
+    },
     {
       status: 201,
-      headers: { 'set-cookie': sessionCookie(token) },
     },
   )
+}
+
+const handleVerifyEmail = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const body = (await request.json()) as { token?: string }
+  const token = body.token?.trim()
+  if (!token) return json({ error: '인증 토큰이 없습니다.' }, { status: 400 })
+
+  const tokenHash = await sha256(token)
+  const user = await env
+    .DB!.prepare('SELECT * FROM users WHERE email_verification_token_hash = ?')
+    .bind(tokenHash)
+    .first<UserRow>()
+
+  if (!user || !user.email_verification_expires_at) {
+    return json({ error: '유효하지 않은 인증 링크입니다.' }, { status: 400 })
+  }
+  if (new Date(user.email_verification_expires_at).getTime() < Date.now()) {
+    return json({ error: '인증 링크가 만료되었습니다. 다시 인증 메일을 요청해주세요.' }, { status: 400 })
+  }
+
+  await env
+    .DB!.prepare(
+      `UPDATE users
+       SET email_verified_at = CURRENT_TIMESTAMP,
+           email_verification_token_hash = NULL,
+           email_verification_expires_at = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+    )
+    .bind(user.id)
+    .run()
+
+  const session = await signSession(user.id, env.AUTH_SECRET!)
+  const verifiedUser = await getUserWithProfile(env, user.id)
+
+  return json({ user: verifiedUser }, { headers: { 'set-cookie': sessionCookie(session) } })
+}
+
+const handleResendVerification = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+
+  const body = (await request.json()) as { email?: string }
+  const email = body.email?.trim().toLowerCase()
+  if (!email) return json({ error: '이메일을 입력해주세요.' }, { status: 400 })
+
+  const user = await env.DB!.prepare('SELECT * FROM users WHERE email = ?').bind(email).first<UserRow>()
+  if (!user) return json({ ok: true })
+  if (user.email_verified_at) return json({ ok: true, message: '이미 인증된 이메일입니다.' })
+
+  const verificationToken = await createVerificationToken(env, user.id)
+  const emailError = await sendVerificationEmail(request, env, user.email, user.name, verificationToken)
+  if (emailError) return emailError
+
+  return json({ ok: true, message: '인증 메일을 다시 보냈습니다.' })
 }
 
 const handleLogin = async (request: Request, env: Env) => {
@@ -346,6 +521,15 @@ const handleLogin = async (request: Request, env: Env) => {
   const user = await env.DB!.prepare('SELECT * FROM users WHERE email = ?').bind(email).first<UserRow>()
   if (!user || !(await verifyPassword(password, user.password_hash, user.password_salt))) {
     return json({ error: '이메일 또는 비밀번호가 올바르지 않습니다.' }, { status: 401 })
+  }
+  if (!user.email_verified_at) {
+    return json(
+      {
+        error: '이메일 인증이 필요합니다. 가입 시 받은 인증 메일을 확인해주세요.',
+        needsEmailVerification: true,
+      },
+      { status: 403 },
+    )
   }
 
   const token = await signSession(user.id, env.AUTH_SECRET!)
@@ -405,33 +589,458 @@ const handleCertificate = async (request: Request, env: Env) => {
   })
 }
 
+const ensurePhotoWallet = async (env: Env, userId: string) => {
+  const existing = await env
+    .DB!.prepare('SELECT user_id, total_credits, used_credits FROM photo_credit_wallets WHERE user_id = ?')
+    .bind(userId)
+    .first<{ user_id: string; total_credits: number; used_credits: number }>()
+
+  if (existing) return existing
+
+  await env
+    .DB!.prepare('INSERT INTO photo_credit_wallets (user_id, total_credits, used_credits) VALUES (?, ?, 0)')
+    .bind(userId, FREE_PHOTO_CREDITS)
+    .run()
+
+  return { user_id: userId, total_credits: FREE_PHOTO_CREDITS, used_credits: 0 }
+}
+
+const publicPhotoJob = (job: {
+  id: string
+  original_file_name: string
+  status: string
+  error_message: string | null
+  created_at: string
+  completed_at: string | null
+}) => ({
+  id: job.id,
+  originalFileName: job.original_file_name,
+  status: job.status,
+  errorMessage: job.error_message || '',
+  createdAt: job.created_at,
+  completedAt: job.completed_at || '',
+  downloadUrl: job.status === 'completed' ? `/api/photo-enhance/jobs/${job.id}/download` : '',
+})
+
+const listPhotoJobs = async (env: Env, userId: string) => {
+  const response = await env
+    .DB!.prepare(
+      `SELECT id, original_file_name, status, error_message, created_at, completed_at
+       FROM photo_enhancement_jobs
+       WHERE user_id = ?
+       ORDER BY created_at DESC`,
+    )
+    .bind(userId)
+    .all<{
+      id: string
+      original_file_name: string
+      status: string
+      error_message: string | null
+      created_at: string
+      completed_at: string | null
+    }>()
+
+  return (response.results || []).map(publicPhotoJob)
+}
+
+const handlePhotoSummary = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const userId = await getAuthenticatedUserId(request, env)
+  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const wallet = await ensurePhotoWallet(env, userId)
+  const jobs = await listPhotoJobs(env, userId)
+
+  return json({
+    wallet: {
+      totalCredits: wallet.total_credits,
+      usedCredits: wallet.used_credits,
+      remainingCredits: Math.max(0, wallet.total_credits - wallet.used_credits),
+    },
+    jobs,
+  })
+}
+
+const handlePhotoUpload = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const userId = await getAuthenticatedUserId(request, env)
+  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const form = await request.formData()
+  const marketingOptIn = form.get('marketingOptIn') === 'true' || form.get('marketingOptIn') === 'on'
+  if (!marketingOptIn) {
+    return json({ error: '무료 AI 사진 보정 티켓을 받으려면 광고성 이메일 수신에 동의해주세요.' }, { status: 400 })
+  }
+
+  const files = form.getAll('photos').filter((file): file is File => file instanceof File && file.size > 0)
+  if (files.length === 0) return json({ error: '보정할 사진을 선택해주세요.' }, { status: 400 })
+  if (files.length > MAX_ENHANCE_UPLOADS) {
+    return json({ error: `한 번에 최대 ${MAX_ENHANCE_UPLOADS}장까지 업로드할 수 있습니다.` }, { status: 400 })
+  }
+
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) {
+      return json({ error: '사진 파일만 업로드할 수 있습니다.' }, { status: 400 })
+    }
+    if (file.size > MAX_ENHANCE_IMAGE_BYTES) {
+      return json({ error: '사진은 장당 2MB 이하로 업로드해주세요.' }, { status: 400 })
+    }
+  }
+
+  const wallet = await ensurePhotoWallet(env, userId)
+  const remaining = wallet.total_credits - wallet.used_credits
+  if (remaining < files.length) {
+    return json({ error: `남은 무료 보정 티켓은 ${remaining}장입니다.` }, { status: 400 })
+  }
+
+  await env
+    .DB!.prepare(
+      `UPDATE users
+       SET marketing_opt_in_at = COALESCE(marketing_opt_in_at, CURRENT_TIMESTAMP),
+           marketing_opt_in_source = 'photo_enhancement',
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+    )
+    .bind(userId)
+    .run()
+
+  const createdJobs = []
+  for (const file of files) {
+    const jobId = crypto.randomUUID()
+    const extension = file.type.split('/')[1] || 'jpg'
+    const originalKey = `photo-enhance/${userId}/${jobId}/original.${extension}`
+
+    await env.CERT_BUCKET!.put(originalKey, file.stream(), {
+      httpMetadata: { contentType: file.type },
+    })
+
+    await env
+      .DB!.prepare(
+        `INSERT INTO photo_enhancement_jobs (
+          id,
+          user_id,
+          original_image_key,
+          original_file_name,
+          original_mime_type,
+          original_size_bytes,
+          status
+        ) VALUES (?, ?, ?, ?, ?, ?, 'queued')`,
+      )
+      .bind(jobId, userId, originalKey, file.name || `photo-${createdJobs.length + 1}.${extension}`, file.type, file.size)
+      .run()
+
+    createdJobs.push(jobId)
+  }
+
+  await env
+    .DB!.prepare(
+      `UPDATE photo_credit_wallets
+       SET used_credits = used_credits + ?,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE user_id = ?`,
+    )
+    .bind(files.length, userId)
+    .run()
+
+  const nextWallet = await ensurePhotoWallet(env, userId)
+  const jobs = await listPhotoJobs(env, userId)
+
+  return json({
+    wallet: {
+      totalCredits: nextWallet.total_credits,
+      usedCredits: nextWallet.used_credits,
+      remainingCredits: Math.max(0, nextWallet.total_credits - nextWallet.used_credits),
+    },
+    jobs,
+    createdJobIds: createdJobs,
+  })
+}
+
+const extractJobId = (pathname: string, suffix: string) => {
+  const prefix = '/api/photo-enhance/jobs/'
+  if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return ''
+  return pathname.slice(prefix.length, pathname.length - suffix.length)
+}
+
+const enhanceWithOpenAI = async (env: Env, imageBuffer: ArrayBuffer, mimeType: string) => {
+  const prompt = [
+    'Enhance this underwater scuba diving photo naturally.',
+    'Correct blue or green color cast, improve contrast and clarity, reduce haze and noise, and restore natural skin tones.',
+    'Keep the original people, faces, body shapes, gear, marine life, and scene unchanged.',
+    'Do not add or remove objects. Do not make it look artificial. Return only the enhanced image.',
+  ].join(' ')
+
+  const formData = new FormData()
+  formData.append('model', env.OPENAI_IMAGE_MODEL || DEFAULT_OPENAI_IMAGE_MODEL)
+  formData.append('prompt', prompt)
+  formData.append('image[]', new Blob([imageBuffer], { type: mimeType }), 'underwater-photo.jpg')
+  formData.append('input_fidelity', 'low')
+  formData.append('output_format', 'jpeg')
+  formData.append('quality', 'low')
+  formData.append('size', '1024x1024')
+
+  if (env.OPENAI_IMAGE_PROXY_URL) {
+    const proxyResponse = await fetch(env.OPENAI_IMAGE_PROXY_URL, {
+      method: 'POST',
+      headers: env.OPENAI_IMAGE_PROXY_TOKEN
+        ? { authorization: `Bearer ${env.OPENAI_IMAGE_PROXY_TOKEN}` }
+        : undefined,
+      body: formData,
+    })
+
+    const proxyData = await proxyResponse.json().catch(() => ({})) as {
+      b64_json?: string
+      mimeType?: string
+      error?: string
+      detail?: string
+    }
+
+    if (!proxyResponse.ok) {
+      throw new Error(proxyData.detail || proxyData.error || 'OpenAI 이미지 프록시 요청에 실패했습니다.')
+    }
+    if (!proxyData.b64_json) {
+      throw new Error('OpenAI 이미지 프록시가 보정 이미지를 반환하지 않았습니다.')
+    }
+
+    return {
+      buffer: base64ToArrayBuffer(proxyData.b64_json),
+      mimeType: proxyData.mimeType || 'image/jpeg',
+    }
+  }
+
+  if (!env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY 또는 OPENAI_IMAGE_PROXY_URL 설정이 필요합니다.')
+  }
+
+  const response = await fetch(
+    'https://api.openai.com/v1/images/edits',
+    {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      },
+      body: formData,
+    },
+  )
+
+  const data = await response.json() as {
+    data?: Array<{ b64_json?: string }>
+    output_format?: 'png' | 'webp' | 'jpeg'
+    error?: { message?: string }
+  }
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || 'OpenAI 사진 보정 요청에 실패했습니다.')
+  }
+
+  const b64Json = data.data?.[0]?.b64_json
+  if (!b64Json) {
+    throw new Error('OpenAI가 보정 이미지를 반환하지 않았습니다.')
+  }
+
+  const outputFormat = data.output_format || 'jpeg'
+  return {
+    buffer: base64ToArrayBuffer(b64Json),
+    mimeType: `image/${outputFormat === 'jpeg' ? 'jpeg' : outputFormat}`,
+  }
+}
+
+const processPhotoJob = async (env: Env, userId: string, jobId: string) => {
+  const job = await env
+    .DB!.prepare('SELECT * FROM photo_enhancement_jobs WHERE id = ? AND user_id = ?')
+    .bind(jobId, userId)
+    .first<{
+      id: string
+      original_image_key: string
+      original_mime_type: string
+    }>()
+
+  if (!job) throw new Error('작업을 찾을 수 없습니다.')
+
+  try {
+    const original = await env.CERT_BUCKET!.get(job.original_image_key)
+    if (!original?.body) throw new Error('원본 사진을 찾을 수 없습니다.')
+
+    const originalBuffer = await new Response(original.body).arrayBuffer()
+    const enhanced = await enhanceWithOpenAI(env, originalBuffer, job.original_mime_type || original.httpMetadata?.contentType || 'image/jpeg')
+    const extension = enhanced.mimeType.includes('png') ? 'png' : enhanced.mimeType.includes('webp') ? 'webp' : 'jpg'
+    const enhancedKey = `photo-enhance/${userId}/${jobId}/enhanced.${extension}`
+
+    await env.CERT_BUCKET!.put(enhancedKey, enhanced.buffer, {
+      httpMetadata: { contentType: enhanced.mimeType },
+    })
+
+    await env
+      .DB!.prepare(
+        `UPDATE photo_enhancement_jobs
+         SET status = 'completed',
+             enhanced_image_key = ?,
+             enhanced_mime_type = ?,
+             completed_at = CURRENT_TIMESTAMP,
+             error_message = NULL,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ? AND user_id = ?`,
+      )
+      .bind(enhancedKey, enhanced.mimeType, jobId, userId)
+      .run()
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    await env
+      .DB!.prepare(
+        `UPDATE photo_enhancement_jobs
+         SET status = 'failed',
+             error_message = ?,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ? AND user_id = ?`,
+      )
+      .bind(message, jobId, userId)
+      .run()
+
+    throw caught
+  }
+}
+
+const handlePhotoProcess = async (request: Request, env: Env, jobId: string, ctx: WorkerExecutionContext) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const userId = await getAuthenticatedUserId(request, env)
+  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
+  if (!jobId) return json({ error: '작업 ID가 없습니다.' }, { status: 400 })
+
+  const job = await env
+    .DB!.prepare('SELECT * FROM photo_enhancement_jobs WHERE id = ? AND user_id = ?')
+    .bind(jobId, userId)
+    .first<{
+      id: string
+      original_image_key: string
+      original_mime_type: string
+      status: string
+    }>()
+
+  if (!job) return json({ error: '작업을 찾을 수 없습니다.' }, { status: 404 })
+  if (job.status === 'completed') return handlePhotoSummary(request, env)
+  if (job.status === 'processing') return handlePhotoSummary(request, env)
+
+  await env
+    .DB!.prepare(
+      `UPDATE photo_enhancement_jobs
+       SET status = 'processing',
+           error_message = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ? AND user_id = ?`,
+    )
+    .bind(jobId, userId)
+    .run()
+
+  ctx.waitUntil(processPhotoJob(env, userId, jobId).catch((caught) => console.error(caught)))
+
+  return handlePhotoSummary(request, env)
+}
+
+const handlePhotoDownload = async (request: Request, env: Env, jobId: string) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const userId = await getAuthenticatedUserId(request, env)
+  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const job = await env
+    .DB!.prepare(
+      `SELECT enhanced_image_key, enhanced_mime_type, original_file_name, status
+       FROM photo_enhancement_jobs
+       WHERE id = ? AND user_id = ?`,
+    )
+    .bind(jobId, userId)
+    .first<{
+      enhanced_image_key: string | null
+      enhanced_mime_type: string | null
+      original_file_name: string
+      status: string
+    }>()
+
+  if (!job) return json({ error: '작업을 찾을 수 없습니다.' }, { status: 404 })
+  if (job.status !== 'completed' || !job.enhanced_image_key) {
+    return json({ error: '아직 보정이 완료되지 않았습니다.' }, { status: 400 })
+  }
+
+  const object = await env.CERT_BUCKET!.get(job.enhanced_image_key)
+  if (!object?.body) return json({ error: '보정 사진을 찾을 수 없습니다.' }, { status: 404 })
+
+  const safeName = job.original_file_name.replace(/[^\w.\-가-힣]/g, '_')
+  return new Response(object.body, {
+    headers: {
+      'content-type': job.enhanced_mime_type || object.httpMetadata?.contentType || 'image/jpeg',
+      'content-disposition': `attachment; filename="enhanced-${safeName}"`,
+      'cache-control': 'private, max-age=60',
+    },
+  })
+}
+
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url)
+  async fetch(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
+    try {
+      const url = new URL(request.url)
 
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204 })
-    }
+      if (request.method === 'OPTIONS') {
+        return new Response(null, { status: 204 })
+      }
 
-    if (url.pathname === '/api/auth/register' && request.method === 'POST') {
-      return handleRegister(request, env)
-    }
-    if (url.pathname === '/api/auth/login' && request.method === 'POST') {
-      return handleLogin(request, env)
-    }
-    if (url.pathname === '/api/auth/logout' && request.method === 'POST') {
-      return json({ ok: true }, { headers: { 'set-cookie': clearSessionCookie() } })
-    }
-    if (url.pathname === '/api/auth/me' && request.method === 'GET') {
-      return handleMe(request, env)
-    }
-    if (url.pathname === '/api/profile' && request.method === 'PUT') {
-      return handleProfileUpdate(request, env)
-    }
-    if (url.pathname === '/api/profile/certificate' && request.method === 'GET') {
-      return handleCertificate(request, env)
-    }
+      if (url.pathname === '/api/auth/register' && request.method === 'POST') {
+        return handleRegister(request, env)
+      }
+      if (url.pathname === '/api/auth/verify-email' && request.method === 'POST') {
+        return handleVerifyEmail(request, env)
+      }
+      if (url.pathname === '/api/auth/resend-verification' && request.method === 'POST') {
+        return handleResendVerification(request, env)
+      }
+      if (url.pathname === '/api/auth/login' && request.method === 'POST') {
+        return handleLogin(request, env)
+      }
+      if (url.pathname === '/api/auth/logout' && request.method === 'POST') {
+        return json({ ok: true }, { headers: { 'set-cookie': clearSessionCookie() } })
+      }
+      if (url.pathname === '/api/auth/me' && request.method === 'GET') {
+        return handleMe(request, env)
+      }
+      if (url.pathname === '/api/profile' && request.method === 'PUT') {
+        return handleProfileUpdate(request, env)
+      }
+      if (url.pathname === '/api/profile/certificate' && request.method === 'GET') {
+        return handleCertificate(request, env)
+      }
+      if (url.pathname === '/api/photo-enhance/summary' && request.method === 'GET') {
+        return handlePhotoSummary(request, env)
+      }
+      if (url.pathname === '/api/photo-enhance/jobs' && request.method === 'POST') {
+        return handlePhotoUpload(request, env)
+      }
 
-    return json({ error: 'Not found' }, { status: 404 })
+      const processJobId = extractJobId(url.pathname, '/process')
+      if (processJobId && request.method === 'POST') {
+        return handlePhotoProcess(request, env, processJobId, ctx)
+      }
+
+      const downloadJobId = extractJobId(url.pathname, '/download')
+      if (downloadJobId && request.method === 'GET') {
+        return handlePhotoDownload(request, env, downloadJobId)
+      }
+
+      return json({ error: 'Not found' }, { status: 404 })
+    } catch (caught) {
+      console.error(caught)
+      return json(
+        {
+          error: '서버 처리 중 오류가 발생했습니다.',
+          detail: caught instanceof Error ? caught.message : String(caught),
+        },
+        { status: 500 },
+      )
+    }
   },
 }

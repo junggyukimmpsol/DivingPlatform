@@ -4,13 +4,17 @@ import HomePage from '../pages/HomePage'
 import BranchPage from '../pages/BranchPage'
 import AuthPage from '../pages/AuthPage'
 import ProfilePage from '../pages/ProfilePage'
+import VerifyEmailPage from '../pages/VerifyEmailPage'
+import PhotoEnhancePage from '../pages/PhotoEnhancePage'
 
 const AppRouter: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/photo-enhance" element={<PhotoEnhancePage />} />
 
       {/* Philippines */}
       <Route path="/philippines/cebu" element={<BranchPage />} />

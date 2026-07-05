@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import LanguageSwitcher from './LanguageSwitcher'
-import { FaHome, FaInfoCircle, FaShip, FaStar, FaBars, FaTimes, FaUserCircle } from 'react-icons/fa'
+import { FaHome, FaInfoCircle, FaShip, FaStar, FaBars, FaTimes, FaUserCircle, FaMagic } from 'react-icons/fa'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { useLanguage } from '../contexts/LanguageContext'
@@ -99,6 +99,18 @@ const Navigation: React.FC = () => {
                 )}
               </div>
               <div className="hidden md:block w-px h-8 bg-white/10 mx-1"></div>
+              {user && (
+                <Link
+                  to="/photo-enhance"
+                  className={`hidden lg:flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition ${pathname === '/photo-enhance'
+                    ? 'bg-parks-gold text-ocean-dark'
+                    : 'bg-white/5 text-slate-200 hover:bg-white/10 hover:text-parks-gold'
+                    }`}
+                >
+                  <FaMagic size={16} />
+                  <span>AI 사진보정</span>
+                </Link>
+              )}
               <Link
                 to={user ? '/profile' : '/auth'}
                 className={`hidden md:flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition ${pathname === '/profile' || pathname === '/auth'
@@ -199,6 +211,15 @@ const Navigation: React.FC = () => {
               <FaUserCircle className="text-parks-gold" />
               <span>{user ? '내 다이빙 정보' : '로그인 / 회원가입'}</span>
             </Link>
+            {user && (
+              <Link
+                to="/photo-enhance"
+                className="flex items-center gap-3 p-4 text-white font-bold bg-white/5 rounded-xl border border-white/5"
+              >
+                <FaMagic className="text-parks-gold" />
+                <span>AI 사진보정</span>
+              </Link>
+            )}
           </div>
 
           <div className="mt-auto pb-10 text-center">
