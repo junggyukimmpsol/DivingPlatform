@@ -27,13 +27,13 @@ const HomePage: React.FC = () => {
         <div className="relative z-10 mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-end px-4 pb-12 pt-28 sm:px-6 lg:px-8">
           <div className="mb-8 max-w-3xl">
             <p className="mb-4 inline-flex rounded-full border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-lg backdrop-blur-md">
-              Parks Local Diving
+              Local Diving Tour Platform
             </p>
             <h1 className="font-display text-5xl font-black leading-tight text-white drop-shadow-2xl md:text-7xl">
-              바다 가까이에서 시작하는 다이빙 휴가
+              Parks Local Diving
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/90 drop-shadow md:text-xl">
-              따뜻한 햇살, 맑은 바다, 현지 다이빙 포인트를 한 번에 고르고 바로 예약을 준비하세요.
+              세부, 보홀, 코타키나발루, 발리의 검증된 현지 다이빙 투어를 비교하고 예약하세요.
             </p>
           </div>
 
