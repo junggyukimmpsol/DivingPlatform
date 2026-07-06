@@ -85,7 +85,7 @@ const TermsPage: React.FC = () => {
                   </tr>
                   <tr>
                     <td className="px-4 py-3">투어 3일 전 취소</td>
-                    <td className="px-4 py-3">100% 환불</td>
+                    <td className="px-4 py-3">0% 환불</td>
                   </tr>
                 </tbody>
               </table>
