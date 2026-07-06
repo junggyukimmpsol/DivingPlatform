@@ -4,7 +4,13 @@ import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { REVIEW_DATA } from '../data/reviewData'
 import { CenterId } from '../types/center.types'
 import { useLanguage } from '../contexts/LanguageContext'
+import { FaCreditCard, FaTimes } from 'react-icons/fa'
 // Note: Tabs are now managed by the Navigation component in Tier 2
+
+type TourProduct = {
+  program: string
+  balance: number
+}
 
 const BranchPage: React.FC = () => {
   const { pathname } = useLocation()
@@ -15,6 +21,9 @@ const BranchPage: React.FC = () => {
 
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<TourProduct | null>(null)
+  const [tourDate, setTourDate] = useState('')
+  const [guestCount, setGuestCount] = useState(1)
 
   const checkScrollLimits = () => {
     if (!scrollContainerRef.current) return
@@ -84,6 +93,17 @@ const BranchPage: React.FC = () => {
   const locT = t.locations.locations[locationIndex]
   const displayName = language === 'en' ? currentBranch.name : locT.nameKo
   const gallery = BRANCH_GALLERIES[currentBranch.id]
+  const totalAmount = selectedProduct ? selectedProduct.balance * guestCount : 0
+
+  const openPaymentModal = (product: TourProduct) => {
+    setSelectedProduct(product)
+    setGuestCount(1)
+    setTourDate('')
+  }
+
+  const closePaymentModal = () => {
+    setSelectedProduct(null)
+  }
 
   return (
     <div className="pt-32 md:pt-40 pb-20">
@@ -193,19 +213,30 @@ const BranchPage: React.FC = () => {
                       <tr className="bg-white/10 text-white">
                         <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
                         <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
+                        <th className="py-4 px-6 text-right font-bold">예약</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-300 divide-y divide-white/5">
-                      {(t.branchPricing[currentBranch.id as CenterId] as any[])?.map((item, index) => (
+                      {(t.branchPricing[currentBranch.id as CenterId] as TourProduct[])?.map((item, index) => (
                         <tr key={index} className="hover:bg-white/5 transition-colors">
                           <td className="py-4 px-6 font-medium">{item.program}</td>
                           <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
                             ${item.balance.toLocaleString()}
                           </td>
+                          <td className="py-4 px-6 text-right">
+                            <button
+                              type="button"
+                              onClick={() => openPaymentModal(item)}
+                              className="inline-flex items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-2 text-sm font-black text-ocean-dark transition hover:bg-white"
+                            >
+                              <FaCreditCard size={14} />
+                              예약/결제
+                            </button>
+                          </td>
                         </tr>
                       )) || (
                           <tr>
-                            <td colSpan={2} className="py-8 text-center text-slate-500 italic">
+                            <td colSpan={3} className="py-8 text-center text-slate-500 italic">
                               {t.branchPricing.empty}
                             </td>
                           </tr>
@@ -292,6 +323,86 @@ const BranchPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {selectedProduct && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.25em] text-parks-gold">Reservation</p>
+                <h2 className="mt-1 text-xl font-black text-white">예약 및 결제</h2>
+              </div>
+              <button
+                type="button"
+                onClick={closePaymentModal}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white"
+                aria-label="닫기"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="space-y-5 px-6 py-6">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <p className="text-sm text-slate-400">{displayName}</p>
+                <p className="mt-1 text-lg font-bold text-white">{selectedProduct.program}</p>
+                <p className="mt-3 text-2xl font-black text-parks-gold">
+                  ${selectedProduct.balance.toLocaleString()}
+                  <span className="ml-1 text-sm font-bold text-slate-400">/ 1인</span>
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold text-slate-200">투어 날짜</span>
+                  <input
+                    type="date"
+                    value={tourDate}
+                    onChange={(event) => setTourDate(event.currentTarget.value)}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-parks-gold"
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold text-slate-200">인원</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={guestCount}
+                    onChange={(event) => setGuestCount(Math.max(1, Number(event.currentTarget.value) || 1))}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-parks-gold"
+                  />
+                </label>
+              </div>
+
+              <div className="rounded-xl bg-ocean-teal/10 p-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-bold text-slate-300">예상 결제금액</span>
+                  <span className="text-2xl font-black text-white">${totalAmount.toLocaleString()}</span>
+                </div>
+                <p className="mt-2 text-xs leading-6 text-slate-400">
+                  실제 결제 연동 전 미리보기 화면입니다. 포트원 나이스페이 채널키가 연결되면 이 버튼에서 바로 결제창이 열립니다.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  alert('포트원 나이스페이 연동 준비 화면입니다. 채널키와 API Secret을 연결하면 실제 결제창으로 전환됩니다.')
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-parks-gold px-5 py-4 text-base font-black text-ocean-dark transition hover:bg-white"
+              >
+                <FaCreditCard />
+                결제창 열기
+              </button>
+
+              <p className="text-center text-xs text-slate-500">
+                결제 전 이용약관 및 환불정책을 확인해주세요.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
