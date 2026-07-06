@@ -93,35 +93,40 @@ const HomePage: React.FC = () => {
       </section>
 
       <section className="bg-[#e8fbff] px-4 pb-6 text-slate-900 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl overflow-hidden rounded-2xl bg-[#06334a] shadow-[0_24px_80px_rgba(3,51,74,0.22)] md:grid-cols-[1.1fr_0.9fr]">
-          <div className="p-7 text-white md:p-10">
-            <p className="mb-3 inline-flex rounded-full bg-cyan-400 px-4 py-2 text-sm font-black text-[#06334a]">
-              여름 다이빙 투어 예약 오픈
+        <div className="mx-auto grid max-w-7xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#00b4d8] via-[#00d4a8] to-[#ffe66d] p-[1px] shadow-[0_28px_90px_rgba(0,180,216,0.24)] md:grid-cols-[1.08fr_0.92fr]">
+          <div className="relative overflow-hidden rounded-[15px] bg-[#053047] p-7 text-white md:rounded-r-none md:p-10">
+            <div className="absolute right-8 top-8 hidden rounded-full bg-white/10 px-5 py-3 text-sm font-black text-white backdrop-blur md:block">
+              LIMITED OPEN
+            </div>
+            <p className="mb-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-[#0077b6] shadow-lg">
+              2026 SUMMER DIVE PASS
             </p>
-            <h2 className="font-display text-3xl font-black leading-tight md:text-5xl">
-              세부 · 보홀 · 코타키나발루 · 발리 투어를 한 번에 비교하세요
+            <h2 className="max-w-2xl text-4xl font-black leading-tight tracking-normal md:text-6xl">
+              원하는 바다를 고르고,
+              <span className="block text-[#ffe66d]">바로 예약하세요.</span>
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-cyan-50/80">
-              체험다이빙부터 펀다이빙까지, 날짜와 인원만 선택하면 예약/결제 준비 화면으로 바로 이어집니다.
+            <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-cyan-50/85 md:text-lg">
+              세부, 보홀, 코타키나발루, 발리 투어 가격을 한 번에 비교하고
+              체험다이빙부터 펀다이빙까지 빠르게 예약 준비를 시작하세요.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => navigate('/philippines/bohol?tab=tours')}
-                className="rounded-full bg-parks-gold px-6 py-3 text-sm font-black text-ocean-dark transition hover:bg-white"
+                className="rounded-full bg-[#ffe66d] px-7 py-3 text-sm font-black text-[#053047] shadow-[0_12px_30px_rgba(255,230,109,0.28)] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                투어 가격 보기
+                투어 가격 비교
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/photo-enhance')}
-                className="rounded-full border border-white/30 px-6 py-3 text-sm font-black text-white transition hover:bg-white/10"
+                className="rounded-full border border-white/40 bg-white/10 px-7 py-3 text-sm font-black text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20"
               >
-                무료 사진보정 체험
+                사진보정 5장 무료
               </button>
             </div>
           </div>
-          <div className="relative min-h-[260px]">
+          <div className="relative min-h-[260px] overflow-hidden rounded-[15px] md:rounded-l-none">
             <video
               src="/assets/cebu/cebu-intro-video-1.mp4"
               className="absolute inset-0 h-full w-full object-cover"
