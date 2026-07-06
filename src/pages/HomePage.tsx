@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
     <div className="pb-20">
       <section className="relative min-h-[92vh] overflow-hidden">
         <img
-          src="/assets/bohol/bohol-intro-1.jpeg"
+          src="/assets/ai/kota-kinabalu-ai-reef.jpg"
           alt="Tropical diving ocean"
           className="absolute inset-0 h-full w-full object-cover"
         />
@@ -151,10 +151,10 @@ const HomePage: React.FC = () => {
           {DIVING_LOCATIONS.map((location, index) => {
             const locT = t.locations.locations[index]
             const previewImages: Record<string, string> = {
-              cebu: '/assets/cebu/cebu-intro-1.jpeg',
-              bohol: '/assets/bohol/bohol-intro-2.jpeg',
-              'kota-kinabalu': '/assets/kota-kinabalu/kk-intro-1.jpeg',
-              bali: '/assets/cebu/cebu-intro-3.jpeg',
+              cebu: '/assets/ai/cebu-ai-divers.jpg',
+              bohol: '/assets/ai/bohol-ai-turtle.jpg',
+              'kota-kinabalu': '/assets/ai/kota-kinabalu-ai-reef.jpg',
+              bali: '/assets/ai/bali-ai-manta.jpg',
             }
             return (
               <div
