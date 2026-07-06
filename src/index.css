@@ -14,8 +14,10 @@
   }
 
   body {
-    @apply antialiased font-body bg-slate-950 text-slate-50;
-    background-image: linear-gradient(to bottom, #020617, #0f172a);
+    @apply antialiased font-body bg-[#022c43] text-slate-50;
+    background:
+      linear-gradient(180deg, rgba(3, 105, 161, 0.28) 0%, rgba(20, 184, 166, 0.18) 34%, rgba(255, 247, 237, 0.08) 68%, rgba(2, 44, 67, 0.92) 100%),
+      #022c43;
   }
 
   /* Global Noise Texture for Film/Premium Feel */
@@ -53,10 +55,16 @@
   }
 
   .glass-card {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.07) 100%);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 20px 60px rgba(0, 57, 88, 0.16);
+  }
+
+  .beach-panel {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(236, 253, 245, 0.86));
+    border: 1px solid rgba(255, 255, 255, 0.74);
+    box-shadow: 0 22px 70px rgba(3, 105, 161, 0.18);
   }
 
   .text-gradient-gold {

@@ -106,7 +106,7 @@ const BranchPage: React.FC = () => {
   }
 
   return (
-    <div className="pt-32 md:pt-40 pb-20">
+    <div className="bg-gradient-to-b from-[#dff9ff] via-[#f8fdff] to-[#e6fbf4] pt-32 text-slate-900 md:pt-40 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Content Area (Tabs are in the Navigation bar) */}
 
@@ -114,9 +114,9 @@ const BranchPage: React.FC = () => {
         <div className="min-h-[400px]">
           {activeTab === 'intro' && (
             <div className="space-y-8 animate-fade-in">
-              <div className="glass-card p-8 rounded-2xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
-                <div className="text-slate-400 leading-relaxed mb-6 space-y-4">
+              <div className="beach-panel p-8 rounded-2xl">
+                <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
+                <div className="text-slate-600 leading-relaxed mb-6 space-y-4">
                   <ul className="list-disc list-inside space-y-2">
                     {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
                       <li key={idx}>{feature}</li>
@@ -132,7 +132,7 @@ const BranchPage: React.FC = () => {
                   >
                     {gallery && gallery.length > 0 ? (
                       gallery.map((item, index) => (
-                        <div key={index} className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white/5 rounded-xl border border-white/5 overflow-hidden snap-start">
+                        <div key={index} className="flex-none w-full md:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.67rem)] aspect-video bg-white rounded-xl border border-sky-100 overflow-hidden snap-start shadow-lg">
                           {item.type === 'video' ? (
                             <video
                               src={item.src}
@@ -202,23 +202,23 @@ const BranchPage: React.FC = () => {
 
           {activeTab === 'tours' && (
             <div className="space-y-8 animate-fade-in">
-              <div className="glass-card p-8 rounded-2xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">{t.branchPricing.title}</h3>
-                <p className="text-slate-400 leading-relaxed mb-6">
+              <div className="beach-panel p-8 rounded-2xl">
+                <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchPricing.title}</h3>
+                <p className="text-slate-600 leading-relaxed mb-6">
                   {displayName}{t.branchPricing.subtitle}
                 </p>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left bg-white/5 rounded-xl overflow-hidden">
+                  <table className="w-full text-left bg-white rounded-xl overflow-hidden shadow-sm">
                     <thead>
-                      <tr className="bg-white/10 text-white">
+                      <tr className="bg-[#06334a] text-white">
                         <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
                         <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
                         <th className="py-4 px-6 text-right font-bold">예약</th>
                       </tr>
                     </thead>
-                    <tbody className="text-slate-300 divide-y divide-white/5">
+                    <tbody className="text-slate-700 divide-y divide-sky-100">
                       {(t.branchPricing[currentBranch.id as CenterId] as TourProduct[])?.map((item, index) => (
-                        <tr key={index} className="hover:bg-white/5 transition-colors">
+                        <tr key={index} className="hover:bg-cyan-50 transition-colors">
                           <td className="py-4 px-6 font-medium">{item.program}</td>
                           <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
                             ${item.balance.toLocaleString()}
@@ -251,9 +251,9 @@ const BranchPage: React.FC = () => {
 
           {activeTab === 'reviews' && (
             <div className="space-y-8 animate-fade-in">
-              <div className="glass-card p-8 rounded-2xl border border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-4">{t.branchPage.reviewsTitle}</h3>
-                <p className="text-slate-400 leading-relaxed mb-6">
+              <div className="beach-panel p-8 rounded-2xl">
+                <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchPage.reviewsTitle}</h3>
+                <p className="text-slate-600 leading-relaxed mb-6">
                   {displayName}{t.branchPage.reviewsSubtitle}
                 </p>
 
@@ -268,7 +268,7 @@ const BranchPage: React.FC = () => {
                       >
                         {reviews.length > 0 ? (
                           reviews.map((review: string, i: number) => (
-                            <div key={i} className="flex-none w-[85vw] sm:w-[400px] md:w-[450px] lg:w-[500px] bg-white/5 rounded-xl border border-white/5 p-6 snap-start flex flex-col min-h-[300px] max-h-[400px]">
+                            <div key={i} className="flex-none w-[85vw] sm:w-[400px] md:w-[450px] lg:w-[500px] bg-white rounded-xl border border-sky-100 p-6 snap-start flex flex-col min-h-[300px] max-h-[400px] shadow-sm">
                               <div className="flex justify-between items-start mb-4">
                                 <span className="text-xs text-slate-500 font-medium">{t.branchTabs.registeredReview}</span>
                                 <div className="text-parks-gold flex gap-1 text-sm flex-shrink-0">
@@ -277,7 +277,7 @@ const BranchPage: React.FC = () => {
                                   ))}
                                 </div>
                               </div>
-                              <p className="text-slate-300 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar break-words hyphens-auto">{review}</p>
+                              <p className="text-slate-600 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar break-words hyphens-auto">{review}</p>
                             </div>
                           ))
                         ) : (

@@ -10,7 +10,7 @@ import { AuthProvider } from './contexts/AuthContext'
 function App() {
   return (
     <AuthProvider>
-      <div className="min-h-screen bg-slate-950 text-slate-50 relative selection:bg-parks-gold selection:text-ocean-dark">
+      <div className="relative min-h-screen overflow-hidden bg-[#022c43] text-slate-50 selection:bg-parks-gold selection:text-ocean-dark">
         <ScrollToTop />
         <Navigation />
         <VerticalLocationSelector />

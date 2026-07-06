@@ -5,18 +5,12 @@ const Footer = () => {
   const { t } = useLanguage()
 
   return (
-    <footer className="relative bg-ocean-dark py-16 text-slate-300 overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 h-64 w-64 rounded-full bg-ocean-teal/20 blur-[100px]"></div>
-        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-parks-gold/10 blur-[100px]"></div>
-      </div>
-
+    <footer className="relative overflow-hidden bg-[#06334a] py-16 text-slate-200">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 grid gap-8 border-t border-ocean-teal/20 pt-8 text-sm md:grid-cols-[1.2fr_0.8fr]">
           <div>
             <h2 className="mb-4 font-display text-lg font-bold text-white">사업자 정보</h2>
-            <dl className="grid gap-2 text-sand/70 sm:grid-cols-2">
+            <dl className="grid gap-2 text-cyan-50/75 sm:grid-cols-2">
               <div>
                 <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">상호명</dt>
                 <dd className="mt-1">삼박자네트워크</dd>
@@ -46,7 +40,7 @@ const Footer = () => {
 
           <div>
             <h2 className="mb-4 font-display text-lg font-bold text-white">고객 안내</h2>
-            <div className="flex flex-col gap-2 text-sand/70">
+            <div className="flex flex-col gap-2 text-cyan-50/75">
               <Link to="/terms" className="transition-colors hover:text-parks-gold">
                 이용약관 및 환불정책
               </Link>
