@@ -6,6 +6,7 @@ import AuthPage from '../pages/AuthPage'
 import ProfilePage from '../pages/ProfilePage'
 import VerifyEmailPage from '../pages/VerifyEmailPage'
 import PhotoEnhancePage from '../pages/PhotoEnhancePage'
+import TermsPage from '../pages/TermsPage'
 
 const AppRouter: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const AppRouter: React.FC = () => {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/photo-enhance" element={<PhotoEnhancePage />} />
+      <Route path="/terms" element={<TermsPage />} />
 
       {/* Philippines */}
       <Route path="/philippines/cebu" element={<BranchPage />} />
