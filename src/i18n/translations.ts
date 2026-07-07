@@ -618,7 +618,7 @@ export const translations = {
       subtitle: '의 투어 프로그램 가격표입니다. (2025년 기준)',
       headers: {
         program: '프로그램',
-        price: '가격 (USD)',
+        price: '가격 (KRW)',
       },
       empty: '가격 정보가 준비 중입니다.',
       cebu: [
@@ -1274,7 +1274,7 @@ export const translations = {
       subtitle: '\'s tour program price list. (As of 2025)',
       headers: {
         program: 'Program',
-        price: 'Price (USD)',
+        price: 'Price (KRW)',
       },
       empty: 'Pricing information is being prepared.',
       cebu: [
@@ -1930,7 +1930,7 @@ export const translations = {
       subtitle: '的旅游方案价格表。（2025年基准）',
       headers: {
         program: '项目',
-        price: '价格 (USD)',
+        price: '价格 (KRW)',
       },
       empty: '价格信息正在准备中。',
       cebu: [

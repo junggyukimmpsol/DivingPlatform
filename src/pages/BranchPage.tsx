@@ -12,6 +12,25 @@ type TourProduct = {
   balance: number
 }
 
+const KRW_PER_USD = 1550
+
+const usdToKrw = (usd: number) => Math.round(usd * KRW_PER_USD)
+
+const formatKrw = (amount: number) => `${Math.round(amount).toLocaleString('ko-KR')}원`
+
+const dateToInputValue = (date: Date) => {
+  const year = date.getFullYear()
+  const month = `${date.getMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const addMonths = (date: Date, months: number) => {
+  const nextDate = new Date(date)
+  nextDate.setMonth(nextDate.getMonth() + months)
+  return nextDate
+}
+
 const BranchPage: React.FC = () => {
   const { pathname } = useLocation()
   const { t, language } = useLanguage()
@@ -93,7 +112,10 @@ const BranchPage: React.FC = () => {
   const locT = t.locations.locations[locationIndex]
   const displayName = language === 'en' ? currentBranch.name : locT.nameKo
   const gallery = BRANCH_GALLERIES[currentBranch.id]
-  const totalAmount = selectedProduct ? selectedProduct.balance * guestCount : 0
+  const bookingStartDate = dateToInputValue(new Date())
+  const bookingEndDate = dateToInputValue(addMonths(new Date(), 3))
+  const selectedProductPriceKrw = selectedProduct ? usdToKrw(selectedProduct.balance) : 0
+  const totalAmount = selectedProductPriceKrw * guestCount
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -221,7 +243,7 @@ const BranchPage: React.FC = () => {
                         <tr key={index} className="hover:bg-cyan-50 transition-colors">
                           <td className="py-4 px-6 font-medium">{item.program}</td>
                           <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
-                            ${item.balance.toLocaleString()}
+                            {formatKrw(usdToKrw(item.balance))}
                           </td>
                           <td className="py-4 px-6 text-right">
                             <button
@@ -244,6 +266,9 @@ const BranchPage: React.FC = () => {
                     </tbody>
                   </table>
                 </div>
+                <p className="mt-3 text-xs text-slate-500">
+                  1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.
+                </p>
 
               </div>
             </div>
@@ -347,9 +372,10 @@ const BranchPage: React.FC = () => {
                 <p className="text-sm text-slate-400">{displayName}</p>
                 <p className="mt-1 text-lg font-bold text-white">{selectedProduct.program}</p>
                 <p className="mt-3 text-2xl font-black text-parks-gold">
-                  ${selectedProduct.balance.toLocaleString()}
+                  {formatKrw(selectedProductPriceKrw)}
                   <span className="ml-1 text-sm font-bold text-slate-400">/ 1인</span>
                 </p>
+                <p className="mt-2 text-xs text-slate-500">1 USD = 1,550원 기준</p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -357,10 +383,13 @@ const BranchPage: React.FC = () => {
                   <span className="mb-2 block text-sm font-bold text-slate-200">투어 날짜</span>
                   <input
                     type="date"
+                    min={bookingStartDate}
+                    max={bookingEndDate}
                     value={tourDate}
                     onChange={(event) => setTourDate(event.currentTarget.value)}
                     className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-parks-gold"
                   />
+                  <span className="mt-2 block text-xs text-slate-500">오늘부터 3개월 이내 날짜만 선택 가능합니다.</span>
                 </label>
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-slate-200">인원</span>
@@ -378,22 +407,22 @@ const BranchPage: React.FC = () => {
               <div className="rounded-xl bg-ocean-teal/10 p-4">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-bold text-slate-300">예상 결제금액</span>
-                  <span className="text-2xl font-black text-white">${totalAmount.toLocaleString()}</span>
+                  <span className="text-2xl font-black text-white">{formatKrw(totalAmount)}</span>
                 </div>
                 <p className="mt-2 text-xs leading-6 text-slate-400">
-                  실제 결제 연동 전 미리보기 화면입니다. 포트원 나이스페이 채널키가 연결되면 이 버튼에서 바로 결제창이 열립니다.
+                  실제 결제 연동 전 미리보기 화면입니다. 온라인 결제 연동이 완료되면 이 버튼에서 결제 화면으로 이동합니다.
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => {
-                  alert('포트원 나이스페이 연동 준비 화면입니다. 채널키와 API Secret을 연결하면 실제 결제창으로 전환됩니다.')
+                  alert('온라인 결제 연동 준비 화면입니다. 심사 완료 후 실제 결제 화면으로 전환됩니다.')
                 }}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-parks-gold px-5 py-4 text-base font-black text-ocean-dark transition hover:bg-white"
               >
                 <FaCreditCard />
-                결제창 열기
+                예약 결제 진행
               </button>
 
               <p className="text-center text-xs text-slate-500">
