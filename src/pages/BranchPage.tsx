@@ -5,7 +5,24 @@ import { REVIEW_DATA } from '../data/reviewData'
 import { CenterId } from '../types/center.types'
 import { useLanguage } from '../contexts/LanguageContext'
 import { useAuth } from '../contexts/AuthContext'
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaCreditCard, FaMinus, FaPlus, FaShoppingCart, FaTimes, FaTrash } from 'react-icons/fa'
+import {
+  FaCamera,
+  FaCalendarAlt,
+  FaCertificate,
+  FaCheckCircle,
+  FaChevronLeft,
+  FaChevronRight,
+  FaClock,
+  FaCreditCard,
+  FaMapMarkedAlt,
+  FaMinus,
+  FaPlus,
+  FaShoppingCart,
+  FaStar,
+  FaTimes,
+  FaTrash,
+  FaUsers,
+} from 'react-icons/fa'
 // Note: Tabs are now managed by the Navigation component in Tier 2
 
 type TourProduct = {
@@ -341,6 +358,101 @@ const BranchPage: React.FC = () => {
                     ))}
                   </ul>
                 </div>
+
+                {currentBranch.id === 'cebu' && (
+                  <div className="mb-8 space-y-6">
+                    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+                      <div className="rounded-2xl bg-[#06334a] p-6 text-white">
+                        <p className="mb-3 inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#06334a]">
+                          세부 막탄 올 인클루시브 투어
+                        </p>
+                        <h4 className="text-3xl font-black leading-tight">
+                          가격, 픽업, 장비, 촬영까지
+                          <span className="block text-parks-gold">한 번에 준비합니다.</span>
+                        </h4>
+                        <p className="mt-4 text-sm leading-7 text-cyan-50/80">
+                          세부 1호점은 막탄 주요 다이빙 포인트를 중심으로 체험다이빙, 펀다이빙,
+                          스노클링, 해양 스포츠를 운영합니다. 처음 바다에 들어가는 분도 교육부터
+                          입수까지 천천히 적응할 수 있게 진행합니다.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {[
+                          { icon: FaCheckCircle, title: '추가금 걱정 최소화', text: '장비 렌탈, 픽드랍, 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영 포함' },
+                          { icon: FaClock, title: '1회 35분 이상', text: '체험다이빙도 짧은 촬영이 아니라 교육과 수중 적응을 포함해 여유 있게 진행' },
+                          { icon: FaUsers, title: '전문 로컬 가이드', text: '2,000회 이상 진행 경험을 바탕으로 당일 바다 상황에 맞춰 안전하게 안내' },
+                          { icon: FaCertificate, title: 'PADI 5 Star 기준', text: '장비 점검과 안전 브리핑을 우선으로 하는 공식 다이빙샵 운영 기준' },
+                        ].map((item) => {
+                          const Icon = item.icon
+                          return (
+                            <div key={item.title} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
+                              <Icon className="mb-3 text-cyan-600" size={22} />
+                              <h5 className="font-black text-[#06334a]">{item.title}</h5>
+                              <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-sky-100 bg-white p-6">
+                      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Tour Schedule</p>
+                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">세부 다이빙 투어 일정</h4>
+                        </div>
+                        <p className="text-sm text-slate-500">상품과 당일 해양 상황에 따라 시간은 조정될 수 있습니다.</p>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+                        {[
+                          ['08:00', '막탄 호텔 픽업'],
+                          ['09:00', '다이빙 교육'],
+                          ['10:00', '1번째 보트 다이빙'],
+                          ['11:00', '2번째 보트 다이빙'],
+                          ['12:00', '점심 식사'],
+                          ['14:30', '3회 상품 종료/드랍'],
+                        ].map(([time, label], index) => (
+                          <div key={`${time}-${label}`} className="rounded-xl bg-cyan-50 p-4">
+                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                              {index + 1}
+                            </div>
+                            <p className="font-black text-cyan-600">{time}</p>
+                            <p className="mt-1 text-sm font-bold text-slate-700">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-3">
+                      <div className="rounded-2xl bg-[#e8fbff] p-6">
+                        <FaMapMarkedAlt className="mb-4 text-cyan-600" size={26} />
+                        <h4 className="text-xl font-black text-[#06334a]">세부 포인트 Top 3</h4>
+                        <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+                          <li><strong>콘티키</strong> - 정어리떼를 자주 볼 수 있는 인기 포인트</li>
+                          <li><strong>올랑고 섬</strong> - 산호와 열대어가 많은 해양국립공원</li>
+                          <li><strong>마리곤돈 동굴</strong> - 해저 동굴을 경험할 수 있는 대표 포인트</li>
+                        </ul>
+                      </div>
+                      <div className="rounded-2xl bg-[#fff7d6] p-6">
+                        <FaCamera className="mb-4 text-amber-500" size={26} />
+                        <h4 className="text-xl font-black text-[#06334a]">사진/영상 혜택</h4>
+                        <p className="mt-4 text-sm leading-6 text-slate-700">
+                          투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 공유해드립니다.
+                          사진 리뷰 이벤트 참여 시 추가 혜택도 받을 수 있습니다.
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-[#eef4ff] p-6">
+                        <FaStar className="mb-4 text-blue-500" size={26} />
+                        <h4 className="text-xl font-black text-[#06334a]">동행자도 함께</h4>
+                        <p className="mt-4 text-sm leading-6 text-slate-700">
+                          자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서
+                          연인/친구/가족이 함께 즐길 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="relative group">
                   <div
