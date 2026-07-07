@@ -1,7 +1,19 @@
 import { useLanguage } from '../contexts/LanguageContext'
 import { useNavigate } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
-import { FaCalendarCheck, FaCertificate, FaComments, FaStar } from 'react-icons/fa'
+import {
+  FaCamera,
+  FaCalendarCheck,
+  FaCertificate,
+  FaCheckCircle,
+  FaClock,
+  FaComments,
+  FaMapMarkedAlt,
+  FaShip,
+  FaStar,
+  FaTags,
+  FaUsers,
+} from 'react-icons/fa'
 
 const HomePage: React.FC = () => {
   const { t } = useLanguage()
@@ -11,6 +23,42 @@ const HomePage: React.FC = () => {
     { value: 'PADI', label: '5 Star Diving Shop', sub: '안전 기준 기반 운영', icon: FaCertificate },
     { value: '1,000+', label: '실제 고객 후기', sub: '네이버/현지 후기 기반', icon: FaComments },
     { value: '4.9', label: '고객 만족 별점', sub: '친절한 현지 케어', icon: FaStar },
+  ]
+  const whyItems = [
+    {
+      icon: FaCheckCircle,
+      title: '올 인클루시브 투어',
+      description: '장비 렌탈, 픽드랍, 다이빙, 점심 식사, 환경세, 입장료, 수중 사진/영상 촬영까지 투어에 필요한 항목을 한 번에 준비합니다.',
+    },
+    {
+      icon: FaClock,
+      title: '1회 다이빙 최소 35분 이상',
+      description: '사진만 찍고 끝나는 체험이 아니라 교육부터 입수, 수중 적응, 포인트 이동까지 실제 다이빙 투어 흐름으로 진행합니다.',
+    },
+    {
+      icon: FaUsers,
+      title: '경험 많은 현지 가이드',
+      description: '현지 바다 컨디션과 포인트를 잘 아는 가이드가 당일 기상과 안전 상황에 맞춰 투어를 운영합니다.',
+    },
+    {
+      icon: FaCertificate,
+      title: 'PADI 5 Star 기준 운영',
+      description: '초보 체험다이빙부터 펀다이빙, 자격증 보유자 투어까지 안전 기준과 장비 점검을 우선으로 진행합니다.',
+    },
+  ]
+  const includedItems = [
+    { icon: FaShip, label: '보트 다이빙', text: '세부, 보홀, 코타키나발루, 발리의 주요 포인트를 지점별로 선택' },
+    { icon: FaCamera, label: '수중 촬영', text: '투어 중 사진과 영상으로 여행 기록을 남길 수 있도록 지원' },
+    { icon: FaMapMarkedAlt, label: '당일 포인트 운영', text: '기상과 해양 상황에 따라 가장 안전하고 좋은 포인트로 진행' },
+    { icon: FaTags, label: '원화 가격 비교', text: '지점별 상품 가격을 원화 기준으로 비교하고 장바구니 결제 가능' },
+  ]
+  const scheduleItems = [
+    { time: '08:00', title: '호텔 픽업', text: '지점별 픽업 가능 지역에서 투어 시작' },
+    { time: '09:00', title: '안전 교육', text: '장비 착용, 호흡법, 수신호, 입수 방법 안내' },
+    { time: '10:00', title: '1차 다이빙', text: '가이드와 함께 천천히 수중 적응' },
+    { time: '12:00', title: '점심 식사', text: '현지 일정에 맞춰 식사 및 휴식' },
+    { time: '13:00', title: '추가 다이빙', text: '상품에 따라 2회 또는 3회 다이빙 진행' },
+    { time: '14:30', title: '호텔 드랍', text: '투어 종료 후 사진/영상 안내' },
   ]
 
   return (
@@ -136,6 +184,131 @@ const HomePage: React.FC = () => {
               playsInline
             />
             <div className="absolute inset-0 bg-gradient-to-r from-[#06334a] via-[#06334a]/25 to-transparent md:from-transparent md:via-transparent" />
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#e8fbff] py-16 text-slate-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+            <div>
+              <p className="mb-3 text-sm font-black uppercase tracking-[0.25em] text-ocean-accent">Why Parks</p>
+              <h2 className="font-display text-4xl font-black leading-tight text-[#06334a] md:text-5xl">
+                처음이어도 편하게,
+                <span className="block text-cyan-600">경험자는 제대로.</span>
+              </h2>
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+                Parks Local Diving은 여행자가 현지에서 가장 많이 헷갈리는 가격, 픽업, 장비, 촬영, 안전 안내를
+                한 번에 정리해주는 다이빙 투어 플랫폼입니다.
+              </p>
+            </div>
+            <div className="rounded-2xl bg-[#06334a] p-6 text-white shadow-[0_24px_70px_rgba(3,51,74,0.24)]">
+              <p className="text-sm font-black text-parks-gold">투어 포함 핵심</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                {includedItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <div key={item.label} className="rounded-xl bg-white/10 p-4">
+                      <Icon className="mb-3 text-parks-gold" size={22} />
+                      <h3 className="font-black">{item.label}</h3>
+                      <p className="mt-2 text-sm leading-6 text-white/75">{item.text}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {whyItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <article key={item.title} className="rounded-2xl border border-sky-100 bg-white p-6 shadow-[0_18px_50px_rgba(14,165,233,0.12)]">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-cyan-100 text-cyan-700">
+                    <Icon size={20} />
+                  </div>
+                  <h3 className="text-xl font-black text-[#06334a]">{item.title}</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+                </article>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 text-slate-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-10 max-w-3xl">
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.25em] text-ocean-accent">Tour Flow</p>
+            <h2 className="font-display text-4xl font-black text-[#06334a] md:text-5xl">
+              하루 일정이 보이면 예약이 쉬워집니다.
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              실제 시간은 지점과 상품, 당일 해양 상황에 따라 달라질 수 있지만 기본 흐름은 아래처럼 진행됩니다.
+            </p>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
+            {scheduleItems.map((item, index) => (
+              <div key={`${item.time}-${item.title}`} className="relative rounded-2xl bg-[#e8fbff] p-5">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
+                  {index + 1}
+                </div>
+                <p className="text-lg font-black text-cyan-600">{item.time}</p>
+                <h3 className="mt-1 font-black text-[#06334a]">{item.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#dff9ff] py-16 text-slate-900">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
+          <div className="rounded-2xl bg-white p-7 shadow-[0_24px_70px_rgba(14,165,233,0.16)] md:p-9">
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.25em] text-ocean-accent">Real Reviews</p>
+            <h2 className="font-display text-4xl font-black text-[#06334a]">
+              고객이 먼저 말해주는 만족도
+            </h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {[
+                '처음이라 긴장했는데 교육부터 입수까지 차근차근 알려줘서 금방 적응했어요.',
+                '장비가 깔끔했고 사진과 영상까지 남겨줘서 여행 중 가장 기억에 남았습니다.',
+                '여러 업체 비교하다 선택했는데 픽업, 식사, 다이빙 진행이 편했습니다.',
+                '자격증 있는 친구와 체험다이빙인 제가 같이 즐길 수 있어서 좋았어요.',
+              ].map((review) => (
+                <div key={review} className="rounded-xl border border-sky-100 bg-cyan-50/70 p-5">
+                  <div className="mb-3 text-parks-gold">★★★★★</div>
+                  <p className="text-sm leading-7 text-slate-700">{review}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-[#06334a] p-7 text-white shadow-[0_24px_70px_rgba(3,51,74,0.22)] md:p-9">
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.25em] text-parks-gold">Special Benefit</p>
+            <h2 className="font-display text-4xl font-black">
+              투어 전후 혜택까지 챙겨요.
+            </h2>
+            <div className="mt-6 space-y-4">
+              {[
+                ['무료 사진보정 5장', '다이빙 사진을 업로드하면 AI 보정 결과를 받을 수 있습니다.'],
+                ['후기 이벤트', '사진 후기 참여 시 지점별 이벤트 혜택을 받을 수 있습니다.'],
+                ['동행자 투어', '자격증 보유자와 미보유자가 함께 즐길 수 있는 상품을 운영합니다.'],
+              ].map(([title, text]) => (
+                <div key={title} className="rounded-xl bg-white/10 p-5">
+                  <h3 className="font-black text-parks-gold">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/75">{text}</p>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/photo-enhance')}
+              className="mt-7 rounded-full bg-parks-gold px-6 py-3 text-sm font-black text-[#06334a] transition hover:bg-white"
+            >
+              무료 사진보정 체험
+            </button>
           </div>
         </div>
       </section>
