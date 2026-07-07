@@ -469,6 +469,119 @@ const BranchPage: React.FC = () => {
                   </div>
                 )}
 
+                {currentBranch.id === 'bohol' && (
+                  <div className="mb-8 space-y-6">
+                    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+                      <div className="rounded-2xl bg-[#06334a] p-6 text-white">
+                        <p className="mb-3 inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#06334a]">
+                          보홀 알로나 올 인클루시브 투어
+                        </p>
+                        <h4 className="text-3xl font-black leading-tight">
+                          거북이, 산호 절벽, 섬 투어까지
+                          <span className="block text-parks-gold">보홀 바다를 제대로 즐깁니다.</span>
+                        </h4>
+                        <p className="mt-4 text-sm leading-7 text-cyan-50/80">
+                          보홀 지점은 알로나 비치 산호 절벽 포인트부터 나팔링, 발리카삭, 파밀라칸까지
+                          다양한 포인트를 운영합니다. 예약 후 메일로 예약확정서를 발급해드리며,
+                          원하는 포인트는 사전 상담을 통해 선택할 수 있습니다.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {[
+                          { icon: FaCheckCircle, title: '올 인클루시브 구성', text: '장비 렌탈, 보트 다이빙, 점심, 환경세, 입장료, 수중 사진/영상 촬영까지 포함' },
+                          { icon: FaClock, title: '1회 35분 이상', text: '펀다이빙은 1회 40분 이상, 체험다이빙은 교육 후 25~30분 내외로 진행' },
+                          { icon: FaMapMarkedAlt, title: '원하는 포인트 선택', text: '알로나, 나팔링, 발리카삭, 파밀라칸 중 일정과 목적에 맞춰 예약 가능' },
+                          { icon: FaCertificate, title: 'PADI 5 Star 기준', text: '안전 브리핑, 장비 점검, 현지 가이드 운영을 기준으로 투어 진행' },
+                        ].map((item) => {
+                          const Icon = item.icon
+                          return (
+                            <div key={item.title} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
+                              <Icon className="mb-3 text-cyan-600" size={22} />
+                              <h5 className="font-black text-[#06334a]">{item.title}</h5>
+                              <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-sky-100 bg-white p-6">
+                      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Tour Schedule</p>
+                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">보홀 다이빙 투어 일정</h4>
+                        </div>
+                        <p className="text-sm text-slate-500">발리카삭/파밀라칸 다이빙은 최소 1달 전 예약을 권장합니다.</p>
+                      </div>
+                      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+                        {[
+                          ['09:00', '알로나 비치 도착'],
+                          ['09:00', '다이빙 교육'],
+                          ['10:00', '1번째 보트 다이빙'],
+                          ['11:00', '2번째 보트 다이빙'],
+                          ['12:00', '점심 식사'],
+                          ['14:30', '3회 상품 종료'],
+                        ].map(([time, label], index) => (
+                          <div key={`${time}-${label}`} className="rounded-xl bg-cyan-50 p-4">
+                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                              {index + 1}
+                            </div>
+                            <p className="font-black text-cyan-600">{time}</p>
+                            <p className="mt-1 text-sm font-bold text-slate-700">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="mt-4 text-sm leading-6 text-amber-600">
+                        점심 샌드위치는 발리카삭 또는 파밀라칸 다이빙 상품에만 제공됩니다.
+                      </p>
+                    </div>
+
+                    <div className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
+                      <div className="flex flex-col gap-2 p-6 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Dive Point Map</p>
+                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">보홀 다이빙 포인트 지도</h4>
+                        </div>
+                        <p className="text-sm text-slate-500">원하는 포인트로 선택 예약이 가능하며, 당일 해양 상황에 따라 조정될 수 있습니다.</p>
+                      </div>
+                      <img
+                        src="/assets/bohol/bohol-dive-point-map.png"
+                        alt="보홀 발리카삭, 팡라오, 파밀라칸 다이빙 포인트 지도"
+                        className="w-full bg-sky-100 object-cover"
+                      />
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-3">
+                      <div className="rounded-2xl bg-[#e8fbff] p-6">
+                        <FaMapMarkedAlt className="mb-4 text-cyan-600" size={26} />
+                        <h4 className="text-xl font-black text-[#06334a]">보홀 포인트 Top 3</h4>
+                        <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+                          <li><strong>파밀라칸</strong> - 수만 마리 물고기떼와 거북이를 만날 수 있는 인기 포인트</li>
+                          <li><strong>발리카삭</strong> - 하루 100명 제한이 있는 보홀 대표 섬 다이빙</li>
+                          <li><strong>알로나 비치 리프</strong> - 알로나 해변에 길게 펼쳐진 산호 절벽 포인트</li>
+                        </ul>
+                      </div>
+                      <div className="rounded-2xl bg-[#fff7d6] p-6">
+                        <FaCamera className="mb-4 text-amber-500" size={26} />
+                        <h4 className="text-xl font-black text-[#06334a]">사진/영상 혜택</h4>
+                        <p className="mt-4 text-sm leading-6 text-slate-700">
+                          투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 무료로 공유해드립니다.
+                          사진 리뷰 이벤트 참여 시 네이버 포인트 혜택도 받을 수 있습니다.
+                        </p>
+                      </div>
+                      <div className="rounded-2xl bg-[#eef4ff] p-6">
+                        <FaStar className="mb-4 text-blue-500" size={26} />
+                        <h4 className="text-xl font-black text-[#06334a]">함께하는 동행 다이빙</h4>
+                        <p className="mt-4 text-sm leading-6 text-slate-700">
+                          자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서
+                          연인/친구/가족이 함께 즐길 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="relative group">
                   <div
                     ref={scrollContainerRef}
