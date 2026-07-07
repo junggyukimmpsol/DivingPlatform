@@ -4,7 +4,7 @@ import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { REVIEW_DATA } from '../data/reviewData'
 import { CenterId } from '../types/center.types'
 import { useLanguage } from '../contexts/LanguageContext'
-import { FaCreditCard, FaTimes } from 'react-icons/fa'
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaCreditCard, FaTimes } from 'react-icons/fa'
 // Note: Tabs are now managed by the Navigation component in Tier 2
 
 type TourProduct = {
@@ -31,6 +31,10 @@ const addMonths = (date: Date, months: number) => {
   return nextDate
 }
 
+const toMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1)
+
+const getMonthKey = (date: Date) => date.getFullYear() * 12 + date.getMonth()
+
 const BranchPage: React.FC = () => {
   const { pathname } = useLocation()
   const { t, language } = useLanguage()
@@ -43,6 +47,7 @@ const BranchPage: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<TourProduct | null>(null)
   const [tourDate, setTourDate] = useState('')
   const [guestCount, setGuestCount] = useState(1)
+  const [calendarMonth, setCalendarMonth] = useState(() => toMonthStart(new Date()))
 
   const checkScrollLimits = () => {
     if (!scrollContainerRef.current) return
@@ -114,6 +119,17 @@ const BranchPage: React.FC = () => {
   const gallery = BRANCH_GALLERIES[currentBranch.id]
   const bookingStartDate = dateToInputValue(new Date())
   const bookingEndDate = dateToInputValue(addMonths(new Date(), 3))
+  const bookingStartMonth = toMonthStart(new Date())
+  const bookingEndMonth = toMonthStart(addMonths(new Date(), 3))
+  const calendarMonthLabel = `${calendarMonth.getFullYear()}년 ${calendarMonth.getMonth() + 1}월`
+  const firstDayOfMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
+  const daysInMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 0).getDate()
+  const calendarDays = Array.from({ length: firstDayOfMonth.getDay() + daysInMonth }, (_, index) => {
+    const day = index - firstDayOfMonth.getDay() + 1
+    return day > 0 ? new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day) : null
+  })
+  const canGoPreviousMonth = getMonthKey(calendarMonth) > getMonthKey(bookingStartMonth)
+  const canGoNextMonth = getMonthKey(calendarMonth) < getMonthKey(bookingEndMonth)
   const selectedProductPriceKrw = selectedProduct ? usdToKrw(selectedProduct.balance) : 0
   const totalAmount = selectedProductPriceKrw * guestCount
 
@@ -121,6 +137,7 @@ const BranchPage: React.FC = () => {
     setSelectedProduct(product)
     setGuestCount(1)
     setTourDate('')
+    setCalendarMonth(toMonthStart(new Date()))
   }
 
   const closePaymentModal = () => {
@@ -351,7 +368,7 @@ const BranchPage: React.FC = () => {
 
       {selectedProduct && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.25em] text-parks-gold">Reservation</p>
@@ -378,19 +395,72 @@ const BranchPage: React.FC = () => {
                 <p className="mt-2 text-xs text-slate-500">1 USD = 1,550원 기준</p>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-bold text-slate-200">투어 날짜</span>
-                  <input
-                    type="date"
-                    min={bookingStartDate}
-                    max={bookingEndDate}
-                    value={tourDate}
-                    onChange={(event) => setTourDate(event.currentTarget.value)}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-parks-gold"
-                  />
+              <div className="grid gap-4">
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="block text-sm font-bold text-slate-200">투어 날짜</span>
+                    <span className="inline-flex items-center gap-2 text-xs font-bold text-parks-gold">
+                      <FaCalendarAlt size={12} />
+                      {tourDate || '날짜 선택'}
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                    <div className="mb-4 flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMonth(toMonthStart(addMonths(calendarMonth, -1)))}
+                        disabled={!canGoPreviousMonth}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+                        aria-label="이전 달"
+                      >
+                        <FaChevronLeft size={14} />
+                      </button>
+                      <p className="text-sm font-black text-white">{calendarMonthLabel}</p>
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMonth(toMonthStart(addMonths(calendarMonth, 1)))}
+                        disabled={!canGoNextMonth}
+                        className="flex h-9 w-9 items-center justify-center rounded-full bg-white/5 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+                        aria-label="다음 달"
+                      >
+                        <FaChevronRight size={14} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-500">
+                      {['일', '월', '화', '수', '목', '금', '토'].map((day) => (
+                        <span key={day} className="py-2">{day}</span>
+                      ))}
+                    </div>
+                    <div className="mt-1 grid grid-cols-7 gap-1">
+                      {calendarDays.map((date, index) => {
+                        if (!date) {
+                          return <span key={`empty-${index}`} className="h-10" />
+                        }
+
+                        const dateValue = dateToInputValue(date)
+                        const disabled = dateValue < bookingStartDate || dateValue > bookingEndDate
+                        const selected = dateValue === tourDate
+
+                        return (
+                          <button
+                            key={dateValue}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => setTourDate(dateValue)}
+                            className={`flex h-10 items-center justify-center rounded-lg text-sm font-bold transition ${
+                              selected
+                                ? 'bg-parks-gold text-ocean-dark'
+                                : 'bg-white/5 text-slate-200 hover:bg-white/10'
+                            } disabled:cursor-not-allowed disabled:bg-transparent disabled:text-slate-700`}
+                          >
+                            {date.getDate()}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
                   <span className="mt-2 block text-xs text-slate-500">오늘부터 3개월 이내 날짜만 선택 가능합니다.</span>
-                </label>
+                </div>
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-slate-200">인원</span>
                   <input
