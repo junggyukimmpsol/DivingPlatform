@@ -23,6 +23,35 @@ type CartItem = {
   unitPriceKrw: number
 }
 
+type PortOnePaymentResponse = {
+  code?: string
+  message?: string
+  paymentId?: string
+}
+
+type PortOnePaymentRequest = {
+  storeId: string
+  channelKey: string
+  paymentId: string
+  orderName: string
+  totalAmount: number
+  currency: 'CURRENCY_KRW'
+  payMethod: 'CARD'
+  customer?: {
+    fullName?: string
+    email?: string
+    phoneNumber?: string
+  }
+}
+
+declare global {
+  interface Window {
+    PortOne?: {
+      requestPayment: (request: PortOnePaymentRequest) => Promise<PortOnePaymentResponse>
+    }
+  }
+}
+
 const KRW_PER_USD = 1550
 
 const usdToKrw = (usd: number) => Math.round(usd * KRW_PER_USD)
@@ -45,6 +74,29 @@ const addMonths = (date: Date, months: number) => {
 const toMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1)
 
 const getMonthKey = (date: Date) => date.getFullYear() * 12 + date.getMonth()
+
+const loadPortOneSdk = () =>
+  new Promise<void>((resolve, reject) => {
+    if (window.PortOne) {
+      resolve()
+      return
+    }
+
+    const existingScript = document.querySelector<HTMLScriptElement>('script[data-portone-sdk="true"]')
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(), { once: true })
+      existingScript.addEventListener('error', () => reject(new Error('결제 SDK를 불러오지 못했습니다.')), { once: true })
+      return
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://cdn.portone.io/v2/browser-sdk.js'
+    script.async = true
+    script.dataset.portoneSdk = 'true'
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error('결제 SDK를 불러오지 못했습니다.'))
+    document.head.appendChild(script)
+  })
 
 const BranchPage: React.FC = () => {
   const { pathname } = useLocation()
@@ -196,10 +248,10 @@ const BranchPage: React.FC = () => {
     setCartItems((items) => items.filter((item) => item.id !== itemId))
   }
 
-  const submitCart = async () => {
+  const submitCartPayment = async () => {
     if (!user) {
       setCheckoutStatus('error')
-      setCheckoutMessage('회원정보와 장비 정보를 보내려면 로그인이 필요합니다.')
+      setCheckoutMessage('장바구니 결제를 진행하려면 로그인이 필요합니다.')
       return
     }
     if (cartItems.length === 0) {
@@ -209,25 +261,65 @@ const BranchPage: React.FC = () => {
     }
 
     setCheckoutStatus('sending')
-    setCheckoutMessage('예약 요청을 보내는 중입니다.')
+    setCheckoutMessage('결제창을 준비하는 중입니다.')
 
     try {
-      const response = await fetch('/api/orders/notify', {
+      const configResponse = await fetch('/api/payments/config', { credentials: 'include' })
+      const config = await configResponse.json() as { storeId?: string; channelKey?: string; error?: string }
+      if (!configResponse.ok || !config.storeId || !config.channelKey) {
+        throw new Error(config.error || '결제 설정을 불러오지 못했습니다.')
+      }
+
+      await loadPortOneSdk()
+      if (!window.PortOne) throw new Error('결제 SDK가 준비되지 않았습니다.')
+
+      const paymentId = `parks-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
+      const orderName =
+        cartItems.length === 1
+          ? cartItems[0].program
+          : `${cartItems[0].program} 외 ${cartItems.length - 1}건`
+
+      const payment = await window.PortOne.requestPayment({
+        storeId: config.storeId,
+        channelKey: config.channelKey,
+        paymentId,
+        orderName,
+        totalAmount: cartTotalAmount,
+        currency: 'CURRENCY_KRW',
+        payMethod: 'CARD',
+        customer: {
+          fullName: user.name,
+          email: user.email,
+          phoneNumber: user.profile.phone || undefined,
+        },
+      })
+
+      if (payment.code) {
+        throw new Error(payment.message || '결제가 취소되었거나 실패했습니다.')
+      }
+
+      setCheckoutMessage('결제 완료 여부를 확인하는 중입니다.')
+
+      const response = await fetch('/api/payments/complete', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ items: cartItems }),
+        body: JSON.stringify({
+          paymentId: payment.paymentId || paymentId,
+          totalAmount: cartTotalAmount,
+          items: cartItems,
+        }),
       })
       const data = await response.json() as { error?: string; message?: string }
 
-      if (!response.ok) throw new Error(data.error || '예약 요청 발송에 실패했습니다.')
+      if (!response.ok) throw new Error(data.error || '결제 확인에 실패했습니다.')
 
       setCheckoutStatus('sent')
-      setCheckoutMessage(data.message || '대표 이메일로 예약 요청을 보냈습니다.')
+      setCheckoutMessage(data.message || '결제가 완료되었습니다.')
       setCartItems([])
     } catch (caught) {
       setCheckoutStatus('error')
-      setCheckoutMessage(caught instanceof Error ? caught.message : '예약 요청 발송에 실패했습니다.')
+      setCheckoutMessage(caught instanceof Error ? caught.message : '결제 처리에 실패했습니다.')
     }
   }
 
@@ -438,18 +530,18 @@ const BranchPage: React.FC = () => {
                         </div>
                         <button
                           type="button"
-                          onClick={submitCart}
+                          onClick={submitCartPayment}
                           disabled={checkoutStatus === 'sending'}
                           className="inline-flex items-center justify-center gap-2 rounded-full bg-[#06334a] px-5 py-3 text-sm font-black text-white transition hover:bg-ocean-teal disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <FaCreditCard />
-                          {checkoutStatus === 'sending' ? '요청 보내는 중' : '구매 요청 보내기'}
+                          {checkoutStatus === 'sending' ? '결제 처리 중' : '장바구니 결제하기'}
                         </button>
                       </div>
                     </div>
                   ) : (
                     <p className="mt-4 rounded-xl border border-dashed border-sky-200 bg-cyan-50/60 p-4 text-sm text-slate-500">
-                      상품의 담기 버튼을 누르면 날짜와 인원을 선택한 뒤 여러 상품을 한 번에 요청할 수 있습니다.
+                      상품의 담기 버튼을 누르면 날짜와 인원을 선택한 뒤 여러 상품을 한 번에 결제할 수 있습니다.
                     </p>
                   )}
 

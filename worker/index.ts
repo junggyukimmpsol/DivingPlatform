@@ -31,6 +31,9 @@ type Env = {
   RESEND_API_KEY?: string
   EMAIL_FROM?: string
   ORDER_NOTIFICATION_EMAIL?: string
+  PORTONE_STORE_ID?: string
+  PORTONE_CHANNEL_KEY?: string
+  PORTONE_API_SECRET?: string
   OPENAI_API_KEY?: string
   OPENAI_IMAGE_MODEL?: string
   OPENAI_IMAGE_PROXY_URL?: string
@@ -725,6 +728,180 @@ const handleOrderNotification = async (request: Request, env: Env) => {
   return json({ ok: true, message: '대표 이메일로 예약 요청을 보냈습니다.' })
 }
 
+const normalizeOrderItems = (items: OrderCartItem[]) => {
+  const normalizedItems = items.map((item) => ({
+    locationName: String(item.locationName || '').trim(),
+    program: String(item.program || '').trim(),
+    tourDate: String(item.tourDate || '').trim(),
+    guests: Number(item.guests || 0),
+    unitPriceKrw: Number(item.unitPriceKrw || 0),
+  }))
+
+  const invalid = normalizedItems.some(
+    (item) =>
+      !item.locationName ||
+      !item.program ||
+      !item.tourDate ||
+      !Number.isInteger(item.guests) ||
+      item.guests < 1 ||
+      item.guests > 20 ||
+      !Number.isFinite(item.unitPriceKrw) ||
+      item.unitPriceKrw < 0,
+  )
+
+  return invalid ? null : normalizedItems
+}
+
+const sendPaidOrderEmail = async (
+  env: Env,
+  user: UserRow,
+  profile: ProfileRow | null,
+  items: ReturnType<typeof normalizeOrderItems>,
+  paymentId: string,
+  totalAmount: number,
+) => {
+  if (!items) return json({ error: '예약 상품 정보가 올바르지 않습니다.' }, { status: 400 })
+
+  const totalGuests = items.reduce((sum, item) => sum + item.guests, 0)
+  const rows = items
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0">${escapeHtml(item.locationName)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0">${escapeHtml(item.program)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0">${escapeHtml(item.tourDate)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;text-align:right">${item.guests}명</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;text-align:right">${formatKrw(item.unitPriceKrw * item.guests)}</td>
+        </tr>
+      `,
+    )
+    .join('')
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: env.EMAIL_FROM,
+      to: [env.ORDER_NOTIFICATION_EMAIL || DEFAULT_ORDER_NOTIFICATION_EMAIL],
+      subject: `[Parks Local Diving] ${user.name}님 결제 완료`,
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
+          <h2>장바구니 결제가 완료되었습니다</h2>
+          <p>결제번호: ${escapeHtml(paymentId)}</p>
+          <h3>회원 정보</h3>
+          <ul>
+            <li>이름: ${escapeHtml(user.name)}</li>
+            <li>이메일: ${escapeHtml(user.email)}</li>
+            <li>연락처: ${escapeHtml(profile?.phone || '미입력')}</li>
+            <li>자격증: ${escapeHtml(profile?.certification_agency || '미입력')} / ${escapeHtml(profile?.certification_level || '미입력')}</li>
+            <li>자격증 사진: ${profile?.certification_image_key ? '등록됨' : '미등록'}</li>
+            <li>키: ${escapeHtml(profile?.height_cm || '미입력')} cm</li>
+            <li>몸무게: ${escapeHtml(profile?.weight_kg || '미입력')} kg</li>
+            <li>발 사이즈: ${escapeHtml(profile?.foot_size_mm || '미입력')} mm</li>
+            <li>선호 수트 사이즈: ${escapeHtml(profile?.preferred_suit_size || '미입력')}</li>
+            <li>메모: ${escapeHtml(profile?.memo || '미입력')}</li>
+          </ul>
+          <h3>구매 옵션</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead>
+              <tr style="background:#f1f5f9">
+                <th style="padding:10px;text-align:left">지역</th>
+                <th style="padding:10px;text-align:left">상품</th>
+                <th style="padding:10px;text-align:left">날짜</th>
+                <th style="padding:10px;text-align:right">인원</th>
+                <th style="padding:10px;text-align:right">금액</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <p style="font-size:16px;font-weight:700">총 ${totalGuests}명 / ${formatKrw(totalAmount)}</p>
+        </div>
+      `,
+    }),
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    return json({ error: '결제 완료 이메일 발송에 실패했습니다.', detail }, { status: 502 })
+  }
+
+  return null
+}
+
+const handlePaymentConfig = async (_request: Request, env: Env) => {
+  if (!env.PORTONE_STORE_ID || !env.PORTONE_CHANNEL_KEY) {
+    return json({ error: 'PORTONE_STORE_ID와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
+  }
+
+  return json({
+    storeId: env.PORTONE_STORE_ID,
+    channelKey: env.PORTONE_CHANNEL_KEY,
+  })
+}
+
+const handlePaymentComplete = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+  if (!env.PORTONE_API_SECRET) return json({ error: 'PORTONE_API_SECRET 설정이 필요합니다.' }, { status: 503 })
+
+  const userId = await getCurrentUserId(request, env)
+  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const body = (await request.json()) as { paymentId?: string; totalAmount?: number; items?: OrderCartItem[] }
+  const paymentId = String(body.paymentId || '').trim()
+  const items = Array.isArray(body.items) ? body.items : []
+  if (!paymentId) return json({ error: '결제번호가 없습니다.' }, { status: 400 })
+  if (items.length === 0) return json({ error: '장바구니에 담긴 상품이 없습니다.' }, { status: 400 })
+  if (items.length > 20) return json({ error: '한 번에 결제 가능한 상품 수는 20개까지입니다.' }, { status: 400 })
+
+  const normalizedItems = normalizeOrderItems(items)
+  if (!normalizedItems) return json({ error: '예약 상품 정보가 올바르지 않습니다.' }, { status: 400 })
+
+  const expectedAmount = normalizedItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
+  if (Number(body.totalAmount) !== expectedAmount) {
+    return json({ error: '결제 요청 금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
+  }
+
+  const paymentResponse = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
+    headers: {
+      authorization: `PortOne ${env.PORTONE_API_SECRET}`,
+    },
+  })
+
+  if (!paymentResponse.ok) {
+    const detail = await paymentResponse.text()
+    return json({ error: '포트원 결제 조회에 실패했습니다.', detail }, { status: 502 })
+  }
+
+  const payment = await paymentResponse.json() as {
+    status?: string
+    amount?: { total?: number; paid?: number }
+    paidAmount?: number
+    totalAmount?: number
+  }
+  const paidAmount = Number(payment.amount?.total ?? payment.amount?.paid ?? payment.paidAmount ?? payment.totalAmount ?? 0)
+  if (payment.status !== 'PAID') return json({ error: '결제가 완료된 상태가 아닙니다.' }, { status: 400 })
+  if (paidAmount !== expectedAmount) return json({ error: '실제 결제금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
+
+  const user = await env.DB!.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>()
+  if (!user) return json({ error: '회원 정보를 찾을 수 없습니다.' }, { status: 404 })
+
+  const profile = await env
+    .DB!.prepare('SELECT * FROM diver_profiles WHERE user_id = ?')
+    .bind(userId)
+    .first<ProfileRow>()
+
+  const emailError = await sendPaidOrderEmail(env, user, profile, normalizedItems, paymentId, expectedAmount)
+  if (emailError) return emailError
+
+  return json({ ok: true, message: '결제가 완료되었습니다. 예약 정보가 대표 이메일로 전송되었습니다.' })
+}
+
 const ensurePhotoWallet = async (env: Env, userId: string) => {
   const existing = await env
     .DB!.prepare('SELECT user_id, total_credits, used_credits FROM photo_credit_wallets WHERE user_id = ?')
@@ -1152,6 +1329,12 @@ export default {
       }
       if (url.pathname === '/api/orders/notify' && request.method === 'POST') {
         return handleOrderNotification(request, env)
+      }
+      if (url.pathname === '/api/payments/config' && request.method === 'GET') {
+        return handlePaymentConfig(request, env)
+      }
+      if (url.pathname === '/api/payments/complete' && request.method === 'POST') {
+        return handlePaymentComplete(request, env)
       }
       if (url.pathname === '/api/photo-enhance/summary' && request.method === 'GET') {
         return handlePhotoSummary(request, env)
