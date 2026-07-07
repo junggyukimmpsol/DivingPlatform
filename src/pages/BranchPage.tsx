@@ -424,6 +424,21 @@ const BranchPage: React.FC = () => {
                       </div>
                     </div>
 
+                    <div className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
+                      <div className="flex flex-col gap-2 p-6 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Dive Point Map</p>
+                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">세부 다이빙 포인트 지도</h4>
+                        </div>
+                        <p className="text-sm text-slate-500">당일 기상과 해양 상황에 따라 다이빙샵에서 포인트를 지정합니다.</p>
+                      </div>
+                      <img
+                        src="/assets/cebu/cebu-dive-point-map.png"
+                        alt="세부 막탄과 올랑고 섬 다이빙 포인트 지도"
+                        className="w-full bg-sky-100 object-cover"
+                      />
+                    </div>
+
                     <div className="grid gap-4 lg:grid-cols-3">
                       <div className="rounded-2xl bg-[#e8fbff] p-6">
                         <FaMapMarkedAlt className="mb-4 text-cyan-600" size={26} />
