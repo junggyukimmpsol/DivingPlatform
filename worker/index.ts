@@ -30,6 +30,7 @@ type Env = {
   AUTH_SECRET?: string
   RESEND_API_KEY?: string
   EMAIL_FROM?: string
+  ORDER_NOTIFICATION_EMAIL?: string
   OPENAI_API_KEY?: string
   OPENAI_IMAGE_MODEL?: string
   OPENAI_IMAGE_PROXY_URL?: string
@@ -60,6 +61,15 @@ type ProfileRow = {
   memo: string | null
 }
 
+type OrderCartItem = {
+  locationId?: string
+  locationName?: string
+  program?: string
+  tourDate?: string
+  guests?: number
+  unitPriceKrw?: number
+}
+
 const SESSION_COOKIE = 'diving_session'
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 const MAX_CERTIFICATE_IMAGE_BYTES = 2 * 1024 * 1024
@@ -70,6 +80,7 @@ const FREE_PHOTO_CREDITS = 5
 const MAX_ENHANCE_IMAGE_BYTES = 2 * 1024 * 1024
 const MAX_ENHANCE_UPLOADS = 5
 const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-1-mini'
+const DEFAULT_ORDER_NOTIFICATION_EMAIL = 'parkdivers@gmail.com'
 
 const json = (body: unknown, init: ResponseInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -232,6 +243,16 @@ const sanitizeText = (value: FormDataEntryValue | null) => {
   const trimmed = value.trim()
   return trimmed || null
 }
+
+const escapeHtml = (value: unknown) =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+
+const formatKrw = (amount: number) => `${Math.round(amount).toLocaleString('ko-KR')}원`
 
 const base64ToArrayBuffer = (value: string) => {
   const binary = atob(value)
@@ -587,6 +608,121 @@ const handleCertificate = async (request: Request, env: Env) => {
       'cache-control': 'private, max-age=60',
     },
   })
+}
+
+const handleOrderNotification = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+
+  const userId = await getCurrentUserId(request, env)
+  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
+
+  const body = (await request.json()) as { items?: OrderCartItem[] }
+  const items = Array.isArray(body.items) ? body.items : []
+  if (items.length === 0) return json({ error: '장바구니에 담긴 상품이 없습니다.' }, { status: 400 })
+  if (items.length > 20) return json({ error: '한 번에 요청 가능한 상품 수는 20개까지입니다.' }, { status: 400 })
+
+  const normalizedItems = items.map((item) => ({
+    locationName: String(item.locationName || '').trim(),
+    program: String(item.program || '').trim(),
+    tourDate: String(item.tourDate || '').trim(),
+    guests: Number(item.guests || 0),
+    unitPriceKrw: Number(item.unitPriceKrw || 0),
+  }))
+
+  if (
+    normalizedItems.some(
+      (item) =>
+        !item.locationName ||
+        !item.program ||
+        !item.tourDate ||
+        !Number.isInteger(item.guests) ||
+        item.guests < 1 ||
+        item.guests > 20 ||
+        !Number.isFinite(item.unitPriceKrw) ||
+        item.unitPriceKrw < 0,
+    )
+  ) {
+    return json({ error: '예약 상품 정보가 올바르지 않습니다.' }, { status: 400 })
+  }
+
+  const user = await env.DB!.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>()
+  if (!user) return json({ error: '회원 정보를 찾을 수 없습니다.' }, { status: 404 })
+
+  const profile = await env
+    .DB!.prepare('SELECT * FROM diver_profiles WHERE user_id = ?')
+    .bind(userId)
+    .first<ProfileRow>()
+
+  const totalAmount = normalizedItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
+  const totalGuests = normalizedItems.reduce((sum, item) => sum + item.guests, 0)
+  const rows = normalizedItems
+    .map(
+      (item) => `
+        <tr>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0">${escapeHtml(item.locationName)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0">${escapeHtml(item.program)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0">${escapeHtml(item.tourDate)}</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;text-align:right">${item.guests}명</td>
+          <td style="padding:10px;border-bottom:1px solid #e2e8f0;text-align:right">${formatKrw(item.unitPriceKrw * item.guests)}</td>
+        </tr>
+      `,
+    )
+    .join('')
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: env.EMAIL_FROM,
+      to: [env.ORDER_NOTIFICATION_EMAIL || DEFAULT_ORDER_NOTIFICATION_EMAIL],
+      subject: `[Parks Local Diving] ${user.name}님 예약 요청`,
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
+          <h2>예약 요청이 도착했습니다</h2>
+          <h3>회원 정보</h3>
+          <ul>
+            <li>이름: ${escapeHtml(user.name)}</li>
+            <li>이메일: ${escapeHtml(user.email)}</li>
+            <li>연락처: ${escapeHtml(profile?.phone || '미입력')}</li>
+            <li>자격증: ${escapeHtml(profile?.certification_agency || '미입력')} / ${escapeHtml(profile?.certification_level || '미입력')}</li>
+            <li>자격증 사진: ${profile?.certification_image_key ? '등록됨' : '미등록'}</li>
+            <li>키: ${escapeHtml(profile?.height_cm || '미입력')} cm</li>
+            <li>몸무게: ${escapeHtml(profile?.weight_kg || '미입력')} kg</li>
+            <li>발 사이즈: ${escapeHtml(profile?.foot_size_mm || '미입력')} mm</li>
+            <li>선호 수트 사이즈: ${escapeHtml(profile?.preferred_suit_size || '미입력')}</li>
+            <li>메모: ${escapeHtml(profile?.memo || '미입력')}</li>
+          </ul>
+          <h3>구매 옵션</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead>
+              <tr style="background:#f1f5f9">
+                <th style="padding:10px;text-align:left">지역</th>
+                <th style="padding:10px;text-align:left">상품</th>
+                <th style="padding:10px;text-align:left">날짜</th>
+                <th style="padding:10px;text-align:right">인원</th>
+                <th style="padding:10px;text-align:right">금액</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <p style="font-size:16px;font-weight:700">총 ${totalGuests}명 / ${formatKrw(totalAmount)}</p>
+        </div>
+      `,
+    }),
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    return json({ error: '예약 요청 이메일 발송에 실패했습니다.', detail }, { status: 502 })
+  }
+
+  return json({ ok: true, message: '대표 이메일로 예약 요청을 보냈습니다.' })
 }
 
 const ensurePhotoWallet = async (env: Env, userId: string) => {
@@ -1013,6 +1149,9 @@ export default {
       }
       if (url.pathname === '/api/profile/certificate' && request.method === 'GET') {
         return handleCertificate(request, env)
+      }
+      if (url.pathname === '/api/orders/notify' && request.method === 'POST') {
+        return handleOrderNotification(request, env)
       }
       if (url.pathname === '/api/photo-enhance/summary' && request.method === 'GET') {
         return handlePhotoSummary(request, env)

@@ -1,15 +1,26 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { DIVING_LOCATIONS } from '../data/diving-locations'
 import { REVIEW_DATA } from '../data/reviewData'
 import { CenterId } from '../types/center.types'
 import { useLanguage } from '../contexts/LanguageContext'
-import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaCreditCard, FaTimes } from 'react-icons/fa'
+import { useAuth } from '../contexts/AuthContext'
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight, FaCreditCard, FaMinus, FaPlus, FaShoppingCart, FaTimes, FaTrash } from 'react-icons/fa'
 // Note: Tabs are now managed by the Navigation component in Tier 2
 
 type TourProduct = {
   program: string
   balance: number
+}
+
+type CartItem = {
+  id: string
+  locationId: string
+  locationName: string
+  program: string
+  tourDate: string
+  guests: number
+  unitPriceKrw: number
 }
 
 const KRW_PER_USD = 1550
@@ -38,6 +49,7 @@ const getMonthKey = (date: Date) => date.getFullYear() * 12 + date.getMonth()
 const BranchPage: React.FC = () => {
   const { pathname } = useLocation()
   const { t, language } = useLanguage()
+  const { user } = useAuth()
   const [searchParams] = useSearchParams()
   const activeTab = searchParams.get('tab') || 'intro'
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -48,6 +60,9 @@ const BranchPage: React.FC = () => {
   const [tourDate, setTourDate] = useState('')
   const [guestCount, setGuestCount] = useState(1)
   const [calendarMonth, setCalendarMonth] = useState(() => toMonthStart(new Date()))
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [checkoutMessage, setCheckoutMessage] = useState('')
 
   const checkScrollLimits = () => {
     if (!scrollContainerRef.current) return
@@ -132,6 +147,8 @@ const BranchPage: React.FC = () => {
   const canGoNextMonth = getMonthKey(calendarMonth) < getMonthKey(bookingEndMonth)
   const selectedProductPriceKrw = selectedProduct ? usdToKrw(selectedProduct.balance) : 0
   const totalAmount = selectedProductPriceKrw * guestCount
+  const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
+  const cartTotalGuests = cartItems.reduce((sum, item) => sum + item.guests, 0)
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -142,6 +159,76 @@ const BranchPage: React.FC = () => {
 
   const closePaymentModal = () => {
     setSelectedProduct(null)
+  }
+
+  const addSelectedProductToCart = () => {
+    if (!selectedProduct) return
+    if (!tourDate) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('투어 날짜를 먼저 선택해주세요.')
+      return
+    }
+
+    setCartItems((items) => [
+      ...items,
+      {
+        id: crypto.randomUUID(),
+        locationId: currentBranch.id,
+        locationName: displayName,
+        program: selectedProduct.program,
+        tourDate,
+        guests: guestCount,
+        unitPriceKrw: selectedProductPriceKrw,
+      },
+    ])
+    setCheckoutStatus('idle')
+    setCheckoutMessage('장바구니에 상품을 담았습니다.')
+    closePaymentModal()
+  }
+
+  const updateCartGuests = (itemId: string, nextGuests: number) => {
+    setCartItems((items) =>
+      items.map((item) => (item.id === itemId ? { ...item, guests: Math.min(20, Math.max(1, nextGuests)) } : item)),
+    )
+  }
+
+  const removeCartItem = (itemId: string) => {
+    setCartItems((items) => items.filter((item) => item.id !== itemId))
+  }
+
+  const submitCart = async () => {
+    if (!user) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('회원정보와 장비 정보를 보내려면 로그인이 필요합니다.')
+      return
+    }
+    if (cartItems.length === 0) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('장바구니에 담긴 상품이 없습니다.')
+      return
+    }
+
+    setCheckoutStatus('sending')
+    setCheckoutMessage('예약 요청을 보내는 중입니다.')
+
+    try {
+      const response = await fetch('/api/orders/notify', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ items: cartItems }),
+      })
+      const data = await response.json() as { error?: string; message?: string }
+
+      if (!response.ok) throw new Error(data.error || '예약 요청 발송에 실패했습니다.')
+
+      setCheckoutStatus('sent')
+      setCheckoutMessage(data.message || '대표 이메일로 예약 요청을 보냈습니다.')
+      setCartItems([])
+    } catch (caught) {
+      setCheckoutStatus('error')
+      setCheckoutMessage(caught instanceof Error ? caught.message : '예약 요청 발송에 실패했습니다.')
+    }
   }
 
   return (
@@ -252,7 +339,7 @@ const BranchPage: React.FC = () => {
                       <tr className="bg-[#06334a] text-white">
                         <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
                         <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
-                        <th className="py-4 px-6 text-right font-bold">예약</th>
+                        <th className="py-4 px-6 text-right font-bold">장바구니</th>
                       </tr>
                     </thead>
                     <tbody className="text-slate-700 divide-y divide-sky-100">
@@ -268,8 +355,8 @@ const BranchPage: React.FC = () => {
                               onClick={() => openPaymentModal(item)}
                               className="inline-flex items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-2 text-sm font-black text-ocean-dark transition hover:bg-white"
                             >
-                              <FaCreditCard size={14} />
-                              예약/결제
+                              <FaShoppingCart size={14} />
+                              담기
                             </button>
                           </td>
                         </tr>
@@ -286,6 +373,108 @@ const BranchPage: React.FC = () => {
                 <p className="mt-3 text-xs text-slate-500">
                   1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.
                 </p>
+
+                <div className="mt-6 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">
+                        <FaShoppingCart />
+                        Cart
+                      </p>
+                      <h4 className="mt-1 text-xl font-black text-[#06334a]">예약 장바구니</h4>
+                    </div>
+                    <div className="text-sm font-bold text-slate-500">
+                      총 {cartItems.length}개 상품 · {cartTotalGuests}명
+                    </div>
+                  </div>
+
+                  {cartItems.length > 0 ? (
+                    <div className="mt-5 space-y-3">
+                      {cartItems.map((item) => (
+                        <div key={item.id} className="rounded-xl border border-sky-100 bg-cyan-50/60 p-4">
+                          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                              <p className="text-xs font-bold text-ocean-teal">{item.locationName} · {item.tourDate}</p>
+                              <p className="mt-1 font-bold text-slate-800">{item.program}</p>
+                              <p className="mt-1 text-sm font-black text-parks-gold">{formatKrw(item.unitPriceKrw * item.guests)}</p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="flex items-center rounded-full border border-sky-100 bg-white p-1">
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartGuests(item.id, item.guests - 1)}
+                                  className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition hover:bg-sky-50"
+                                  aria-label="인원 줄이기"
+                                >
+                                  <FaMinus size={12} />
+                                </button>
+                                <span className="w-10 text-center text-sm font-black text-slate-800">{item.guests}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartGuests(item.id, item.guests + 1)}
+                                  className="flex h-8 w-8 items-center justify-center rounded-full text-slate-600 transition hover:bg-sky-50"
+                                  aria-label="인원 늘리기"
+                                >
+                                  <FaPlus size={12} />
+                                </button>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeCartItem(item.id)}
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+                                aria-label="상품 삭제"
+                              >
+                                <FaTrash size={13} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      <div className="flex flex-col gap-3 border-t border-sky-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-bold text-slate-500">총 예상 결제금액</p>
+                          <p className="text-2xl font-black text-[#06334a]">{formatKrw(cartTotalAmount)}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={submitCart}
+                          disabled={checkoutStatus === 'sending'}
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#06334a] px-5 py-3 text-sm font-black text-white transition hover:bg-ocean-teal disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <FaCreditCard />
+                          {checkoutStatus === 'sending' ? '요청 보내는 중' : '구매 요청 보내기'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-4 rounded-xl border border-dashed border-sky-200 bg-cyan-50/60 p-4 text-sm text-slate-500">
+                      상품의 담기 버튼을 누르면 날짜와 인원을 선택한 뒤 여러 상품을 한 번에 요청할 수 있습니다.
+                    </p>
+                  )}
+
+                  {!user && (
+                    <p className="mt-4 text-sm text-slate-500">
+                      회원정보와 장비 정보를 함께 보내려면{' '}
+                      <Link to="/auth" className="font-black text-ocean-teal underline underline-offset-4">
+                        로그인 / 회원가입
+                      </Link>
+                      이 필요합니다.
+                    </p>
+                  )}
+
+                  {checkoutMessage && (
+                    <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-bold ${
+                      checkoutStatus === 'error'
+                        ? 'bg-red-50 text-red-600'
+                        : checkoutStatus === 'sent'
+                          ? 'bg-emerald-50 text-emerald-700'
+                          : 'bg-amber-50 text-amber-700'
+                    }`}>
+                      {checkoutMessage}
+                    </p>
+                  )}
+                </div>
 
               </div>
             </div>
@@ -463,14 +652,27 @@ const BranchPage: React.FC = () => {
                 </div>
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-slate-200">인원</span>
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={guestCount}
-                    onChange={(event) => setGuestCount(Math.max(1, Number(event.currentTarget.value) || 1))}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition focus:border-parks-gold"
-                  />
+                  <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                    <button
+                      type="button"
+                      onClick={() => setGuestCount((count) => Math.max(1, count - 1))}
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      disabled={guestCount <= 1}
+                      aria-label="인원 줄이기"
+                    >
+                      <FaMinus size={13} />
+                    </button>
+                    <span className="text-lg font-black text-white">{guestCount}명</span>
+                    <button
+                      type="button"
+                      onClick={() => setGuestCount((count) => Math.min(20, count + 1))}
+                      className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      disabled={guestCount >= 20}
+                      aria-label="인원 늘리기"
+                    >
+                      <FaPlus size={13} />
+                    </button>
+                  </div>
                 </label>
               </div>
 
@@ -486,17 +688,15 @@ const BranchPage: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => {
-                  alert('온라인 결제 연동 준비 화면입니다. 심사 완료 후 실제 결제 화면으로 전환됩니다.')
-                }}
+                onClick={addSelectedProductToCart}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-parks-gold px-5 py-4 text-base font-black text-ocean-dark transition hover:bg-white"
               >
-                <FaCreditCard />
-                예약 결제 진행
+                <FaShoppingCart />
+                장바구니에 담기
               </button>
 
               <p className="text-center text-xs text-slate-500">
-                결제 전 이용약관 및 환불정책을 확인해주세요.
+                장바구니에서 여러 상품을 한 번에 구매 요청할 수 있습니다.
               </p>
             </div>
           </div>
