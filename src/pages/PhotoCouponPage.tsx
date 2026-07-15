@@ -1,11 +1,29 @@
 import React, { FormEvent, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaEnvelope, FaGift, FaImage, FaMagic, FaUpload } from 'react-icons/fa'
+import { FaArrowRight, FaEnvelope, FaGift, FaImage, FaMagic, FaUpload } from 'react-icons/fa'
 
 const MAX_UPLOAD_COUNT = 5
 const MAX_COMPRESSED_BYTES = 2 * 1024 * 1024
 const MAX_IMAGE_EDGE = 1600
 const JPEG_QUALITY = 0.82
+
+const comparisonExamples = [
+  {
+    title: '흐릿한 물색을 맑은 블루톤으로',
+    before: '/assets/photo-coupon/fish-before.jpg',
+    after: '/assets/photo-coupon/fish-after.jpg',
+  },
+  {
+    title: '거북이와 배경 디테일 복원',
+    before: '/assets/photo-coupon/turtle-before.jpg',
+    after: '/assets/photo-coupon/turtle-after.jpg',
+  },
+  {
+    title: '어두운 인물과 장비를 자연스럽게',
+    before: '/assets/photo-coupon/lobster-before.jpg',
+    after: '/assets/photo-coupon/lobster-after.jpg',
+  },
+]
 
 const parseApiError = async (response: Response) => {
   try {
@@ -223,6 +241,51 @@ const PhotoCouponPage: React.FC = () => {
               을 이용할 수 있습니다.
             </p>
           </form>
+        </section>
+
+        <section className="mt-16 overflow-hidden rounded-[2rem] bg-[#06334a] text-white shadow-[0_28px_90px_rgba(8,51,74,0.22)]">
+          <div className="grid gap-8 p-5 md:p-8 lg:grid-cols-[0.85fr_1.15fr] lg:p-10">
+            <div className="flex flex-col justify-center">
+              <div className="inline-flex w-fit items-center gap-2 rounded-full bg-parks-gold px-4 py-2 text-sm font-black text-[#06334a]">
+                <FaMagic />
+                Before / After
+              </div>
+              <h2 className="mt-5 text-3xl font-black leading-tight md:text-5xl">
+                흐릿한 수중사진을
+                <span className="block text-cyan-200">밝고 선명하게</span>
+              </h2>
+              <p className="mt-5 max-w-lg text-base leading-8 text-cyan-50/80">
+                Parks Local Diving의 AI 보정은 과하게 새로 그리는 방식이 아니라, 원본의 인물과 장비는 그대로 두고
+                물색, 탁도, 그림자, 장비 색감을 자연스럽게 정리합니다.
+              </p>
+              <div className="mt-7 grid gap-3 text-sm font-bold text-cyan-50 sm:grid-cols-2">
+                {['맑은 블루톤 색감 보정', '어두운 인물 밝기 보정', '수중 탁도와 입자감 정리', '장비/물고기 색감 복원'].map((item) => (
+                  <div key={item} className="flex items-center gap-2">
+                    <FaArrowRight className="text-parks-gold" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {comparisonExamples.map((example) => (
+                <div key={example.title} className="overflow-hidden rounded-2xl bg-white/10">
+                  <div className="grid grid-cols-2">
+                    <figure className="relative">
+                      <img src={example.before} alt={`${example.title} 보정 전`} className="h-44 w-full object-cover md:h-56" loading="lazy" />
+                      <figcaption className="absolute left-3 top-3 rounded-full bg-[#052f45] px-3 py-1 text-xs font-black text-white">BEFORE</figcaption>
+                    </figure>
+                    <figure className="relative">
+                      <img src={example.after} alt={`${example.title} 보정 후`} className="h-44 w-full object-cover md:h-56" loading="lazy" />
+                      <figcaption className="absolute left-3 top-3 rounded-full bg-cyan-500 px-3 py-1 text-xs font-black text-white">AFTER</figcaption>
+                    </figure>
+                  </div>
+                  <p className="px-4 py-3 text-sm font-black text-cyan-50">{example.title}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </section>
       </div>
     </div>

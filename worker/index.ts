@@ -1268,10 +1268,18 @@ const extractJobId = (pathname: string, suffix: string) => {
 
 const enhanceWithOpenAI = async (env: Env, imageBuffer: ArrayBuffer, mimeType: string) => {
   const prompt = [
-    'Enhance this underwater scuba diving photo naturally.',
-    'Correct blue or green color cast, improve contrast and clarity, reduce haze and noise, and restore natural skin tones.',
-    'Keep the original people, faces, body shapes, gear, marine life, and scene unchanged.',
-    'Do not add or remove objects. Do not make it look artificial. Return only the enhanced image.',
+    'Enhance this underwater scuba diving photo in a natural bright vacation-photo style.',
+    'Preserve the original composition, people, faces, masks, scuba gear, marine life, hand poses, background, and all objects exactly as they are.',
+    'Do not add, remove, reshape, beautify, or redraw anything.',
+    'Apply realistic underwater photo correction only.',
+    'Reduce the green/blue color cast and make the water clear blue, but keep it natural.',
+    'Brighten the divers noticeably, especially faces, hands, hair, and wetsuit shadow areas, so the people do not look too dark or black.',
+    'Lift shadows on black wetsuits while preserving texture and logos.',
+    'Restore natural lighter skin tones without changing facial features.',
+    'Improve midtone contrast and clarity, reduce haze and fine underwater particulate noise, and recover gear, coral, animal, and fish colors without oversaturation.',
+    'Keep the photo looking like a real customer diving snapshot, not an AI-generated image.',
+    'Avoid heavy sharpening, HDR, dramatic contrast, artificial lighting beams, plastic skin, changed facial features, fantasy colors, or overly dark blacks.',
+    'Return only the enhanced image as a clean natural JPEG-like edit.',
   ].join(' ')
 
   const formData = new FormData()
