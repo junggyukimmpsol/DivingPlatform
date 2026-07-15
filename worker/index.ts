@@ -131,7 +131,7 @@ const PASSWORD_HASH_ITERATIONS = 100000
 const FREE_PHOTO_CREDITS = 5
 const MAX_ENHANCE_IMAGE_BYTES = 2 * 1024 * 1024
 const MAX_ENHANCE_UPLOADS = 5
-const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-2'
+const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-1'
 const DEFAULT_ORDER_NOTIFICATION_EMAIL = 'parkdivers@gmail.com'
 
 const selectOpenAIImageModel = (configuredModel?: string) => {

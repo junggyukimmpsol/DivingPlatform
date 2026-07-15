@@ -12,7 +12,7 @@ const upload = multer({
 })
 
 const PORT = process.env.PORT || 3000
-const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2'
+const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1'
 
 const requireProxyToken = (request, response, next) => {
   if (!process.env.PROXY_TOKEN) {
