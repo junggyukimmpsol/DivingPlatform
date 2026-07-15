@@ -73,6 +73,55 @@ type OrderCartItem = {
   unitPriceKrw?: number
 }
 
+type OrderCustomer = {
+  name?: string
+  email?: string
+  phone?: string
+  certificationAgency?: string
+  certificationLevel?: string
+  heightCm?: string | number
+  weightKg?: string | number
+  footSizeMm?: string | number
+  preferredSuitSize?: string
+  memo?: string
+}
+
+type PhotoCouponSubmissionRow = {
+  id: string
+  reservation_number: string | null
+  buyer_name: string
+  phone: string
+  email: string
+  status: string
+}
+
+type PhotoCouponJobRow = {
+  id: string
+  submission_id: string
+  original_image_key: string
+  original_file_name: string
+  original_mime_type: string
+  enhanced_image_key: string | null
+  enhanced_mime_type: string | null
+  download_token: string
+  status: string
+  error_message: string | null
+}
+
+type PaidOrderCustomer = {
+  name: string
+  email: string
+  phone: string
+  certificationAgency?: string
+  certificationLevel?: string
+  hasCertificationImage?: boolean
+  heightCm?: string | number
+  weightKg?: string | number
+  footSizeMm?: string | number
+  preferredSuitSize?: string
+  memo?: string
+}
+
 const SESSION_COOKIE = 'diving_session'
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 const MAX_CERTIFICATE_IMAGE_BYTES = 2 * 1024 * 1024
@@ -754,8 +803,7 @@ const normalizeOrderItems = (items: OrderCartItem[]) => {
 
 const sendPaidOrderEmail = async (
   env: Env,
-  user: UserRow,
-  profile: ProfileRow | null,
+  customer: PaidOrderCustomer,
   items: ReturnType<typeof normalizeOrderItems>,
   paymentId: string,
   totalAmount: number,
@@ -786,23 +834,23 @@ const sendPaidOrderEmail = async (
     body: JSON.stringify({
       from: env.EMAIL_FROM,
       to: [env.ORDER_NOTIFICATION_EMAIL || DEFAULT_ORDER_NOTIFICATION_EMAIL],
-      subject: `[Parks Local Diving] ${user.name}님 결제 완료`,
+      subject: `[Parks Local Diving] ${customer.name}님 결제 완료`,
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
           <h2>장바구니 결제가 완료되었습니다</h2>
           <p>결제번호: ${escapeHtml(paymentId)}</p>
-          <h3>회원 정보</h3>
+          <h3>예약자 정보</h3>
           <ul>
-            <li>이름: ${escapeHtml(user.name)}</li>
-            <li>이메일: ${escapeHtml(user.email)}</li>
-            <li>연락처: ${escapeHtml(profile?.phone || '미입력')}</li>
-            <li>자격증: ${escapeHtml(profile?.certification_agency || '미입력')} / ${escapeHtml(profile?.certification_level || '미입력')}</li>
-            <li>자격증 사진: ${profile?.certification_image_key ? '등록됨' : '미등록'}</li>
-            <li>키: ${escapeHtml(profile?.height_cm || '미입력')} cm</li>
-            <li>몸무게: ${escapeHtml(profile?.weight_kg || '미입력')} kg</li>
-            <li>발 사이즈: ${escapeHtml(profile?.foot_size_mm || '미입력')} mm</li>
-            <li>선호 수트 사이즈: ${escapeHtml(profile?.preferred_suit_size || '미입력')}</li>
-            <li>메모: ${escapeHtml(profile?.memo || '미입력')}</li>
+            <li>이름: ${escapeHtml(customer.name)}</li>
+            <li>이메일: ${escapeHtml(customer.email)}</li>
+            <li>연락처: ${escapeHtml(customer.phone)}</li>
+            <li>자격증: ${escapeHtml(customer.certificationAgency || '미입력')} / ${escapeHtml(customer.certificationLevel || '미입력')}</li>
+            <li>자격증 사진: ${customer.hasCertificationImage ? '등록됨' : '비회원 결제 또는 미등록'}</li>
+            <li>키: ${escapeHtml(customer.heightCm || '미입력')} cm</li>
+            <li>몸무게: ${escapeHtml(customer.weightKg || '미입력')} kg</li>
+            <li>발 사이즈: ${escapeHtml(customer.footSizeMm || '미입력')} mm</li>
+            <li>선호 수트 사이즈: ${escapeHtml(customer.preferredSuitSize || '미입력')}</li>
+            <li>메모: ${escapeHtml(customer.memo || '미입력')}</li>
           </ul>
           <h3>구매 옵션</h3>
           <table style="width:100%;border-collapse:collapse;font-size:14px">
@@ -843,21 +891,25 @@ const handlePaymentConfig = async (_request: Request, env: Env) => {
 }
 
 const handlePaymentComplete = async (request: Request, env: Env) => {
-  const setupError = requireBindings(env)
-  if (setupError) return setupError
   const emailSetupError = requireEmailBindings(env)
   if (emailSetupError) return emailSetupError
   if (!env.PORTONE_API_SECRET) return json({ error: 'PORTONE_API_SECRET 설정이 필요합니다.' }, { status: 503 })
 
-  const userId = await getCurrentUserId(request, env)
-  if (!userId) return json({ error: '로그인이 필요합니다.' }, { status: 401 })
-
-  const body = (await request.json()) as { paymentId?: string; totalAmount?: number; items?: OrderCartItem[] }
+  const body = (await request.json()) as {
+    paymentId?: string
+    totalAmount?: number
+    items?: OrderCartItem[]
+    customer?: OrderCustomer
+  }
   const paymentId = String(body.paymentId || '').trim()
   const items = Array.isArray(body.items) ? body.items : []
+  const customer = body.customer || {}
   if (!paymentId) return json({ error: '결제번호가 없습니다.' }, { status: 400 })
   if (items.length === 0) return json({ error: '장바구니에 담긴 상품이 없습니다.' }, { status: 400 })
   if (items.length > 20) return json({ error: '한 번에 결제 가능한 상품 수는 20개까지입니다.' }, { status: 400 })
+  if (!customer.name?.trim() || !customer.email?.trim() || !customer.phone?.trim()) {
+    return json({ error: '비회원 예약을 위해 이름, 이메일, 연락처가 필요합니다.' }, { status: 400 })
+  }
 
   const normalizedItems = normalizeOrderItems(items)
   if (!normalizedItems) return json({ error: '예약 상품 정보가 올바르지 않습니다.' }, { status: 400 })
@@ -888,15 +940,44 @@ const handlePaymentComplete = async (request: Request, env: Env) => {
   if (payment.status !== 'PAID') return json({ error: '결제가 완료된 상태가 아닙니다.' }, { status: 400 })
   if (paidAmount !== expectedAmount) return json({ error: '실제 결제금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
 
-  const user = await env.DB!.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>()
-  if (!user) return json({ error: '회원 정보를 찾을 수 없습니다.' }, { status: 404 })
+  const userId = env.DB && env.AUTH_SECRET ? await getCurrentUserId(request, env) : null
+  const user = userId ? await env.DB!.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>() : null
+  const profile = userId
+    ? await env
+      .DB!.prepare('SELECT * FROM diver_profiles WHERE user_id = ?')
+      .bind(userId)
+      .first<ProfileRow>()
+    : null
 
-  const profile = await env
-    .DB!.prepare('SELECT * FROM diver_profiles WHERE user_id = ?')
-    .bind(userId)
-    .first<ProfileRow>()
+  const paidCustomer: PaidOrderCustomer = user
+    ? {
+      name: user.name,
+      email: user.email,
+      phone: profile?.phone || customer.phone || '',
+      certificationAgency: profile?.certification_agency || customer.certificationAgency || '',
+      certificationLevel: profile?.certification_level || customer.certificationLevel || '',
+      hasCertificationImage: Boolean(profile?.certification_image_key),
+      heightCm: profile?.height_cm || customer.heightCm || '',
+      weightKg: profile?.weight_kg || customer.weightKg || '',
+      footSizeMm: profile?.foot_size_mm || customer.footSizeMm || '',
+      preferredSuitSize: profile?.preferred_suit_size || customer.preferredSuitSize || '',
+      memo: profile?.memo || customer.memo || '',
+    }
+    : {
+      name: customer.name.trim(),
+      email: customer.email.trim(),
+      phone: customer.phone.trim(),
+      certificationAgency: customer.certificationAgency || '',
+      certificationLevel: customer.certificationLevel || '',
+      hasCertificationImage: false,
+      heightCm: customer.heightCm || '',
+      weightKg: customer.weightKg || '',
+      footSizeMm: customer.footSizeMm || '',
+      preferredSuitSize: customer.preferredSuitSize || '',
+      memo: customer.memo || '',
+    }
 
-  const emailError = await sendPaidOrderEmail(env, user, profile, normalizedItems, paymentId, expectedAmount)
+  const emailError = await sendPaidOrderEmail(env, paidCustomer, normalizedItems, paymentId, expectedAmount)
   if (emailError) return emailError
 
   return json({ ok: true, message: '결제가 완료되었습니다. 예약 정보가 대표 이메일로 전송되었습니다.' })
@@ -1073,6 +1154,95 @@ const handlePhotoUpload = async (request: Request, env: Env) => {
   })
 }
 
+const handlePhotoCouponApply = async (request: Request, env: Env, ctx: WorkerExecutionContext) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+
+  const form = await request.formData()
+  const reservationNumber = sanitizeText(form.get('reservationNumber')) || ''
+  const buyerName = sanitizeText(form.get('buyerName'))
+  const phone = sanitizeText(form.get('phone'))
+  const email = sanitizeText(form.get('email'))?.toLowerCase()
+  const marketingOptIn = form.get('marketingOptIn') === 'true' || form.get('marketingOptIn') === 'on'
+
+  if (!buyerName || !phone || !email) {
+    return json({ error: '구매자명, 전화번호, 이메일을 입력해주세요.' }, { status: 400 })
+  }
+  if (!marketingOptIn) {
+    return json({ error: '무료 보정권을 받으려면 광고성 이메일 수신에 동의해주세요.' }, { status: 400 })
+  }
+
+  const files = form.getAll('photos').filter((file): file is File => file instanceof File && file.size > 0)
+  if (files.length === 0) return json({ error: '보정할 사진을 선택해주세요.' }, { status: 400 })
+  if (files.length > MAX_ENHANCE_UPLOADS) {
+    return json({ error: `무료 보정권은 최대 ${MAX_ENHANCE_UPLOADS}장까지 신청할 수 있습니다.` }, { status: 400 })
+  }
+
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) {
+      return json({ error: '사진 파일만 업로드할 수 있습니다.' }, { status: 400 })
+    }
+    if (file.size > MAX_ENHANCE_IMAGE_BYTES) {
+      return json({ error: '사진은 장당 2MB 이하로 업로드해주세요.' }, { status: 400 })
+    }
+  }
+
+  const submissionId = crypto.randomUUID()
+  await env
+    .DB!.prepare(
+      `INSERT INTO photo_coupon_submissions (
+        id,
+        reservation_number,
+        buyer_name,
+        phone,
+        email,
+        marketing_opt_in_at,
+        marketing_opt_in_source,
+        status
+      ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'naver_photo_coupon', 'queued')`,
+    )
+    .bind(submissionId, reservationNumber, buyerName, phone, email)
+    .run()
+
+  for (const file of files) {
+    const jobId = crypto.randomUUID()
+    const extension = file.type.split('/')[1] || 'jpg'
+    const originalKey = `photo-coupon/${submissionId}/${jobId}/original.${extension}`
+    const downloadToken = randomToken(24)
+
+    await env.CERT_BUCKET!.put(originalKey, file.stream(), {
+      httpMetadata: { contentType: file.type },
+    })
+
+    await env
+      .DB!.prepare(
+        `INSERT INTO photo_coupon_jobs (
+          id,
+          submission_id,
+          original_image_key,
+          original_file_name,
+          original_mime_type,
+          original_size_bytes,
+          download_token,
+          status
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'queued')`,
+      )
+      .bind(jobId, submissionId, originalKey, file.name || `photo-${jobId}.${extension}`, file.type, file.size, downloadToken)
+      .run()
+  }
+
+  const origin = new URL(request.url).origin
+  ctx.waitUntil(processPhotoCouponSubmission(env, submissionId, origin).catch((caught) => console.error(caught)))
+
+  return json({
+    ok: true,
+    submissionId,
+    message: '신청이 완료되었습니다. 사진 보정이 끝나면 이메일로 다운로드 링크를 보내드릴게요.',
+  }, { status: 201 })
+}
+
 const extractJobId = (pathname: string, suffix: string) => {
   const prefix = '/api/photo-enhance/jobs/'
   if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return ''
@@ -1160,6 +1330,210 @@ const enhanceWithOpenAI = async (env: Env, imageBuffer: ArrayBuffer, mimeType: s
     buffer: base64ToArrayBuffer(b64Json),
     mimeType: `image/${outputFormat === 'jpeg' ? 'jpeg' : outputFormat}`,
   }
+}
+
+const sendPhotoCouponResultEmail = async (
+  env: Env,
+  origin: string,
+  submission: PhotoCouponSubmissionRow,
+  jobs: PhotoCouponJobRow[],
+) => {
+  const completedJobs = jobs.filter((job) => job.status === 'completed' && job.enhanced_image_key)
+  if (completedJobs.length === 0) {
+    throw new Error('이메일로 보낼 완료 사진이 없습니다.')
+  }
+
+  const links = completedJobs
+    .map((job, index) => {
+      const href = `${origin}/api/photo-coupon/jobs/${encodeURIComponent(job.id)}/download?token=${encodeURIComponent(job.download_token)}`
+      return `
+        <li style="margin:10px 0">
+          <a href="${href}" style="display:inline-block;background:#0f766e;color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700">
+            보정 사진 ${index + 1} 다운로드
+          </a>
+          <span style="color:#64748b;font-size:13px"> ${escapeHtml(job.original_file_name)}</span>
+        </li>
+      `
+    })
+    .join('')
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: env.EMAIL_FROM,
+      to: [submission.email],
+      subject: 'Parks Local Diving 무료 사진보정 결과가 도착했습니다',
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
+          <h2>${escapeHtml(submission.buyer_name)}님, 보정 사진이 준비되었습니다</h2>
+          <p>신청하신 수중사진 무료 보정 결과입니다. 아래 버튼을 눌러 다운로드해주세요.</p>
+          <ul style="padding-left:0;list-style:none">${links}</ul>
+          <p style="font-size:13px;color:#64748b">
+            예약번호: ${escapeHtml(submission.reservation_number || '미입력')}<br />
+            링크는 개인 보정 결과 확인용입니다. 다른 사람에게 공유하지 않는 것을 권장합니다.
+          </p>
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0" />
+          <p>
+            다음 다이빙 예약 때 키, 몸무게, 발 사이즈, 자격증 정보를 한 번만 저장해두면
+            장비 준비가 더 편해집니다.
+          </p>
+          <p>
+            <a href="${origin}/auth?mode=register" style="display:inline-block;background:#fbbf24;color:#020617;padding:12px 18px;border-radius:8px;font-weight:700;text-decoration:none">
+              Parks 계정 만들기
+            </a>
+          </p>
+        </div>
+      `,
+    }),
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`결과 이메일 발송 실패: ${detail}`)
+  }
+}
+
+const processPhotoCouponSubmission = async (env: Env, submissionId: string, origin: string) => {
+  const submission = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
+    .bind(submissionId)
+    .first<PhotoCouponSubmissionRow>()
+  if (!submission) throw new Error('사진보정 신청을 찾을 수 없습니다.')
+
+  await env
+    .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'processing', updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .bind(submissionId)
+    .run()
+
+  const jobResponse = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_jobs WHERE submission_id = ? ORDER BY created_at ASC')
+    .bind(submissionId)
+    .all<PhotoCouponJobRow>()
+  const jobs = jobResponse.results || []
+
+  for (const job of jobs) {
+    try {
+      await env
+        .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'processing', error_message = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+        .bind(job.id)
+        .run()
+
+      const original = await env.CERT_BUCKET!.get(job.original_image_key)
+      if (!original?.body) throw new Error('원본 사진을 찾을 수 없습니다.')
+
+      const originalBuffer = await new Response(original.body).arrayBuffer()
+      const enhanced = await enhanceWithOpenAI(env, originalBuffer, job.original_mime_type || original.httpMetadata?.contentType || 'image/jpeg')
+      const extension = enhanced.mimeType.includes('png') ? 'png' : enhanced.mimeType.includes('webp') ? 'webp' : 'jpg'
+      const enhancedKey = `photo-coupon/${submissionId}/${job.id}/enhanced.${extension}`
+
+      await env.CERT_BUCKET!.put(enhancedKey, enhanced.buffer, {
+        httpMetadata: { contentType: enhanced.mimeType },
+      })
+
+      await env
+        .DB!.prepare(
+          `UPDATE photo_coupon_jobs
+           SET status = 'completed',
+               enhanced_image_key = ?,
+               enhanced_mime_type = ?,
+               completed_at = CURRENT_TIMESTAMP,
+               error_message = NULL,
+               updated_at = CURRENT_TIMESTAMP
+           WHERE id = ?`,
+        )
+        .bind(enhancedKey, enhanced.mimeType, job.id)
+        .run()
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : String(caught)
+      await env
+        .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+        .bind(message, job.id)
+        .run()
+    }
+  }
+
+  const updatedJobsResponse = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_jobs WHERE submission_id = ? ORDER BY created_at ASC')
+    .bind(submissionId)
+    .all<PhotoCouponJobRow>()
+  const updatedJobs = updatedJobsResponse.results || []
+  const completedCount = updatedJobs.filter((job) => job.status === 'completed').length
+
+  try {
+    if (completedCount > 0) {
+      await sendPhotoCouponResultEmail(env, origin, submission, updatedJobs)
+    }
+
+    await env
+      .DB!.prepare(
+        `UPDATE photo_coupon_submissions
+         SET status = ?,
+             result_email_sent_at = CASE WHEN ? > 0 THEN CURRENT_TIMESTAMP ELSE result_email_sent_at END,
+             error_message = ?,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+      )
+      .bind(completedCount === updatedJobs.length ? 'completed' : completedCount > 0 ? 'partial' : 'failed', completedCount, completedCount > 0 ? null : '모든 사진 보정에 실패했습니다.', submissionId)
+      .run()
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    await env
+      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'email_failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+      .bind(message, submissionId)
+      .run()
+    throw caught
+  }
+}
+
+const extractCouponJobId = (pathname: string) => {
+  const prefix = '/api/photo-coupon/jobs/'
+  const suffix = '/download'
+  if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return ''
+  return pathname.slice(prefix.length, pathname.length - suffix.length)
+}
+
+const handlePhotoCouponDownload = async (request: Request, env: Env, jobId: string) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const token = new URL(request.url).searchParams.get('token') || ''
+  if (!jobId || !token) return json({ error: '다운로드 링크가 올바르지 않습니다.' }, { status: 400 })
+
+  const job = await env
+    .DB!.prepare(
+      `SELECT enhanced_image_key, enhanced_mime_type, original_file_name, status, download_token
+       FROM photo_coupon_jobs
+       WHERE id = ?`,
+    )
+    .bind(jobId)
+    .first<{
+      enhanced_image_key: string | null
+      enhanced_mime_type: string | null
+      original_file_name: string
+      status: string
+      download_token: string
+    }>()
+
+  if (!job || job.download_token !== token) return json({ error: '다운로드 링크가 유효하지 않습니다.' }, { status: 404 })
+  if (job.status !== 'completed' || !job.enhanced_image_key) {
+    return json({ error: '아직 보정이 완료되지 않았습니다.' }, { status: 400 })
+  }
+
+  const object = await env.CERT_BUCKET!.get(job.enhanced_image_key)
+  if (!object?.body) return json({ error: '보정 사진을 찾을 수 없습니다.' }, { status: 404 })
+
+  const safeName = job.original_file_name.replace(/[^\w.\-가-힣]/g, '_')
+  return new Response(object.body, {
+    headers: {
+      'content-type': job.enhanced_mime_type || object.httpMetadata?.contentType || 'image/jpeg',
+      'content-disposition': `attachment; filename="enhanced-${safeName}"`,
+      'cache-control': 'private, max-age=300',
+    },
+  })
 }
 
 const processPhotoJob = async (env: Env, userId: string, jobId: string) => {
@@ -1342,10 +1716,18 @@ export default {
       if (url.pathname === '/api/photo-enhance/jobs' && request.method === 'POST') {
         return handlePhotoUpload(request, env)
       }
+      if (url.pathname === '/api/photo-coupon/apply' && request.method === 'POST') {
+        return handlePhotoCouponApply(request, env, ctx)
+      }
 
       const processJobId = extractJobId(url.pathname, '/process')
       if (processJobId && request.method === 'POST') {
         return handlePhotoProcess(request, env, processJobId, ctx)
+      }
+
+      const couponDownloadJobId = extractCouponJobId(url.pathname)
+      if (couponDownloadJobId && request.method === 'GET') {
+        return handlePhotoCouponDownload(request, env, couponDownloadJobId)
       }
 
       const downloadJobId = extractJobId(url.pathname, '/download')
