@@ -139,12 +139,13 @@ const PhotoEnhancePage: React.FC = () => {
 
   const handleUpload = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const form = event.currentTarget
     setError('')
     setSuccess('')
     setIsUploading(true)
 
     try {
-      const originalFormData = new FormData(event.currentTarget)
+      const originalFormData = new FormData(form)
       const files = originalFormData.getAll('photos').filter((file): file is File => file instanceof File && file.size > 0)
       if (files.length === 0) throw new Error('보정할 사진을 선택해주세요.')
       if (files.length > MAX_UPLOAD_COUNT) throw new Error(`한 번에 최대 ${MAX_UPLOAD_COUNT}장까지 업로드할 수 있습니다.`)
@@ -169,7 +170,7 @@ const PhotoEnhancePage: React.FC = () => {
       const data = await response.json() as PhotoSummary
       setSummary(data)
       setSelectedCount(0)
-      event.currentTarget.reset()
+      form.reset()
       setSuccess('사진이 업로드되었습니다. 아래 보정 시작 버튼을 눌러주세요.')
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '업로드에 실패했습니다.')

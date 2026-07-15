@@ -143,6 +143,23 @@ const json = (body: unknown, init: ResponseInit = {}) =>
     },
   })
 
+const extractErrorMessage = (value: unknown, fallback: string) => {
+  if (!value) return fallback
+  if (typeof value === 'string') return value
+  if (typeof value === 'object') {
+    const record = value as {
+      error?: unknown
+      message?: unknown
+      detail?: unknown
+    }
+    if (typeof record.message === 'string') return record.message
+    if (typeof record.error === 'string') return record.error
+    if (record.error) return extractErrorMessage(record.error, fallback)
+    if (record.detail) return extractErrorMessage(record.detail, fallback)
+  }
+  return fallback
+}
+
 const requireBindings = (env: Env) => {
   if (!env.DB || !env.CERT_BUCKET || !env.AUTH_SECRET) {
     return json(
@@ -1278,12 +1295,12 @@ const enhanceWithOpenAI = async (env: Env, imageBuffer: ArrayBuffer, mimeType: s
     const proxyData = await proxyResponse.json().catch(() => ({})) as {
       b64_json?: string
       mimeType?: string
-      error?: string
-      detail?: string
+      error?: unknown
+      detail?: unknown
     }
 
     if (!proxyResponse.ok) {
-      throw new Error(proxyData.detail || proxyData.error || 'OpenAI 이미지 프록시 요청에 실패했습니다.')
+      throw new Error(extractErrorMessage(proxyData, 'OpenAI 이미지 프록시 요청에 실패했습니다.'))
     }
     if (!proxyData.b64_json) {
       throw new Error('OpenAI 이미지 프록시가 보정 이미지를 반환하지 않았습니다.')

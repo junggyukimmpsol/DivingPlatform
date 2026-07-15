@@ -77,12 +77,13 @@ const PhotoCouponPage: React.FC = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    const form = event.currentTarget
     setError('')
     setSuccess('')
     setIsSubmitting(true)
 
     try {
-      const sourceForm = new FormData(event.currentTarget)
+      const sourceForm = new FormData(form)
       const buyerName = String(sourceForm.get('buyerName') || '').trim()
       const phone = String(sourceForm.get('phone') || '').trim()
       const email = String(sourceForm.get('email') || '').trim()
@@ -115,7 +116,7 @@ const PhotoCouponPage: React.FC = () => {
       })
       if (!response.ok) throw new Error(await parseApiError(response))
 
-      event.currentTarget.reset()
+      form.reset()
       setSelectedCount(0)
       setSuccess('신청이 완료되었습니다. 사진 보정이 끝나면 이메일로 다운로드 링크를 보내드릴게요.')
     } catch (caught) {
