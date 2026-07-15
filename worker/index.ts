@@ -131,8 +131,14 @@ const PASSWORD_HASH_ITERATIONS = 100000
 const FREE_PHOTO_CREDITS = 5
 const MAX_ENHANCE_IMAGE_BYTES = 2 * 1024 * 1024
 const MAX_ENHANCE_UPLOADS = 5
-const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-1-mini'
+const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-2'
 const DEFAULT_ORDER_NOTIFICATION_EMAIL = 'parkdivers@gmail.com'
+
+const selectOpenAIImageModel = (configuredModel?: string) => {
+  const model = configuredModel?.trim()
+  if (!model || model.includes('mini')) return DEFAULT_OPENAI_IMAGE_MODEL
+  return model
+}
 
 const json = (body: unknown, init: ResponseInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -1269,29 +1275,32 @@ const extractJobId = (pathname: string, suffix: string) => {
 }
 
 const enhanceWithOpenAI = async (env: Env, imageBuffer: ArrayBuffer, mimeType: string) => {
+  const imageModel = selectOpenAIImageModel(env.OPENAI_IMAGE_MODEL)
   const prompt = [
-    'Enhance this underwater scuba diving photo in a natural bright vacation-photo style.',
-    'Preserve the original composition, people, faces, masks, scuba gear, marine life, hand poses, background, and all objects exactly as they are.',
-    'Do not add, remove, reshape, beautify, or redraw anything.',
-    'Apply realistic underwater photo correction only.',
-    'Reduce the green/blue color cast and make the water clear blue, but keep it natural.',
-    'Brighten the divers noticeably, especially faces, hands, hair, and wetsuit shadow areas, so the people do not look too dark or black.',
-    'Lift shadows on black wetsuits while preserving texture and logos.',
-    'Restore natural lighter skin tones without changing facial features.',
-    'Improve midtone contrast and clarity, reduce haze and fine underwater particulate noise, and recover gear, coral, animal, and fish colors without oversaturation.',
-    'Keep the photo looking like a real customer diving snapshot, not an AI-generated image.',
-    'Avoid heavy sharpening, HDR, dramatic contrast, artificial lighting beams, plastic skin, changed facial features, fantasy colors, or overly dark blacks.',
-    'Return only the enhanced image as a clean natural JPEG-like edit.',
+    'Edit the provided underwater scuba diving photo like a careful Lightroom color correction, not like a generated illustration.',
+    'Preserve the exact original composition, crop, aspect ratio, people, faces, masks, regulators, hoses, fins, scuba gear, logos, marine life, hand poses, background rocks/coral, and every object.',
+    'Do not add, remove, replace, redraw, reshape, beautify, de-age, stylize, cartoonize, or reinterpret anything.',
+    'Do not change facial identity, facial proportions, eyes, mask shape, hair, clothing color, animal shape, or object positions.',
+    'Only apply realistic underwater photo correction: reduce green/blue color cast, restore clear natural blue water, lift exposure, brighten faces/hands/shadowed wetsuits, recover natural skin tones, improve local contrast, reduce haze, and gently clean fine underwater particulate noise.',
+    'Keep blacks from becoming crushed, but keep wetsuit texture and logos natural.',
+    'Recover coral, fish, turtle, and gear colors moderately without oversaturation.',
+    'The result must look like the same customer snapshot after natural color grading, not an AI-created scene.',
+    'Avoid HDR, heavy sharpening, fantasy colors, artificial lighting beams, plastic skin, changed facial features, or square cropping.',
+    'Return only the enhanced image.',
   ].join(' ')
 
   const formData = new FormData()
-  formData.append('model', env.OPENAI_IMAGE_MODEL || DEFAULT_OPENAI_IMAGE_MODEL)
+  formData.append('model', imageModel)
   formData.append('prompt', prompt)
   formData.append('image[]', new Blob([imageBuffer], { type: mimeType }), 'underwater-photo.jpg')
-  formData.append('input_fidelity', 'low')
   formData.append('output_format', 'jpeg')
-  formData.append('quality', 'low')
-  formData.append('size', '1024x1024')
+  formData.append('quality', 'medium')
+  formData.append('size', 'auto')
+  formData.append('output_compression', '92')
+
+  if (!imageModel.startsWith('gpt-image-2')) {
+    formData.append('input_fidelity', 'high')
+  }
 
   if (env.OPENAI_IMAGE_PROXY_URL) {
     const proxyResponse = await fetch(env.OPENAI_IMAGE_PROXY_URL, {

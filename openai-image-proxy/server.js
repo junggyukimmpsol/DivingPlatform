@@ -12,7 +12,7 @@ const upload = multer({
 })
 
 const PORT = process.env.PORT || 3000
-const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-1-mini'
+const OPENAI_IMAGE_MODEL = process.env.OPENAI_IMAGE_MODEL || 'gpt-image-2'
 
 const requireProxyToken = (request, response, next) => {
   if (!process.env.PROXY_TOKEN) {
@@ -55,8 +55,9 @@ const handleEnhance = async (request, response) => {
       return
     }
 
+    const imageModel = request.body.model || OPENAI_IMAGE_MODEL
     const formData = new FormData()
-    formData.append('model', request.body.model || OPENAI_IMAGE_MODEL)
+    formData.append('model', imageModel)
     formData.append('prompt', request.body.prompt || 'Enhance this underwater scuba diving photo naturally.')
     formData.append(
       'image[]',
@@ -64,10 +65,14 @@ const handleEnhance = async (request, response) => {
         type: request.file.mimetype || 'image/jpeg',
       }),
     )
-    formData.append('input_fidelity', request.body.input_fidelity || 'low')
     formData.append('output_format', request.body.output_format || 'jpeg')
-    formData.append('quality', request.body.quality || 'low')
-    formData.append('size', request.body.size || '1024x1024')
+    formData.append('quality', request.body.quality || 'medium')
+    formData.append('size', request.body.size || 'auto')
+    formData.append('output_compression', request.body.output_compression || '92')
+
+    if (request.body.input_fidelity && !imageModel.startsWith('gpt-image-2')) {
+      formData.append('input_fidelity', request.body.input_fidelity)
+    }
 
     const openAiResponse = await fetch('https://api.openai.com/v1/images/edits', {
       method: 'POST',
