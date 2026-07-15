@@ -33,7 +33,18 @@ app.get('/health', (_request, response) => {
   response.json({ ok: true })
 })
 
-app.post('/enhance', requireProxyToken, upload.single('image[]'), async (request, response) => {
+app.get('/', (_request, response) => {
+  response.json({
+    ok: true,
+    service: 'parks-local-diving-openai-image-proxy',
+    endpoints: {
+      health: '/health',
+      enhance: 'POST /enhance',
+    },
+  })
+})
+
+const handleEnhance = async (request, response) => {
   try {
     if (!process.env.OPENAI_API_KEY) {
       response.status(500).json({ error: 'OPENAI_API_KEY is not configured on the proxy server.' })
@@ -90,7 +101,10 @@ app.post('/enhance', requireProxyToken, upload.single('image[]'), async (request
       error: error instanceof Error ? error.message : String(error),
     })
   }
-})
+}
+
+app.post('/enhance', requireProxyToken, upload.single('image[]'), handleEnhance)
+app.post('/', requireProxyToken, upload.single('image[]'), handleEnhance)
 
 app.listen(PORT, () => {
   console.log(`OpenAI image proxy listening on port ${PORT}`)
