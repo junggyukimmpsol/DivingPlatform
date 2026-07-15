@@ -1433,6 +1433,47 @@ const sendPhotoCouponResultEmail = async (
   }
 }
 
+const processPhotoCouponJob = async (env: Env, submissionId: string, job: PhotoCouponJobRow) => {
+  await env
+    .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'processing', error_message = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .bind(job.id)
+    .run()
+
+  try {
+    const original = await env.CERT_BUCKET!.get(job.original_image_key)
+    if (!original?.body) throw new Error('원본 사진을 찾을 수 없습니다.')
+
+    const originalBuffer = await new Response(original.body).arrayBuffer()
+    const enhanced = await enhanceWithOpenAI(env, originalBuffer, job.original_mime_type || original.httpMetadata?.contentType || 'image/jpeg')
+    const extension = enhanced.mimeType.includes('png') ? 'png' : enhanced.mimeType.includes('webp') ? 'webp' : 'jpg'
+    const enhancedKey = `photo-coupon/${submissionId}/${job.id}/enhanced.${extension}`
+
+    await env.CERT_BUCKET!.put(enhancedKey, enhanced.buffer, {
+      httpMetadata: { contentType: enhanced.mimeType },
+    })
+
+    await env
+      .DB!.prepare(
+        `UPDATE photo_coupon_jobs
+         SET status = 'completed',
+             enhanced_image_key = ?,
+             enhanced_mime_type = ?,
+             completed_at = CURRENT_TIMESTAMP,
+             error_message = NULL,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+      )
+      .bind(enhancedKey, enhanced.mimeType, job.id)
+      .run()
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    await env
+      .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+      .bind(message, job.id)
+      .run()
+  }
+}
+
 const processPhotoCouponSubmission = async (env: Env, submissionId: string, origin: string) => {
   const submission = await env
     .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
@@ -1452,44 +1493,7 @@ const processPhotoCouponSubmission = async (env: Env, submissionId: string, orig
   const jobs = jobResponse.results || []
 
   for (const job of jobs) {
-    try {
-      await env
-        .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'processing', error_message = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-        .bind(job.id)
-        .run()
-
-      const original = await env.CERT_BUCKET!.get(job.original_image_key)
-      if (!original?.body) throw new Error('원본 사진을 찾을 수 없습니다.')
-
-      const originalBuffer = await new Response(original.body).arrayBuffer()
-      const enhanced = await enhanceWithOpenAI(env, originalBuffer, job.original_mime_type || original.httpMetadata?.contentType || 'image/jpeg')
-      const extension = enhanced.mimeType.includes('png') ? 'png' : enhanced.mimeType.includes('webp') ? 'webp' : 'jpg'
-      const enhancedKey = `photo-coupon/${submissionId}/${job.id}/enhanced.${extension}`
-
-      await env.CERT_BUCKET!.put(enhancedKey, enhanced.buffer, {
-        httpMetadata: { contentType: enhanced.mimeType },
-      })
-
-      await env
-        .DB!.prepare(
-          `UPDATE photo_coupon_jobs
-           SET status = 'completed',
-               enhanced_image_key = ?,
-               enhanced_mime_type = ?,
-               completed_at = CURRENT_TIMESTAMP,
-               error_message = NULL,
-               updated_at = CURRENT_TIMESTAMP
-           WHERE id = ?`,
-        )
-        .bind(enhancedKey, enhanced.mimeType, job.id)
-        .run()
-    } catch (caught) {
-      const message = caught instanceof Error ? caught.message : String(caught)
-      await env
-        .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-        .bind(message, job.id)
-        .run()
-    }
+    if (job.status !== 'completed') await processPhotoCouponJob(env, submissionId, job)
   }
 
   const updatedJobsResponse = await env
@@ -1585,6 +1589,108 @@ const handlePhotoCouponResendEmail = async (request: Request, env: Env, submissi
     .run()
 
   return json({ ok: true, message: '보정 결과 이메일을 다시 발송했습니다.' })
+}
+
+const handlePhotoCouponProcessNext = async (request: Request, env: Env, submissionId: string) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+  if (!submissionId) return json({ error: '신청 ID가 없습니다.' }, { status: 400 })
+
+  const body = (await request.json().catch(() => ({}))) as { email?: string; phone?: string }
+  const email = body.email?.trim().toLowerCase()
+  const phone = normalizePhone(body.phone)
+  if (!email || !phone) {
+    return json({ error: '이메일과 전화번호를 입력해주세요.' }, { status: 400 })
+  }
+
+  const submission = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
+    .bind(submissionId)
+    .first<PhotoCouponSubmissionRow & { phone: string }>()
+
+  if (!submission || submission.email !== email || normalizePhone(submission.phone) !== phone) {
+    return json({ error: '신청 정보를 확인하지 못했습니다.' }, { status: 404 })
+  }
+
+  await env
+    .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'processing', error_message = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .bind(submissionId)
+    .run()
+
+  const nextJob = await env
+    .DB!.prepare(
+      `SELECT * FROM photo_coupon_jobs
+       WHERE submission_id = ? AND status != 'completed'
+       ORDER BY created_at ASC
+       LIMIT 1`,
+    )
+    .bind(submissionId)
+    .first<PhotoCouponJobRow>()
+
+  if (nextJob) await processPhotoCouponJob(env, submissionId, nextJob)
+
+  const jobsResponse = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_jobs WHERE submission_id = ? ORDER BY created_at ASC')
+    .bind(submissionId)
+    .all<PhotoCouponJobRow>()
+  const jobs = jobsResponse.results || []
+  const completedCount = jobs.filter((job) => job.status === 'completed' && job.enhanced_image_key).length
+  const pendingCount = jobs.filter((job) => job.status === 'queued' || job.status === 'processing').length
+  const failedCount = jobs.filter((job) => job.status === 'failed').length
+
+  if (pendingCount > 0) {
+    return json({
+      ok: true,
+      status: 'processing',
+      processedJobId: nextJob?.id || null,
+      completedCount,
+      failedCount,
+      pendingCount,
+      message: '사진 1장을 처리했습니다. 남은 사진 처리를 위해 한 번 더 호출해주세요.',
+    })
+  }
+
+  if (completedCount === 0) {
+    await env
+      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'failed', error_message = '모든 사진 보정에 실패했습니다.', updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+      .bind(submissionId)
+      .run()
+    return json({ error: '모든 사진 보정에 실패했습니다.', completedCount, failedCount }, { status: 502 })
+  }
+
+  try {
+    await sendPhotoCouponResultEmail(env, new URL(request.url).origin, submission, jobs)
+    await env
+      .DB!.prepare(
+        `UPDATE photo_coupon_submissions
+         SET status = ?,
+             result_email_sent_at = CURRENT_TIMESTAMP,
+             error_message = NULL,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+      )
+      .bind(failedCount > 0 ? 'partial' : 'completed', submissionId)
+      .run()
+
+    return json({
+      ok: true,
+      status: failedCount > 0 ? 'partial' : 'completed',
+      completedCount,
+      failedCount,
+      pendingCount,
+      message: '보정이 완료되어 결과 이메일을 발송했습니다.',
+    })
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    await env
+      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'email_failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+      .bind(message, submissionId)
+      .run()
+
+    return json({ error: '보정은 완료됐지만 이메일 발송에 실패했습니다.', detail: message, completedCount, failedCount }, { status: 502 })
+  }
 }
 
 const extractCouponJobId = (pathname: string) => {
@@ -1827,6 +1933,11 @@ export default {
       const couponResendSubmissionId = extractCouponSubmissionId(url.pathname, '/resend-email')
       if (couponResendSubmissionId && request.method === 'POST') {
         return handlePhotoCouponResendEmail(request, env, couponResendSubmissionId)
+      }
+
+      const couponProcessSubmissionId = extractCouponSubmissionId(url.pathname, '/process-next')
+      if (couponProcessSubmissionId && request.method === 'POST') {
+        return handlePhotoCouponProcessNext(request, env, couponProcessSubmissionId)
       }
 
       const processJobId = extractJobId(url.pathname, '/process')
