@@ -313,6 +313,8 @@ const sanitizeText = (value: FormDataEntryValue | null) => {
   return trimmed || null
 }
 
+const normalizePhone = (value: string | null | undefined) => (value || '').replace(/\D/g, '')
+
 const escapeHtml = (value: unknown) =>
   String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -1514,9 +1516,77 @@ const processPhotoCouponSubmission = async (env: Env, submissionId: string, orig
   }
 }
 
+const handlePhotoCouponResendEmail = async (request: Request, env: Env, submissionId: string) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+  if (!submissionId) return json({ error: '신청 ID가 없습니다.' }, { status: 400 })
+
+  const body = (await request.json().catch(() => ({}))) as { email?: string; phone?: string }
+  const email = body.email?.trim().toLowerCase()
+  const phone = normalizePhone(body.phone)
+  if (!email || !phone) {
+    return json({ error: '이메일과 전화번호를 입력해주세요.' }, { status: 400 })
+  }
+
+  const submission = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
+    .bind(submissionId)
+    .first<PhotoCouponSubmissionRow & { phone: string }>()
+
+  if (!submission || submission.email !== email || normalizePhone(submission.phone) !== phone) {
+    return json({ error: '신청 정보를 확인하지 못했습니다.' }, { status: 404 })
+  }
+
+  const jobsResponse = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_jobs WHERE submission_id = ? ORDER BY created_at ASC')
+    .bind(submissionId)
+    .all<PhotoCouponJobRow>()
+  const jobs = jobsResponse.results || []
+  const completedCount = jobs.filter((job) => job.status === 'completed' && job.enhanced_image_key).length
+
+  if (completedCount === 0) {
+    return json({ error: '아직 이메일로 보낼 완료 사진이 없습니다.' }, { status: 409 })
+  }
+
+  const origin = new URL(request.url).origin
+  try {
+    await sendPhotoCouponResultEmail(env, origin, submission, jobs)
+  } catch (caught) {
+    const message = caught instanceof Error ? caught.message : String(caught)
+    await env
+      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'email_failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+      .bind(message, submissionId)
+      .run()
+
+    return json({ error: '보정 결과 이메일 발송에 실패했습니다.', detail: message }, { status: 502 })
+  }
+
+  await env
+    .DB!.prepare(
+      `UPDATE photo_coupon_submissions
+       SET status = ?,
+           result_email_sent_at = CURRENT_TIMESTAMP,
+           error_message = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+    )
+    .bind(completedCount === jobs.length ? 'completed' : 'partial', submissionId)
+    .run()
+
+  return json({ ok: true, message: '보정 결과 이메일을 다시 발송했습니다.' })
+}
+
 const extractCouponJobId = (pathname: string) => {
   const prefix = '/api/photo-coupon/jobs/'
   const suffix = '/download'
+  if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return ''
+  return pathname.slice(prefix.length, pathname.length - suffix.length)
+}
+
+const extractCouponSubmissionId = (pathname: string, suffix: string) => {
+  const prefix = '/api/photo-coupon/submissions/'
   if (!pathname.startsWith(prefix) || !pathname.endsWith(suffix)) return ''
   return pathname.slice(prefix.length, pathname.length - suffix.length)
 }
@@ -1743,6 +1813,11 @@ export default {
       }
       if (url.pathname === '/api/photo-coupon/apply' && request.method === 'POST') {
         return handlePhotoCouponApply(request, env, ctx)
+      }
+
+      const couponResendSubmissionId = extractCouponSubmissionId(url.pathname, '/resend-email')
+      if (couponResendSubmissionId && request.method === 'POST') {
+        return handlePhotoCouponResendEmail(request, env, couponResendSubmissionId)
       }
 
       const processJobId = extractJobId(url.pathname, '/process')
