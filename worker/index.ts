@@ -136,6 +136,39 @@ type PaidOrderCustomer = {
   memo?: string
 }
 
+type PaidOrderRow = {
+  id: string
+  payment_id: string
+  provider: string
+  status: string
+  total_amount_krw: number
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  certification_agency: string | null
+  certification_level: string | null
+  has_certification_image: number
+  height_cm: string | null
+  weight_kg: string | null
+  foot_size_mm: string | null
+  preferred_suit_size: string | null
+  memo: string | null
+  user_id: string | null
+  paid_at: string | null
+}
+
+type PaidOrderItemRow = {
+  id: string
+  order_id: string
+  location_id: string | null
+  location_name: string
+  program: string
+  tour_date: string
+  guests: number
+  unit_price_krw: number
+  line_total_krw: number
+}
+
 const SESSION_COOKIE = 'diving_session'
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 const MAX_CERTIFICATE_IMAGE_BYTES = 2 * 1024 * 1024
@@ -359,6 +392,32 @@ const escapeHtml = (value: unknown) =>
     .replace(/'/g, '&#039;')
 
 const formatKrw = (amount: number) => `${Math.round(amount).toLocaleString('ko-KR')}원`
+
+const dateToInputValue = (date: Date) => {
+  const year = date.getUTCFullYear()
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, '0')
+  const day = `${date.getUTCDate()}`.padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const koreaToday = () => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+  const value = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return new Date(Date.UTC(Number(value.year), Number(value.month) - 1, Number(value.day)))
+}
+
+const addDays = (date: Date, days: number) => {
+  const nextDate = new Date(date)
+  nextDate.setUTCDate(nextDate.getUTCDate() + days)
+  return nextDate
+}
+
+const minimumInstantPaymentDate = () => dateToInputValue(addDays(koreaToday(), 2))
 
 const base64ToArrayBuffer = (value: string) => {
   const binary = atob(value)
@@ -833,6 +892,7 @@ const handleOrderNotification = async (request: Request, env: Env) => {
 
 const normalizeOrderItems = (items: OrderCartItem[]) => {
   const normalizedItems = items.map((item) => ({
+    locationId: String(item.locationId || '').trim(),
     locationName: String(item.locationName || '').trim(),
     program: String(item.program || '').trim(),
     tourDate: String(item.tourDate || '').trim(),
@@ -844,15 +904,27 @@ const normalizeOrderItems = (items: OrderCartItem[]) => {
     (item) =>
       !item.locationName ||
       !item.program ||
-      !item.tourDate ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(item.tourDate) ||
       !Number.isInteger(item.guests) ||
       item.guests < 1 ||
       item.guests > 20 ||
+      !Number.isInteger(item.unitPriceKrw) ||
       !Number.isFinite(item.unitPriceKrw) ||
-      item.unitPriceKrw < 0,
+      item.unitPriceKrw <= 0,
   )
 
   return invalid ? null : normalizedItems
+}
+
+const getLeadTimeBlockedItems = (items: ReturnType<typeof normalizeOrderItems>) => {
+  if (!items) return []
+  const minDate = minimumInstantPaymentDate()
+  return items.filter((item) => item.tourDate < minDate)
+}
+
+const orderNameForItems = (items: ReturnType<typeof normalizeOrderItems>) => {
+  if (!items || items.length === 0) return 'Parks Local Diving 투어'
+  return items.length === 1 ? items[0].program : `${items[0].program} 외 ${items.length - 1}건`
 }
 
 const sendPaidOrderEmail = async (
@@ -933,6 +1005,34 @@ const sendPaidOrderEmail = async (
   return null
 }
 
+const sendPaidOrderEmailFromOrder = async (env: Env, order: PaidOrderRow, items: PaidOrderItemRow[]) =>
+  sendPaidOrderEmail(
+    env,
+    {
+      name: order.customer_name,
+      email: order.customer_email,
+      phone: order.customer_phone,
+      certificationAgency: order.certification_agency || '',
+      certificationLevel: order.certification_level || '',
+      hasCertificationImage: Boolean(order.has_certification_image),
+      heightCm: order.height_cm || '',
+      weightKg: order.weight_kg || '',
+      footSizeMm: order.foot_size_mm || '',
+      preferredSuitSize: order.preferred_suit_size || '',
+      memo: order.memo || '',
+    },
+    items.map((item) => ({
+      locationId: item.location_id || '',
+      locationName: item.location_name,
+      program: item.program,
+      tourDate: item.tour_date,
+      guests: item.guests,
+      unitPriceKrw: item.unit_price_krw,
+    })),
+    order.payment_id,
+    order.total_amount_krw,
+  )
+
 const handlePaymentConfig = async (_request: Request, env: Env) => {
   if (!env.PORTONE_STORE_ID || !env.PORTONE_CHANNEL_KEY) {
     return json({ error: 'PORTONE_STORE_ID와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
@@ -941,24 +1041,24 @@ const handlePaymentConfig = async (_request: Request, env: Env) => {
   return json({
     storeId: env.PORTONE_STORE_ID,
     channelKey: env.PORTONE_CHANNEL_KEY,
+    provider: 'nhn-kcp',
   })
 }
 
-const handlePaymentComplete = async (request: Request, env: Env) => {
-  const emailSetupError = requireEmailBindings(env)
-  if (emailSetupError) return emailSetupError
-  if (!env.PORTONE_API_SECRET) return json({ error: 'PORTONE_API_SECRET 설정이 필요합니다.' }, { status: 503 })
+const handlePaymentPrepare = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  if (!env.PORTONE_STORE_ID || !env.PORTONE_CHANNEL_KEY) {
+    return json({ error: 'NHN KCP 결제를 위한 PORTONE_STORE_ID와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
+  }
 
   const body = (await request.json()) as {
-    paymentId?: string
     totalAmount?: number
     items?: OrderCartItem[]
     customer?: OrderCustomer
   }
-  const paymentId = String(body.paymentId || '').trim()
   const items = Array.isArray(body.items) ? body.items : []
   const customer = body.customer || {}
-  if (!paymentId) return json({ error: '결제번호가 없습니다.' }, { status: 400 })
   if (items.length === 0) return json({ error: '장바구니에 담긴 상품이 없습니다.' }, { status: 400 })
   if (items.length > 20) return json({ error: '한 번에 결제 가능한 상품 수는 20개까지입니다.' }, { status: 400 })
   if (!customer.name?.trim() || !customer.email?.trim() || !customer.phone?.trim()) {
@@ -968,33 +1068,20 @@ const handlePaymentComplete = async (request: Request, env: Env) => {
   const normalizedItems = normalizeOrderItems(items)
   if (!normalizedItems) return json({ error: '예약 상품 정보가 올바르지 않습니다.' }, { status: 400 })
 
+  const blockedItems = getLeadTimeBlockedItems(normalizedItems)
+  if (blockedItems.length > 0) {
+    return json({
+      error: `투어 하루 전 예약은 먼저 문의해주세요. 온라인 즉시결제는 ${minimumInstantPaymentDate()} 이후 날짜부터 가능합니다.`,
+      blockedItems,
+    }, { status: 400 })
+  }
+
   const expectedAmount = normalizedItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
   if (Number(body.totalAmount) !== expectedAmount) {
     return json({ error: '결제 요청 금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
   }
 
-  const paymentResponse = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
-    headers: {
-      authorization: `PortOne ${env.PORTONE_API_SECRET}`,
-    },
-  })
-
-  if (!paymentResponse.ok) {
-    const detail = await paymentResponse.text()
-    return json({ error: '포트원 결제 조회에 실패했습니다.', detail }, { status: 502 })
-  }
-
-  const payment = await paymentResponse.json() as {
-    status?: string
-    amount?: { total?: number; paid?: number }
-    paidAmount?: number
-    totalAmount?: number
-  }
-  const paidAmount = Number(payment.amount?.total ?? payment.amount?.paid ?? payment.paidAmount ?? payment.totalAmount ?? 0)
-  if (payment.status !== 'PAID') return json({ error: '결제가 완료된 상태가 아닙니다.' }, { status: 400 })
-  if (paidAmount !== expectedAmount) return json({ error: '실제 결제금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
-
-  const userId = env.DB && env.AUTH_SECRET ? await getCurrentUserId(request, env) : null
+  const userId = env.AUTH_SECRET ? await getCurrentUserId(request, env) : null
   const user = userId ? await env.DB!.prepare('SELECT * FROM users WHERE id = ?').bind(userId).first<UserRow>() : null
   const profile = userId
     ? await env
@@ -1003,6 +1090,9 @@ const handlePaymentComplete = async (request: Request, env: Env) => {
       .first<ProfileRow>()
     : null
 
+  const orderId = crypto.randomUUID()
+  const paymentId = `parks-${Date.now()}-${randomToken(6)}`
+  const orderName = orderNameForItems(normalizedItems)
   const paidCustomer: PaidOrderCustomer = user
     ? {
       name: user.name,
@@ -1031,7 +1121,140 @@ const handlePaymentComplete = async (request: Request, env: Env) => {
       memo: customer.memo || '',
     }
 
-  const emailError = await sendPaidOrderEmail(env, paidCustomer, normalizedItems, paymentId, expectedAmount)
+  await env
+    .DB!.prepare(
+      `INSERT INTO paid_orders (
+        id,
+        payment_id,
+        provider,
+        status,
+        total_amount_krw,
+        customer_name,
+        customer_email,
+        customer_phone,
+        certification_agency,
+        certification_level,
+        has_certification_image,
+        height_cm,
+        weight_kg,
+        foot_size_mm,
+        preferred_suit_size,
+        memo,
+        user_id
+      ) VALUES (?, ?, 'portone_nhn_kcp', 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    )
+    .bind(
+      orderId,
+      paymentId,
+      expectedAmount,
+      paidCustomer.name,
+      paidCustomer.email,
+      paidCustomer.phone,
+      paidCustomer.certificationAgency || null,
+      paidCustomer.certificationLevel || null,
+      paidCustomer.hasCertificationImage ? 1 : 0,
+      paidCustomer.heightCm ? String(paidCustomer.heightCm) : null,
+      paidCustomer.weightKg ? String(paidCustomer.weightKg) : null,
+      paidCustomer.footSizeMm ? String(paidCustomer.footSizeMm) : null,
+      paidCustomer.preferredSuitSize || null,
+      paidCustomer.memo || null,
+      userId || null,
+    )
+    .run()
+
+  for (const item of normalizedItems) {
+    await env
+      .DB!.prepare(
+        `INSERT INTO paid_order_items (
+          id,
+          order_id,
+          location_id,
+          location_name,
+          program,
+          tour_date,
+          guests,
+          unit_price_krw,
+          line_total_krw
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        orderId,
+        item.locationId || null,
+        item.locationName,
+        item.program,
+        item.tourDate,
+        item.guests,
+        item.unitPriceKrw,
+        item.unitPriceKrw * item.guests,
+      )
+      .run()
+  }
+
+  return json({
+    ok: true,
+    provider: 'nhn-kcp',
+    storeId: env.PORTONE_STORE_ID,
+    channelKey: env.PORTONE_CHANNEL_KEY,
+    paymentId,
+    orderName,
+    totalAmount: expectedAmount,
+    customer: {
+      fullName: paidCustomer.name,
+      email: paidCustomer.email,
+      phoneNumber: paidCustomer.phone,
+    },
+  })
+}
+
+const handlePaymentComplete = async (request: Request, env: Env) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+  const emailSetupError = requireEmailBindings(env)
+  if (emailSetupError) return emailSetupError
+  if (!env.PORTONE_API_SECRET) return json({ error: 'PORTONE_API_SECRET 설정이 필요합니다.' }, { status: 503 })
+
+  const body = (await request.json()) as {
+    paymentId?: string
+  }
+  const paymentId = String(body.paymentId || '').trim()
+  if (!paymentId) return json({ error: '결제번호가 없습니다.' }, { status: 400 })
+
+  const order = await env.DB!.prepare('SELECT * FROM paid_orders WHERE payment_id = ?').bind(paymentId).first<PaidOrderRow>()
+  if (!order) return json({ error: '결제 대기 주문을 찾을 수 없습니다.' }, { status: 404 })
+  if (order.status === 'paid') return json({ ok: true, message: '이미 결제 완료 처리된 예약입니다.' })
+
+  const paymentResponse = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
+    headers: {
+      authorization: `PortOne ${env.PORTONE_API_SECRET}`,
+    },
+  })
+
+  if (!paymentResponse.ok) {
+    const detail = await paymentResponse.text()
+    return json({ error: '포트원 결제 조회에 실패했습니다.', detail }, { status: 502 })
+  }
+
+  const payment = await paymentResponse.json() as {
+    status?: string
+    amount?: { total?: number; paid?: number }
+    paidAmount?: number
+    totalAmount?: number
+  }
+  const paidAmount = Number(payment.amount?.total ?? payment.amount?.paid ?? payment.paidAmount ?? payment.totalAmount ?? 0)
+  if (payment.status !== 'PAID') return json({ error: '결제가 완료된 상태가 아닙니다.' }, { status: 400 })
+  if (paidAmount !== order.total_amount_krw) return json({ error: '실제 결제금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
+
+  await env
+    .DB!.prepare("UPDATE paid_orders SET status = 'paid', paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
+    .bind(order.id)
+    .run()
+
+  const itemsResponse = await env
+    .DB!.prepare('SELECT * FROM paid_order_items WHERE order_id = ? ORDER BY created_at ASC')
+    .bind(order.id)
+    .all<PaidOrderItemRow>()
+  const emailError = await sendPaidOrderEmailFromOrder(env, { ...order, status: 'paid' }, itemsResponse.results || [])
   if (emailError) return emailError
 
   return json({ ok: true, message: '결제가 완료되었습니다. 예약 정보가 대표 이메일로 전송되었습니다.' })
@@ -1918,6 +2141,9 @@ export default {
       }
       if (url.pathname === '/api/payments/config' && request.method === 'GET') {
         return handlePaymentConfig(request, env)
+      }
+      if (url.pathname === '/api/payments/prepare' && request.method === 'POST') {
+        return handlePaymentPrepare(request, env)
       }
       if (url.pathname === '/api/payments/complete' && request.method === 'POST') {
         return handlePaymentComplete(request, env)

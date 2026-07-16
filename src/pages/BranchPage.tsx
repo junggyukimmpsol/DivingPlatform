@@ -40,6 +40,19 @@ type CartItem = {
   unitPriceKrw: number
 }
 
+type CheckoutCustomer = {
+  name: string
+  email: string
+  phone: string
+  certificationAgency: string
+  certificationLevel: string
+  heightCm: string
+  weightKg: string
+  footSizeMm: string
+  preferredSuitSize: string
+  memo: string
+}
+
 type PortOnePaymentResponse = {
   code?: string
   message?: string
@@ -61,6 +74,21 @@ type PortOnePaymentRequest = {
   }
 }
 
+type PaymentPrepareResponse = {
+  channelKey?: string
+  customer?: {
+    email?: string
+    fullName?: string
+    phoneNumber?: string
+  }
+  error?: string
+  orderName?: string
+  paymentId?: string
+  provider?: string
+  storeId?: string
+  totalAmount?: number
+}
+
 declare global {
   interface Window {
     PortOne?: {
@@ -70,6 +98,7 @@ declare global {
 }
 
 const KRW_PER_USD = 1550
+const KAKAO_CHAT_URL = 'http://pf.kakao.com/_xhhbxcn/chat'
 
 const usdToKrw = (usd: number) => Math.round(usd * KRW_PER_USD)
 
@@ -85,6 +114,12 @@ const dateToInputValue = (date: Date) => {
 const addMonths = (date: Date, months: number) => {
   const nextDate = new Date(date)
   nextDate.setMonth(nextDate.getMonth() + months)
+  return nextDate
+}
+
+const addDays = (date: Date, days: number) => {
+  const nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + days)
   return nextDate
 }
 
@@ -132,6 +167,18 @@ const BranchPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [checkoutStatus, setCheckoutStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [checkoutMessage, setCheckoutMessage] = useState('')
+  const [checkoutCustomer, setCheckoutCustomer] = useState<CheckoutCustomer>({
+    name: '',
+    email: '',
+    phone: '',
+    certificationAgency: '',
+    certificationLevel: '',
+    heightCm: '',
+    weightKg: '',
+    footSizeMm: '',
+    preferredSuitSize: '',
+    memo: '',
+  })
 
   const checkScrollLimits = () => {
     if (!scrollContainerRef.current) return
@@ -152,6 +199,22 @@ const BranchPage: React.FC = () => {
       }
     }
   }, [activeTab]) // Re-run when tab changes as content might change
+
+  useEffect(() => {
+    if (!user) return
+    setCheckoutCustomer({
+      name: user.name,
+      email: user.email,
+      phone: user.profile.phone || '',
+      certificationAgency: user.profile.certificationAgency || '',
+      certificationLevel: user.profile.certificationLevel || '',
+      heightCm: String(user.profile.heightCm || ''),
+      weightKg: String(user.profile.weightKg || ''),
+      footSizeMm: String(user.profile.footSizeMm || ''),
+      preferredSuitSize: user.profile.preferredSuitSize || '',
+      memo: user.profile.memo || '',
+    })
+  }, [user])
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return
@@ -201,7 +264,7 @@ const BranchPage: React.FC = () => {
   const locT = t.locations.locations[locationIndex]
   const displayName = language === 'en' ? currentBranch.name : locT.nameKo
   const gallery = BRANCH_GALLERIES[currentBranch.id]
-  const bookingStartDate = dateToInputValue(new Date())
+  const instantPaymentStartDate = dateToInputValue(addDays(new Date(), 2))
   const bookingEndDate = dateToInputValue(addMonths(new Date(), 3))
   const bookingStartMonth = toMonthStart(new Date())
   const bookingEndMonth = toMonthStart(addMonths(new Date(), 3))
@@ -218,6 +281,7 @@ const BranchPage: React.FC = () => {
   const totalAmount = selectedProductPriceKrw * guestCount
   const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
   const cartTotalGuests = cartItems.reduce((sum, item) => sum + item.guests, 0)
+  const leadTimeBlockedItems = cartItems.filter((item) => item.tourDate < instantPaymentStartDate)
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -235,6 +299,11 @@ const BranchPage: React.FC = () => {
     if (!tourDate) {
       setCheckoutStatus('error')
       setCheckoutMessage('투어 날짜를 먼저 선택해주세요.')
+      return
+    }
+    if (tourDate < instantPaymentStartDate) {
+      setCheckoutStatus('error')
+      setCheckoutMessage(`오늘/내일 투어는 먼저 문의해주세요. 온라인 즉시결제는 ${instantPaymentStartDate} 이후 날짜부터 가능합니다.`)
       return
     }
 
@@ -265,10 +334,14 @@ const BranchPage: React.FC = () => {
     setCartItems((items) => items.filter((item) => item.id !== itemId))
   }
 
+  const updateCheckoutCustomer = (field: keyof CheckoutCustomer, value: string) => {
+    setCheckoutCustomer((current) => ({ ...current, [field]: value }))
+  }
+
   const submitCartPayment = async () => {
-    if (!user) {
+    if (!checkoutCustomer.name.trim() || !checkoutCustomer.email.trim() || !checkoutCustomer.phone.trim()) {
       setCheckoutStatus('error')
-      setCheckoutMessage('장바구니 결제를 진행하려면 로그인이 필요합니다.')
+      setCheckoutMessage('비회원 예약을 위해 이름, 이메일, 연락처를 입력해주세요.')
       return
     }
     if (cartItems.length === 0) {
@@ -276,38 +349,53 @@ const BranchPage: React.FC = () => {
       setCheckoutMessage('장바구니에 담긴 상품이 없습니다.')
       return
     }
+    if (leadTimeBlockedItems.length > 0) {
+      setCheckoutStatus('error')
+      setCheckoutMessage(`투어 하루 전 예약은 먼저 문의해주세요. 온라인 즉시결제는 ${instantPaymentStartDate} 이후 날짜부터 가능합니다.`)
+      return
+    }
 
     setCheckoutStatus('sending')
-    setCheckoutMessage('결제창을 준비하는 중입니다.')
+    setCheckoutMessage('NHN KCP 카드 결제창을 준비하는 중입니다.')
 
     try {
-      const configResponse = await fetch('/api/payments/config', { credentials: 'include' })
-      const config = await configResponse.json() as { storeId?: string; channelKey?: string; error?: string }
-      if (!configResponse.ok || !config.storeId || !config.channelKey) {
-        throw new Error(config.error || '결제 설정을 불러오지 못했습니다.')
+      const prepareResponse = await fetch('/api/payments/prepare', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          totalAmount: cartTotalAmount,
+          items: cartItems,
+          customer: checkoutCustomer,
+        }),
+      })
+      const prepared = await prepareResponse.json() as PaymentPrepareResponse
+      if (
+        !prepareResponse.ok ||
+        !prepared.storeId ||
+        !prepared.channelKey ||
+        !prepared.paymentId ||
+        !prepared.orderName ||
+        !prepared.totalAmount
+      ) {
+        throw new Error(prepared.error || '결제 주문을 생성하지 못했습니다.')
       }
 
       await loadPortOneSdk()
       if (!window.PortOne) throw new Error('결제 SDK가 준비되지 않았습니다.')
 
-      const paymentId = `parks-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`
-      const orderName =
-        cartItems.length === 1
-          ? cartItems[0].program
-          : `${cartItems[0].program} 외 ${cartItems.length - 1}건`
-
       const payment = await window.PortOne.requestPayment({
-        storeId: config.storeId,
-        channelKey: config.channelKey,
-        paymentId,
-        orderName,
-        totalAmount: cartTotalAmount,
+        storeId: prepared.storeId,
+        channelKey: prepared.channelKey,
+        paymentId: prepared.paymentId,
+        orderName: prepared.orderName,
+        totalAmount: prepared.totalAmount,
         currency: 'CURRENCY_KRW',
         payMethod: 'CARD',
         customer: {
-          fullName: user.name,
-          email: user.email,
-          phoneNumber: user.profile.phone || undefined,
+          fullName: prepared.customer?.fullName || checkoutCustomer.name,
+          email: prepared.customer?.email || checkoutCustomer.email,
+          phoneNumber: prepared.customer?.phoneNumber || checkoutCustomer.phone,
         },
       })
 
@@ -322,9 +410,7 @@ const BranchPage: React.FC = () => {
         headers: { 'content-type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          paymentId: payment.paymentId || paymentId,
-          totalAmount: cartTotalAmount,
-          items: cartItems,
+          paymentId: payment.paymentId || prepared.paymentId,
         }),
       })
       const data = await response.json() as { error?: string; message?: string }
@@ -763,6 +849,119 @@ const BranchPage: React.FC = () => {
                         </div>
                       ))}
 
+                      <div className="rounded-2xl border border-sky-100 bg-slate-50 p-5">
+                        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Guest checkout</p>
+                            <h5 className="mt-1 text-lg font-black text-[#06334a]">예약자 정보</h5>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            로그인 없이도 예약/결제가 가능합니다.
+                          </p>
+                        </div>
+                        <div className="grid gap-3 md:grid-cols-3">
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">이름 *</span>
+                            <input
+                              value={checkoutCustomer.name}
+                              onChange={(event) => updateCheckoutCustomer('name', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="홍길동"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">이메일 *</span>
+                            <input
+                              type="email"
+                              value={checkoutCustomer.email}
+                              onChange={(event) => updateCheckoutCustomer('email', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="diver@example.com"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">연락처 *</span>
+                            <input
+                              value={checkoutCustomer.phone}
+                              onChange={(event) => updateCheckoutCustomer('phone', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="010-0000-0000"
+                            />
+                          </label>
+                        </div>
+                        <div className="mt-3 grid gap-3 md:grid-cols-3">
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">키(cm)</span>
+                            <input
+                              type="number"
+                              value={checkoutCustomer.heightCm}
+                              onChange={(event) => updateCheckoutCustomer('heightCm', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="175"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">몸무게(kg)</span>
+                            <input
+                              type="number"
+                              value={checkoutCustomer.weightKg}
+                              onChange={(event) => updateCheckoutCustomer('weightKg', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="70"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">발 사이즈(mm)</span>
+                            <input
+                              type="number"
+                              value={checkoutCustomer.footSizeMm}
+                              onChange={(event) => updateCheckoutCustomer('footSizeMm', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="270"
+                            />
+                          </label>
+                        </div>
+                        <div className="mt-3 grid gap-3 md:grid-cols-3">
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">자격증 단체</span>
+                            <input
+                              value={checkoutCustomer.certificationAgency}
+                              onChange={(event) => updateCheckoutCustomer('certificationAgency', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="PADI, SSI..."
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">자격증 레벨</span>
+                            <input
+                              value={checkoutCustomer.certificationLevel}
+                              onChange={(event) => updateCheckoutCustomer('certificationLevel', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="Open Water"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="mb-1 block text-xs font-bold text-slate-500">선호 수트 사이즈</span>
+                            <input
+                              value={checkoutCustomer.preferredSuitSize}
+                              onChange={(event) => updateCheckoutCustomer('preferredSuitSize', event.currentTarget.value)}
+                              className="w-full rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                              placeholder="M, ML, L"
+                            />
+                          </label>
+                        </div>
+                        <label className="mt-3 block">
+                          <span className="mb-1 block text-xs font-bold text-slate-500">장비 준비 메모</span>
+                          <textarea
+                            rows={3}
+                            value={checkoutCustomer.memo}
+                            onChange={(event) => updateCheckoutCustomer('memo', event.currentTarget.value)}
+                            className="w-full resize-none rounded-lg border border-sky-100 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-ocean-teal"
+                            placeholder="시력, 사이즈, 걱정되는 점 등"
+                          />
+                        </label>
+                      </div>
+
                       <div className="flex flex-col gap-3 border-t border-sky-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <p className="text-sm font-bold text-slate-500">총 예상 결제금액</p>
@@ -775,9 +974,21 @@ const BranchPage: React.FC = () => {
                           className="inline-flex items-center justify-center gap-2 rounded-full bg-[#06334a] px-5 py-3 text-sm font-black text-white transition hover:bg-ocean-teal disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           <FaCreditCard />
-                          {checkoutStatus === 'sending' ? '결제 처리 중' : '장바구니 결제하기'}
+                          {checkoutStatus === 'sending' ? '결제 처리 중' : 'NHN KCP 카드 결제하기'}
                         </button>
                       </div>
+                      <p className="rounded-xl bg-cyan-50 p-4 text-sm leading-6 text-slate-600">
+                        온라인 즉시결제는 투어 2일 전부터 3개월 이내 일정만 가능합니다. 오늘/내일 출발 건은{' '}
+                        <a
+                          href={KAKAO_CHAT_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-black text-ocean-teal underline underline-offset-4"
+                        >
+                          카카오톡 문의
+                        </a>
+                        로 가능 여부를 먼저 확인해주세요.
+                      </p>
                     </div>
                   ) : (
                     <p className="mt-4 rounded-xl border border-dashed border-sky-200 bg-cyan-50/60 p-4 text-sm text-slate-500">
@@ -787,11 +998,11 @@ const BranchPage: React.FC = () => {
 
                   {!user && (
                     <p className="mt-4 text-sm text-slate-500">
-                      회원정보와 장비 정보를 함께 보내려면{' '}
+                      다음 예약 때 정보를 자동으로 불러오려면{' '}
                       <Link to="/auth" className="font-black text-ocean-teal underline underline-offset-4">
                         로그인 / 회원가입
                       </Link>
-                      이 필요합니다.
+                      을 이용할 수 있습니다.
                     </p>
                   )}
 
@@ -959,7 +1170,7 @@ const BranchPage: React.FC = () => {
                         }
 
                         const dateValue = dateToInputValue(date)
-                        const disabled = dateValue < bookingStartDate || dateValue > bookingEndDate
+                        const disabled = dateValue < instantPaymentStartDate || dateValue > bookingEndDate
                         const selected = dateValue === tourDate
 
                         return (
@@ -980,7 +1191,9 @@ const BranchPage: React.FC = () => {
                       })}
                     </div>
                   </div>
-                  <span className="mt-2 block text-xs text-slate-500">오늘부터 3개월 이내 날짜만 선택 가능합니다.</span>
+                  <span className="mt-2 block text-xs leading-5 text-slate-500">
+                    온라인 즉시결제는 {instantPaymentStartDate} 이후부터 가능합니다. 오늘/내일 투어는 카카오톡 문의 후 예약해주세요.
+                  </span>
                 </div>
                 <label className="block">
                   <span className="mb-2 block text-sm font-bold text-slate-200">인원</span>
@@ -1014,7 +1227,7 @@ const BranchPage: React.FC = () => {
                   <span className="text-2xl font-black text-white">{formatKrw(totalAmount)}</span>
                 </div>
                 <p className="mt-2 text-xs leading-6 text-slate-400">
-                  실제 결제 연동 전 미리보기 화면입니다. 온라인 결제 연동이 완료되면 이 버튼에서 결제 화면으로 이동합니다.
+                  선택한 날짜와 인원 기준 결제 금액입니다. 장바구니에서 여러 상품을 한 번에 NHN KCP 카드 결제로 진행할 수 있습니다.
                 </p>
               </div>
 
