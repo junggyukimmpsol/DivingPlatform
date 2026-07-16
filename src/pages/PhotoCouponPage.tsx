@@ -1,11 +1,42 @@
-import React, { FormEvent, useState } from 'react'
+import React, { FormEvent, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaArrowRight, FaEnvelope, FaGift, FaImage, FaMagic, FaUpload } from 'react-icons/fa'
+import { FaArrowRight, FaDownload, FaEnvelope, FaGift, FaImage, FaMagic, FaRedo, FaUpload } from 'react-icons/fa'
 
 const MAX_UPLOAD_COUNT = 5
 const MAX_COMPRESSED_BYTES = 2 * 1024 * 1024
 const MAX_IMAGE_EDGE = 1600
 const JPEG_QUALITY = 0.82
+const STORAGE_KEY = 'parks-photo-coupon-submission'
+
+type ActiveSubmission = {
+  id: string
+  email: string
+  phone: string
+}
+
+type CouponJob = {
+  id: string
+  fileName: string
+  status: string
+  errorMessage: string | null
+  downloadUrl: string
+}
+
+type CouponStatus = {
+  submission: {
+    id: string
+    status: string
+    errorMessage: string | null
+    resultEmailSentAt: string | null
+  }
+  counts: {
+    total: number
+    completed: number
+    failed: number
+    pending: number
+  }
+  jobs: CouponJob[]
+}
 
 const comparisonExamples = [
   {
@@ -90,8 +121,79 @@ const compressImage = async (file: File) => {
 const PhotoCouponPage: React.FC = () => {
   const [selectedCount, setSelectedCount] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [activeSubmission, setActiveSubmission] = useState<ActiveSubmission | null>(null)
+  const [couponStatus, setCouponStatus] = useState<CouponStatus | null>(null)
+
+  const requestBodyFor = (submission: ActiveSubmission) =>
+    JSON.stringify({ email: submission.email, phone: submission.phone })
+
+  const fetchCouponStatus = async (submission: ActiveSubmission) => {
+    const response = await fetch(`/api/photo-coupon/submissions/${submission.id}/status`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: requestBodyFor(submission),
+    })
+    if (!response.ok) throw new Error(await parseApiError(response))
+    const data = await response.json() as CouponStatus
+    setCouponStatus(data)
+    return data
+  }
+
+  const processSubmission = async (submission: ActiveSubmission) => {
+    setIsProcessing(true)
+    setError('')
+
+    try {
+      for (let attempt = 0; attempt < MAX_UPLOAD_COUNT + 2; attempt += 1) {
+        const current = await fetchCouponStatus(submission)
+        if (current.counts.pending === 0 && current.counts.failed === 0) {
+          setSuccess('보정이 완료되었습니다. 아래 다운로드 버튼으로 바로 받을 수 있습니다.')
+          return
+        }
+
+        const response = await fetch(`/api/photo-coupon/submissions/${submission.id}/process-next`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: requestBodyFor(submission),
+        })
+        if (!response.ok) throw new Error(await parseApiError(response))
+
+        const next = await fetchCouponStatus(submission)
+        if (next.counts.pending === 0) {
+          setSuccess(
+            next.counts.failed > 0
+              ? '일부 사진 보정이 실패했습니다. 실패한 사진은 다시 시도할 수 있습니다.'
+              : '보정이 완료되었습니다. 아래 다운로드 버튼으로 바로 받을 수 있습니다.',
+          )
+          return
+        }
+      }
+
+      setSuccess('아직 처리 중인 사진이 있습니다. 잠시 후 이어서 처리 버튼을 눌러주세요.')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : '사진 보정 처리에 실패했습니다.')
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(STORAGE_KEY)
+      if (!saved) return
+      const submission = JSON.parse(saved) as ActiveSubmission
+      if (!submission.id || !submission.email || !submission.phone) return
+      setActiveSubmission(submission)
+      fetchCouponStatus(submission).catch(() => {
+        window.localStorage.removeItem(STORAGE_KEY)
+      })
+    } catch {
+      window.localStorage.removeItem(STORAGE_KEY)
+    }
+  }, [])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -133,10 +235,18 @@ const PhotoCouponPage: React.FC = () => {
         body: formData,
       })
       if (!response.ok) throw new Error(await parseApiError(response))
+      const data = await response.json() as { submissionId?: string }
+      if (!data.submissionId) throw new Error('신청 정보를 확인하지 못했습니다.')
+
+      const nextSubmission = { id: data.submissionId, email, phone }
+      setActiveSubmission(nextSubmission)
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSubmission))
 
       form.reset()
       setSelectedCount(0)
-      setSuccess('신청이 완료되었습니다. 사진 보정이 끝나면 이메일로 다운로드 링크를 보내드릴게요.')
+      setSuccess('신청이 완료되었습니다. 이 화면에서 보정 결과를 바로 확인할 수 있습니다.')
+      setIsSubmitting(false)
+      await processSubmission(nextSubmission)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : '신청 처리에 실패했습니다.')
       setSuccess('')
@@ -232,6 +342,67 @@ const PhotoCouponPage: React.FC = () => {
               <FaUpload />
               {isSubmitting ? '신청 중...' : '무료 보정 신청하기'}
             </button>
+
+            {activeSubmission && couponStatus && (
+              <div className="mt-6 rounded-2xl border border-cyan-100 bg-slate-50 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-black text-[#06334a]">보정 진행 상황</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      완료 {couponStatus.counts.completed}장 / 전체 {couponStatus.counts.total}장
+                      {couponStatus.counts.failed > 0 ? ` · 실패 ${couponStatus.counts.failed}장` : ''}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => processSubmission(activeSubmission)}
+                    disabled={isProcessing || couponStatus.submission.status === 'completed'}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-xs font-black text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    <FaRedo />
+                    {isProcessing ? '보정 처리 중' : couponStatus.counts.pending > 0 || couponStatus.counts.failed > 0 ? '이어서 처리' : '처리 완료'}
+                  </button>
+                </div>
+
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-white">
+                  <div
+                    className="h-full rounded-full bg-cyan-500 transition-all"
+                    style={{ width: `${couponStatus.counts.total ? Math.round((couponStatus.counts.completed / couponStatus.counts.total) * 100) : 0}%` }}
+                  />
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  {couponStatus.jobs.map((job, index) => (
+                    <div key={job.id} className="flex flex-col gap-3 rounded-xl bg-white p-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">
+                          사진 {index + 1}. {job.fileName}
+                        </p>
+                        <p className={`mt-1 text-xs font-bold ${job.status === 'completed' ? 'text-emerald-600' : job.status === 'failed' ? 'text-red-600' : 'text-cyan-700'}`}>
+                          {job.status === 'completed' ? '보정 완료' : job.status === 'failed' ? '보정 실패' : '보정 대기/처리 중'}
+                        </p>
+                        {job.errorMessage && <p className="mt-1 text-xs text-red-500">{job.errorMessage}</p>}
+                      </div>
+                      {job.downloadUrl ? (
+                        <a
+                          href={job.downloadUrl}
+                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#06334a] px-4 py-2 text-xs font-black text-white transition hover:bg-cyan-700"
+                        >
+                          <FaDownload />
+                          다운로드
+                        </a>
+                      ) : (
+                        <span className="rounded-lg bg-slate-100 px-4 py-2 text-center text-xs font-bold text-slate-500">준비 중</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {couponStatus.submission.resultEmailSentAt && (
+                  <p className="mt-3 text-xs font-bold text-emerald-700">결과 이메일도 발송되었습니다.</p>
+                )}
+              </div>
+            )}
 
             <p className="mt-4 text-center text-xs leading-6 text-slate-500">
               다음 예약 때 장비 정보를 자동으로 쓰고 싶다면{' '}

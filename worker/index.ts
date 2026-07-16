@@ -1179,7 +1179,7 @@ const handlePhotoUpload = async (request: Request, env: Env) => {
   })
 }
 
-const handlePhotoCouponApply = async (request: Request, env: Env, ctx: WorkerExecutionContext) => {
+const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerExecutionContext) => {
   const setupError = requireBindings(env)
   if (setupError) return setupError
   const emailSetupError = requireEmailBindings(env)
@@ -1258,13 +1258,10 @@ const handlePhotoCouponApply = async (request: Request, env: Env, ctx: WorkerExe
       .run()
   }
 
-  const origin = new URL(request.url).origin
-  ctx.waitUntil(processPhotoCouponSubmission(env, submissionId, origin).catch((caught) => console.error(caught)))
-
   return json({
     ok: true,
     submissionId,
-    message: '신청이 완료되었습니다. 사진 보정이 끝나면 이메일로 다운로드 링크를 보내드릴게요.',
+    message: '신청이 완료되었습니다. 이 화면에서 보정 진행 상태와 다운로드 버튼을 확인할 수 있습니다.',
   }, { status: 201 })
 }
 
@@ -1589,6 +1586,69 @@ const handlePhotoCouponResendEmail = async (request: Request, env: Env, submissi
     .run()
 
   return json({ ok: true, message: '보정 결과 이메일을 다시 발송했습니다.' })
+}
+
+const readVerifiedPhotoCouponSubmission = async (request: Request, env: Env, submissionId: string) => {
+  if (!submissionId) return { response: json({ error: '신청 ID가 없습니다.' }, { status: 400 }) }
+
+  const body = (await request.json().catch(() => ({}))) as { email?: string; phone?: string }
+  const email = body.email?.trim().toLowerCase()
+  const phone = normalizePhone(body.phone)
+  if (!email || !phone) {
+    return { response: json({ error: '이메일과 전화번호를 입력해주세요.' }, { status: 400 }) }
+  }
+
+  const submission = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
+    .bind(submissionId)
+    .first<PhotoCouponSubmissionRow & { phone: string; error_message?: string | null; result_email_sent_at?: string | null }>()
+
+  if (!submission || submission.email !== email || normalizePhone(submission.phone) !== phone) {
+    return { response: json({ error: '신청 정보를 확인하지 못했습니다.' }, { status: 404 }) }
+  }
+
+  return { submission }
+}
+
+const handlePhotoCouponStatus = async (request: Request, env: Env, submissionId: string) => {
+  const setupError = requireBindings(env)
+  if (setupError) return setupError
+
+  const verified = await readVerifiedPhotoCouponSubmission(request, env, submissionId)
+  if (verified.response) return verified.response
+  const submission = verified.submission!
+
+  const jobsResponse = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_jobs WHERE submission_id = ? ORDER BY created_at ASC')
+    .bind(submissionId)
+    .all<PhotoCouponJobRow>()
+  const jobs = jobsResponse.results || []
+
+  return json({
+    ok: true,
+    submission: {
+      id: submission.id,
+      status: submission.status,
+      errorMessage: submission.error_message || null,
+      resultEmailSentAt: submission.result_email_sent_at || null,
+    },
+    counts: {
+      total: jobs.length,
+      completed: jobs.filter((job) => job.status === 'completed').length,
+      failed: jobs.filter((job) => job.status === 'failed').length,
+      pending: jobs.filter((job) => job.status === 'queued' || job.status === 'processing').length,
+    },
+    jobs: jobs.map((job) => ({
+      id: job.id,
+      fileName: job.original_file_name,
+      status: job.status,
+      errorMessage: job.error_message,
+      downloadUrl:
+        job.status === 'completed' && job.enhanced_image_key
+          ? `/api/photo-coupon/jobs/${encodeURIComponent(job.id)}/download?token=${encodeURIComponent(job.download_token)}`
+          : '',
+    })),
+  })
 }
 
 const handlePhotoCouponProcessNext = async (request: Request, env: Env, submissionId: string) => {
@@ -1933,6 +1993,11 @@ export default {
       const couponResendSubmissionId = extractCouponSubmissionId(url.pathname, '/resend-email')
       if (couponResendSubmissionId && request.method === 'POST') {
         return handlePhotoCouponResendEmail(request, env, couponResendSubmissionId)
+      }
+
+      const couponStatusSubmissionId = extractCouponSubmissionId(url.pathname, '/status')
+      if (couponStatusSubmissionId && request.method === 'POST') {
+        return handlePhotoCouponStatus(request, env, couponStatusSubmissionId)
       }
 
       const couponProcessSubmissionId = extractCouponSubmissionId(url.pathname, '/process-next')
