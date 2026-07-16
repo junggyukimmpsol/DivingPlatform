@@ -1214,10 +1214,14 @@ const claimPhotoCouponCode = async (
   submissionId: string,
   email: string,
   phone: string,
+  photoCount: number,
 ) => {
   const normalizedCode = normalizeCouponCode(rawCode)
   if (!normalizedCode || normalizedCode.length < 8) {
     return { error: json({ error: '쿠폰코드를 입력해주세요.' }, { status: 400 }) }
+  }
+  if (!Number.isInteger(photoCount) || photoCount < 1) {
+    return { error: json({ error: '보정할 사진을 선택해주세요.' }, { status: 400 }) }
   }
 
   const codeHash = await sha256(normalizedCode)
@@ -1232,29 +1236,37 @@ const claimPhotoCouponCode = async (
   if (coupon.expires_at && new Date(coupon.expires_at).getTime() < Date.now()) {
     return { error: json({ error: '만료된 쿠폰코드입니다.' }, { status: 410 }) }
   }
-  if (coupon.used_count >= coupon.max_uses) {
+  const remaining = Math.max(0, coupon.max_uses - coupon.used_count)
+  if (remaining <= 0) {
     return { error: json({ error: '이미 사용된 쿠폰코드입니다.' }, { status: 409 }) }
+  }
+  if (remaining < photoCount) {
+    return { error: json({ error: `이 쿠폰의 남은 무료 보정권은 ${remaining}장입니다.` }, { status: 400 }) }
   }
 
   const result = await env
     .DB!.prepare(
       `UPDATE photo_coupon_codes
-       SET used_count = used_count + 1,
+       SET used_count = used_count + ?,
            used_at = CURRENT_TIMESTAMP,
            used_by_email = ?,
            used_by_phone = ?,
            submission_id = ?,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = ? AND used_count < max_uses`,
+       WHERE id = ? AND used_count + ? <= max_uses`,
     )
-    .bind(email, normalizePhone(phone), submissionId, coupon.id)
+    .bind(photoCount, email, normalizePhone(phone), submissionId, coupon.id, photoCount)
     .run()
 
   if (getD1Changes(result) === 0) {
-    return { error: json({ error: '이미 사용된 쿠폰코드입니다.' }, { status: 409 }) }
+    return { error: json({ error: '이 쿠폰의 남은 무료 보정권이 부족합니다.' }, { status: 409 }) }
   }
 
-  return { couponId: coupon.id, formattedCode: formatCouponCode(rawCode) }
+  return {
+    couponId: coupon.id,
+    formattedCode: formatCouponCode(rawCode),
+    remainingPhotos: remaining - photoCount,
+  }
 }
 
 const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerExecutionContext) => {
@@ -1295,7 +1307,7 @@ const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerEx
   }
 
   const submissionId = crypto.randomUUID()
-  const claimed = await claimPhotoCouponCode(env, couponCode, submissionId, email, phone)
+  const claimed = await claimPhotoCouponCode(env, couponCode, submissionId, email, phone, files.length)
   if (claimed.error) return claimed.error
 
   await env
@@ -1346,7 +1358,8 @@ const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerEx
     ok: true,
     submissionId,
     couponCode: claimed.formattedCode,
-    message: '신청이 완료되었습니다. 이 화면에서 보정 진행 상태와 다운로드 버튼을 확인할 수 있습니다.',
+    remainingPhotos: claimed.remainingPhotos,
+    message: `신청이 완료되었습니다. 쿠폰 잔여 보정권은 ${claimed.remainingPhotos}장입니다.`,
   }, { status: 201 })
 }
 

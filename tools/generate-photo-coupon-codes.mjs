@@ -14,6 +14,7 @@ const count = Math.max(1, Number(getArg('count', '20')) || 20)
 const label = getArg('label', 'kakao-tour-followup')
 const expiresAt = getArg('expires', '')
 const outputDir = getArg('out', '.coupon-codes')
+const maxUses = Math.max(1, Number(getArg('uses', '5')) || 5)
 
 const randomPart = (length) => {
   const bytes = randomBytes(length)
@@ -43,7 +44,7 @@ for (let index = 0; index < count; index += 1) {
   const id = randomUUID()
   rows.push([code, label, expiresAt].join(','))
   statements.push(
-    `INSERT INTO photo_coupon_codes (id, code_hash, label, max_uses, expires_at) VALUES (${sqlString(id)}, ${sqlString(hash)}, ${sqlString(label)}, 1, ${sqlString(expiresAt)}) ON CONFLICT(code_hash) DO NOTHING;`,
+    `INSERT INTO photo_coupon_codes (id, code_hash, label, max_uses, expires_at) VALUES (${sqlString(id)}, ${sqlString(hash)}, ${sqlString(label)}, ${maxUses}, ${sqlString(expiresAt)}) ON CONFLICT(code_hash) DO NOTHING;`,
   )
 }
 
@@ -54,6 +55,7 @@ writeFileSync(csvPath, `code,label,expires_at\n${rows.join('\n')}\n`)
 writeFileSync(sqlPath, `${statements.join('\n')}\n`)
 
 console.log(`Created ${count} coupon codes.`)
+console.log(`Uses per code: ${maxUses} photos`)
 console.log(`CSV: ${csvPath}`)
 console.log(`SQL: ${sqlPath}`)
 console.log('')

@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS photo_coupon_codes (
   id TEXT PRIMARY KEY,
   code_hash TEXT NOT NULL UNIQUE,
   label TEXT,
-  max_uses INTEGER NOT NULL DEFAULT 1,
+  max_uses INTEGER NOT NULL DEFAULT 5,
   used_count INTEGER NOT NULL DEFAULT 0,
   used_at TEXT,
   used_by_email TEXT,

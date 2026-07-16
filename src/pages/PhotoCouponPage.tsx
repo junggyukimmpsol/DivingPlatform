@@ -237,7 +237,7 @@ const PhotoCouponPage: React.FC = () => {
         body: formData,
       })
       if (!response.ok) throw new Error(await parseApiError(response))
-      const data = await response.json() as { submissionId?: string }
+      const data = await response.json() as { remainingPhotos?: number; submissionId?: string }
       if (!data.submissionId) throw new Error('신청 정보를 확인하지 못했습니다.')
 
       const nextSubmission = { id: data.submissionId, email, phone }
@@ -246,7 +246,7 @@ const PhotoCouponPage: React.FC = () => {
 
       form.reset()
       setSelectedCount(0)
-      setSuccess('신청이 완료되었습니다. 이 화면에서 보정 결과를 바로 확인할 수 있습니다.')
+      setSuccess(`신청이 완료되었습니다. 이 화면에서 보정 결과를 바로 확인할 수 있습니다. 쿠폰 잔여 보정권은 ${data.remainingPhotos ?? 0}장입니다.`)
       setIsSubmitting(false)
       await processSubmission(nextSubmission)
     } catch (caught) {
@@ -272,11 +272,11 @@ const PhotoCouponPage: React.FC = () => {
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-slate-600 md:text-lg">
               네이버 스토어에서 Parks Local Diving 투어를 이용한 고객님께 드리는 무료 혜택입니다.
-              카톡으로 받은 1회용 쿠폰코드를 입력하고 사진을 업로드하면 이 화면에서 바로 다운로드할 수 있습니다.
+              카톡으로 받은 쿠폰코드 1개로 총 5장까지 나눠서 보정하고, 결과는 이 화면에서 바로 다운로드할 수 있습니다.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
-                [FaImage, '최대 5장', '사진 자동 압축'],
+                [FaImage, '총 5장', '나눠서 사용 가능'],
                 [FaMagic, 'AI 보정', '색감/탁도/대비 개선'],
                 [FaEnvelope, '마케팅 동의', '다음 투어 혜택 안내'],
               ].map(([Icon, title, text]) => {
@@ -326,7 +326,7 @@ const PhotoCouponPage: React.FC = () => {
                 onChange={(event) => setSelectedCount(event.currentTarget.files?.length || 0)}
                 className="w-full rounded-lg border border-sky-100 bg-slate-50 px-4 py-3 text-sm text-slate-600 file:mr-4 file:rounded-md file:border-0 file:bg-parks-gold file:px-3 file:py-2 file:text-sm file:font-bold file:text-[#06334a]"
               />
-              <span className="mt-2 block text-xs text-slate-500">선택됨: {selectedCount}장. 최대 5장, 업로드 전 장당 2MB 이하로 자동 압축됩니다.</span>
+              <span className="mt-2 block text-xs text-slate-500">선택됨: {selectedCount}장. 쿠폰 잔여 장수 안에서 신청 가능하며, 업로드 전 장당 2MB 이하로 자동 압축됩니다.</span>
             </label>
 
             <label className="mt-5 flex items-start gap-3 rounded-xl border border-cyan-100 bg-cyan-50 p-4">
