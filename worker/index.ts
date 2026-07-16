@@ -88,11 +88,25 @@ type OrderCustomer = {
 
 type PhotoCouponSubmissionRow = {
   id: string
+  coupon_code_id: string | null
   reservation_number: string | null
   buyer_name: string
   phone: string
   email: string
   status: string
+}
+
+type PhotoCouponCodeRow = {
+  id: string
+  code_hash: string
+  label: string | null
+  max_uses: number
+  used_count: number
+  used_at: string | null
+  used_by_email: string | null
+  used_by_phone: string | null
+  submission_id: string | null
+  expires_at: string | null
 }
 
 type PhotoCouponJobRow = {
@@ -320,6 +334,21 @@ const sanitizeText = (value: FormDataEntryValue | null) => {
 }
 
 const normalizePhone = (value: string | null | undefined) => (value || '').replace(/\D/g, '')
+
+const normalizeCouponCode = (value: string | null | undefined) => (value || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+
+const formatCouponCode = (value: string) => {
+  const normalized = normalizeCouponCode(value)
+  if (normalized.startsWith('PARKS') && normalized.length === 13) {
+    return `${normalized.slice(0, 5)}-${normalized.slice(5, 9)}-${normalized.slice(9)}`
+  }
+  return normalized.match(/.{1,4}/g)?.join('-') || ''
+}
+
+const getD1Changes = (result: D1Result<unknown>) => {
+  const meta = result.meta as { changes?: number } | undefined
+  return typeof meta?.changes === 'number' ? meta.changes : 0
+}
 
 const escapeHtml = (value: unknown) =>
   String(value ?? '')
@@ -1179,19 +1208,70 @@ const handlePhotoUpload = async (request: Request, env: Env) => {
   })
 }
 
+const claimPhotoCouponCode = async (
+  env: Env,
+  rawCode: string,
+  submissionId: string,
+  email: string,
+  phone: string,
+) => {
+  const normalizedCode = normalizeCouponCode(rawCode)
+  if (!normalizedCode || normalizedCode.length < 8) {
+    return { error: json({ error: '쿠폰코드를 입력해주세요.' }, { status: 400 }) }
+  }
+
+  const codeHash = await sha256(normalizedCode)
+  const coupon = await env
+    .DB!.prepare('SELECT * FROM photo_coupon_codes WHERE code_hash = ?')
+    .bind(codeHash)
+    .first<PhotoCouponCodeRow>()
+
+  if (!coupon) {
+    return { error: json({ error: '유효하지 않은 쿠폰코드입니다.' }, { status: 404 }) }
+  }
+  if (coupon.expires_at && new Date(coupon.expires_at).getTime() < Date.now()) {
+    return { error: json({ error: '만료된 쿠폰코드입니다.' }, { status: 410 }) }
+  }
+  if (coupon.used_count >= coupon.max_uses) {
+    return { error: json({ error: '이미 사용된 쿠폰코드입니다.' }, { status: 409 }) }
+  }
+
+  const result = await env
+    .DB!.prepare(
+      `UPDATE photo_coupon_codes
+       SET used_count = used_count + 1,
+           used_at = CURRENT_TIMESTAMP,
+           used_by_email = ?,
+           used_by_phone = ?,
+           submission_id = ?,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ? AND used_count < max_uses`,
+    )
+    .bind(email, normalizePhone(phone), submissionId, coupon.id)
+    .run()
+
+  if (getD1Changes(result) === 0) {
+    return { error: json({ error: '이미 사용된 쿠폰코드입니다.' }, { status: 409 }) }
+  }
+
+  return { couponId: coupon.id, formattedCode: formatCouponCode(rawCode) }
+}
+
 const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerExecutionContext) => {
   const setupError = requireBindings(env)
   if (setupError) return setupError
-  const emailSetupError = requireEmailBindings(env)
-  if (emailSetupError) return emailSetupError
 
   const form = await request.formData()
+  const couponCode = sanitizeText(form.get('couponCode'))
   const reservationNumber = sanitizeText(form.get('reservationNumber')) || ''
   const buyerName = sanitizeText(form.get('buyerName'))
   const phone = sanitizeText(form.get('phone'))
   const email = sanitizeText(form.get('email'))?.toLowerCase()
   const marketingOptIn = form.get('marketingOptIn') === 'true' || form.get('marketingOptIn') === 'on'
 
+  if (!couponCode) {
+    return json({ error: '카톡으로 받은 쿠폰코드를 입력해주세요.' }, { status: 400 })
+  }
   if (!buyerName || !phone || !email) {
     return json({ error: '구매자명, 전화번호, 이메일을 입력해주세요.' }, { status: 400 })
   }
@@ -1215,10 +1295,14 @@ const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerEx
   }
 
   const submissionId = crypto.randomUUID()
+  const claimed = await claimPhotoCouponCode(env, couponCode, submissionId, email, phone)
+  if (claimed.error) return claimed.error
+
   await env
     .DB!.prepare(
       `INSERT INTO photo_coupon_submissions (
         id,
+        coupon_code_id,
         reservation_number,
         buyer_name,
         phone,
@@ -1226,9 +1310,9 @@ const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerEx
         marketing_opt_in_at,
         marketing_opt_in_source,
         status
-      ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'naver_photo_coupon', 'queued')`,
+      ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, 'naver_photo_coupon', 'queued')`,
     )
-    .bind(submissionId, reservationNumber, buyerName, phone, email)
+    .bind(submissionId, claimed.couponId, reservationNumber, buyerName, phone, email)
     .run()
 
   for (const file of files) {
@@ -1261,6 +1345,7 @@ const handlePhotoCouponApply = async (request: Request, env: Env, _ctx: WorkerEx
   return json({
     ok: true,
     submissionId,
+    couponCode: claimed.formattedCode,
     message: '신청이 완료되었습니다. 이 화면에서 보정 진행 상태와 다운로드 버튼을 확인할 수 있습니다.',
   }, { status: 201 })
 }
@@ -1365,71 +1450,6 @@ const enhanceWithOpenAI = async (env: Env, imageBuffer: ArrayBuffer, mimeType: s
   }
 }
 
-const sendPhotoCouponResultEmail = async (
-  env: Env,
-  origin: string,
-  submission: PhotoCouponSubmissionRow,
-  jobs: PhotoCouponJobRow[],
-) => {
-  const completedJobs = jobs.filter((job) => job.status === 'completed' && job.enhanced_image_key)
-  if (completedJobs.length === 0) {
-    throw new Error('이메일로 보낼 완료 사진이 없습니다.')
-  }
-
-  const links = completedJobs
-    .map((job, index) => {
-      const href = `${origin}/api/photo-coupon/jobs/${encodeURIComponent(job.id)}/download?token=${encodeURIComponent(job.download_token)}`
-      return `
-        <li style="margin:10px 0">
-          <a href="${href}" style="display:inline-block;background:#0f766e;color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700">
-            보정 사진 ${index + 1} 다운로드
-          </a>
-          <span style="color:#64748b;font-size:13px"> ${escapeHtml(job.original_file_name)}</span>
-        </li>
-      `
-    })
-    .join('')
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      authorization: `Bearer ${env.RESEND_API_KEY}`,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: env.EMAIL_FROM,
-      to: [submission.email],
-      subject: 'Parks Local Diving 무료 사진보정 결과가 도착했습니다',
-      html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a">
-          <h2>${escapeHtml(submission.buyer_name)}님, 보정 사진이 준비되었습니다</h2>
-          <p>신청하신 수중사진 무료 보정 결과입니다. 아래 버튼을 눌러 다운로드해주세요.</p>
-          <ul style="padding-left:0;list-style:none">${links}</ul>
-          <p style="font-size:13px;color:#64748b">
-            예약번호: ${escapeHtml(submission.reservation_number || '미입력')}<br />
-            링크는 개인 보정 결과 확인용입니다. 다른 사람에게 공유하지 않는 것을 권장합니다.
-          </p>
-          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0" />
-          <p>
-            다음 다이빙 예약 때 키, 몸무게, 발 사이즈, 자격증 정보를 한 번만 저장해두면
-            장비 준비가 더 편해집니다.
-          </p>
-          <p>
-            <a href="${origin}/auth?mode=register" style="display:inline-block;background:#fbbf24;color:#020617;padding:12px 18px;border-radius:8px;font-weight:700;text-decoration:none">
-              Parks 계정 만들기
-            </a>
-          </p>
-        </div>
-      `,
-    }),
-  })
-
-  if (!response.ok) {
-    const detail = await response.text()
-    throw new Error(`결과 이메일 발송 실패: ${detail}`)
-  }
-}
-
 const processPhotoCouponJob = async (env: Env, submissionId: string, job: PhotoCouponJobRow) => {
   await env
     .DB!.prepare("UPDATE photo_coupon_jobs SET status = 'processing', error_message = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
@@ -1500,92 +1520,16 @@ const processPhotoCouponSubmission = async (env: Env, submissionId: string, orig
   const updatedJobs = updatedJobsResponse.results || []
   const completedCount = updatedJobs.filter((job) => job.status === 'completed').length
 
-  try {
-    if (completedCount > 0) {
-      await sendPhotoCouponResultEmail(env, origin, submission, updatedJobs)
-    }
-
-    await env
-      .DB!.prepare(
-        `UPDATE photo_coupon_submissions
-         SET status = ?,
-             result_email_sent_at = CASE WHEN ? > 0 THEN CURRENT_TIMESTAMP ELSE result_email_sent_at END,
-             error_message = ?,
-             updated_at = CURRENT_TIMESTAMP
-         WHERE id = ?`,
-      )
-      .bind(completedCount === updatedJobs.length ? 'completed' : completedCount > 0 ? 'partial' : 'failed', completedCount, completedCount > 0 ? null : '모든 사진 보정에 실패했습니다.', submissionId)
-      .run()
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    await env
-      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'email_failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-      .bind(message, submissionId)
-      .run()
-    throw caught
-  }
-}
-
-const handlePhotoCouponResendEmail = async (request: Request, env: Env, submissionId: string) => {
-  const setupError = requireBindings(env)
-  if (setupError) return setupError
-  const emailSetupError = requireEmailBindings(env)
-  if (emailSetupError) return emailSetupError
-  if (!submissionId) return json({ error: '신청 ID가 없습니다.' }, { status: 400 })
-
-  const body = (await request.json().catch(() => ({}))) as { email?: string; phone?: string }
-  const email = body.email?.trim().toLowerCase()
-  const phone = normalizePhone(body.phone)
-  if (!email || !phone) {
-    return json({ error: '이메일과 전화번호를 입력해주세요.' }, { status: 400 })
-  }
-
-  const submission = await env
-    .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
-    .bind(submissionId)
-    .first<PhotoCouponSubmissionRow & { phone: string }>()
-
-  if (!submission || submission.email !== email || normalizePhone(submission.phone) !== phone) {
-    return json({ error: '신청 정보를 확인하지 못했습니다.' }, { status: 404 })
-  }
-
-  const jobsResponse = await env
-    .DB!.prepare('SELECT * FROM photo_coupon_jobs WHERE submission_id = ? ORDER BY created_at ASC')
-    .bind(submissionId)
-    .all<PhotoCouponJobRow>()
-  const jobs = jobsResponse.results || []
-  const completedCount = jobs.filter((job) => job.status === 'completed' && job.enhanced_image_key).length
-
-  if (completedCount === 0) {
-    return json({ error: '아직 이메일로 보낼 완료 사진이 없습니다.' }, { status: 409 })
-  }
-
-  const origin = new URL(request.url).origin
-  try {
-    await sendPhotoCouponResultEmail(env, origin, submission, jobs)
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    await env
-      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'email_failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-      .bind(message, submissionId)
-      .run()
-
-    return json({ error: '보정 결과 이메일 발송에 실패했습니다.', detail: message }, { status: 502 })
-  }
-
   await env
     .DB!.prepare(
       `UPDATE photo_coupon_submissions
        SET status = ?,
-           result_email_sent_at = CURRENT_TIMESTAMP,
-           error_message = NULL,
+           error_message = ?,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`,
     )
-    .bind(completedCount === jobs.length ? 'completed' : 'partial', submissionId)
+    .bind(completedCount === updatedJobs.length ? 'completed' : completedCount > 0 ? 'partial' : 'failed', completedCount > 0 ? null : '모든 사진 보정에 실패했습니다.', submissionId)
     .run()
-
-  return json({ ok: true, message: '보정 결과 이메일을 다시 발송했습니다.' })
 }
 
 const readVerifiedPhotoCouponSubmission = async (request: Request, env: Env, submissionId: string) => {
@@ -1601,7 +1545,7 @@ const readVerifiedPhotoCouponSubmission = async (request: Request, env: Env, sub
   const submission = await env
     .DB!.prepare('SELECT * FROM photo_coupon_submissions WHERE id = ?')
     .bind(submissionId)
-    .first<PhotoCouponSubmissionRow & { phone: string; error_message?: string | null; result_email_sent_at?: string | null }>()
+    .first<PhotoCouponSubmissionRow & { phone: string; error_message?: string | null }>()
 
   if (!submission || submission.email !== email || normalizePhone(submission.phone) !== phone) {
     return { response: json({ error: '신청 정보를 확인하지 못했습니다.' }, { status: 404 }) }
@@ -1630,7 +1574,6 @@ const handlePhotoCouponStatus = async (request: Request, env: Env, submissionId:
       id: submission.id,
       status: submission.status,
       errorMessage: submission.error_message || null,
-      resultEmailSentAt: submission.result_email_sent_at || null,
     },
     counts: {
       total: jobs.length,
@@ -1654,8 +1597,6 @@ const handlePhotoCouponStatus = async (request: Request, env: Env, submissionId:
 const handlePhotoCouponProcessNext = async (request: Request, env: Env, submissionId: string) => {
   const setupError = requireBindings(env)
   if (setupError) return setupError
-  const emailSetupError = requireEmailBindings(env)
-  if (emailSetupError) return emailSetupError
   if (!submissionId) return json({ error: '신청 ID가 없습니다.' }, { status: 400 })
 
   const body = (await request.json().catch(() => ({}))) as { email?: string; phone?: string }
@@ -1720,37 +1661,25 @@ const handlePhotoCouponProcessNext = async (request: Request, env: Env, submissi
     return json({ error: '모든 사진 보정에 실패했습니다.', completedCount, failedCount }, { status: 502 })
   }
 
-  try {
-    await sendPhotoCouponResultEmail(env, new URL(request.url).origin, submission, jobs)
-    await env
-      .DB!.prepare(
-        `UPDATE photo_coupon_submissions
-         SET status = ?,
-             result_email_sent_at = CURRENT_TIMESTAMP,
-             error_message = NULL,
-             updated_at = CURRENT_TIMESTAMP
-         WHERE id = ?`,
-      )
-      .bind(failedCount > 0 ? 'partial' : 'completed', submissionId)
-      .run()
+  await env
+    .DB!.prepare(
+      `UPDATE photo_coupon_submissions
+       SET status = ?,
+           error_message = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = ?`,
+    )
+    .bind(failedCount > 0 ? 'partial' : 'completed', submissionId)
+    .run()
 
-    return json({
-      ok: true,
-      status: failedCount > 0 ? 'partial' : 'completed',
-      completedCount,
-      failedCount,
-      pendingCount,
-      message: '보정이 완료되어 결과 이메일을 발송했습니다.',
-    })
-  } catch (caught) {
-    const message = caught instanceof Error ? caught.message : String(caught)
-    await env
-      .DB!.prepare("UPDATE photo_coupon_submissions SET status = 'email_failed', error_message = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?")
-      .bind(message, submissionId)
-      .run()
-
-    return json({ error: '보정은 완료됐지만 이메일 발송에 실패했습니다.', detail: message, completedCount, failedCount }, { status: 502 })
-  }
+  return json({
+    ok: true,
+    status: failedCount > 0 ? 'partial' : 'completed',
+    completedCount,
+    failedCount,
+    pendingCount,
+    message: '보정이 완료되었습니다. 아래 다운로드 버튼으로 바로 받을 수 있습니다.',
+  })
 }
 
 const extractCouponJobId = (pathname: string) => {
@@ -1988,11 +1917,6 @@ export default {
       }
       if (url.pathname === '/api/photo-coupon/apply' && request.method === 'POST') {
         return handlePhotoCouponApply(request, env, ctx)
-      }
-
-      const couponResendSubmissionId = extractCouponSubmissionId(url.pathname, '/resend-email')
-      if (couponResendSubmissionId && request.method === 'POST') {
-        return handlePhotoCouponResendEmail(request, env, couponResendSubmissionId)
       }
 
       const couponStatusSubmissionId = extractCouponSubmissionId(url.pathname, '/status')

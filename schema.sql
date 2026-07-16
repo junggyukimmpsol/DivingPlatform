@@ -61,6 +61,7 @@ CREATE INDEX IF NOT EXISTS idx_photo_jobs_user_created ON photo_enhancement_jobs
 
 CREATE TABLE IF NOT EXISTS photo_coupon_submissions (
   id TEXT PRIMARY KEY,
+  coupon_code_id TEXT,
   reservation_number TEXT,
   buyer_name TEXT NOT NULL,
   phone TEXT NOT NULL,
@@ -70,6 +71,22 @@ CREATE TABLE IF NOT EXISTS photo_coupon_submissions (
   status TEXT NOT NULL DEFAULT 'queued',
   result_email_sent_at TEXT,
   error_message TEXT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (coupon_code_id) REFERENCES photo_coupon_codes(id)
+);
+
+CREATE TABLE IF NOT EXISTS photo_coupon_codes (
+  id TEXT PRIMARY KEY,
+  code_hash TEXT NOT NULL UNIQUE,
+  label TEXT,
+  max_uses INTEGER NOT NULL DEFAULT 1,
+  used_count INTEGER NOT NULL DEFAULT 0,
+  used_at TEXT,
+  used_by_email TEXT,
+  used_by_phone TEXT,
+  submission_id TEXT,
+  expires_at TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -94,3 +111,5 @@ CREATE TABLE IF NOT EXISTS photo_coupon_jobs (
 
 CREATE INDEX IF NOT EXISTS idx_photo_coupon_email_created ON photo_coupon_submissions(email, created_at);
 CREATE INDEX IF NOT EXISTS idx_photo_coupon_jobs_submission ON photo_coupon_jobs(submission_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_photo_coupon_codes_hash ON photo_coupon_codes(code_hash);
+CREATE INDEX IF NOT EXISTS idx_photo_coupon_codes_used ON photo_coupon_codes(used_count, expires_at);

@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 
 asset
+.coupon-codes
+.wrangler

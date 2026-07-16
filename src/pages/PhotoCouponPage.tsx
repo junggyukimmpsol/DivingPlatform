@@ -27,7 +27,6 @@ type CouponStatus = {
     id: string
     status: string
     errorMessage: string | null
-    resultEmailSentAt: string | null
   }
   counts: {
     total: number
@@ -204,21 +203,24 @@ const PhotoCouponPage: React.FC = () => {
 
     try {
       const sourceForm = new FormData(form)
+      const couponCode = String(sourceForm.get('couponCode') || '').trim()
       const buyerName = String(sourceForm.get('buyerName') || '').trim()
       const phone = String(sourceForm.get('phone') || '').trim()
       const email = String(sourceForm.get('email') || '').trim()
       const marketingOptIn = sourceForm.get('marketingOptIn')
       const files = sourceForm.getAll('photos').filter((file): file is File => file instanceof File && file.size > 0)
 
+      if (!couponCode) throw new Error('카톡으로 받은 쿠폰코드를 입력해주세요.')
       if (!buyerName) throw new Error('구매자명을 입력해주세요.')
       if (!phone) throw new Error('전화번호를 입력해주세요.')
-      if (!email) throw new Error('결과를 받을 이메일을 입력해주세요.')
+      if (!email) throw new Error('이메일을 입력해주세요.')
       if (!marketingOptIn) throw new Error('무료 보정권을 받으려면 광고성 이메일 수신에 동의해주세요.')
       if (files.length === 0) throw new Error('보정할 사진을 선택해주세요.')
       if (files.length > MAX_UPLOAD_COUNT) throw new Error(`최대 ${MAX_UPLOAD_COUNT}장까지 신청할 수 있습니다.`)
 
       setSuccess('업로드 전 사진을 자동 압축하고 있습니다.')
       const formData = new FormData()
+      formData.set('couponCode', couponCode)
       formData.set('reservationNumber', String(sourceForm.get('reservationNumber') || '').trim())
       formData.set('buyerName', buyerName)
       formData.set('phone', phone)
@@ -270,13 +272,13 @@ const PhotoCouponPage: React.FC = () => {
             </h1>
             <p className="mt-5 max-w-xl text-base leading-8 text-slate-600 md:text-lg">
               네이버 스토어에서 Parks Local Diving 투어를 이용한 고객님께 드리는 무료 혜택입니다.
-              사진을 업로드하면 보정 완료 후 이메일로 다운로드 링크를 보내드립니다.
+              카톡으로 받은 1회용 쿠폰코드를 입력하고 사진을 업로드하면 이 화면에서 바로 다운로드할 수 있습니다.
             </p>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {[
                 [FaImage, '최대 5장', '사진 자동 압축'],
                 [FaMagic, 'AI 보정', '색감/탁도/대비 개선'],
-                [FaEnvelope, '이메일 발송', '완료 후 링크 전달'],
+                [FaEnvelope, '마케팅 동의', '다음 투어 혜택 안내'],
               ].map(([Icon, title, text]) => {
                 const ItemIcon = Icon as typeof FaImage
                 return (
@@ -293,19 +295,23 @@ const PhotoCouponPage: React.FC = () => {
           <form className="rounded-2xl border border-sky-100 bg-white p-5 shadow-[0_24px_80px_rgba(14,165,233,0.18)] md:p-8" onSubmit={handleSubmit} noValidate>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-2 block text-sm font-bold text-slate-700">예약번호</span>
-                <input name="reservationNumber" className="w-full rounded-lg border border-sky-100 px-4 py-3 text-sm outline-none focus:border-cyan-500" placeholder="선택 입력" />
+                <span className="mb-2 block text-sm font-bold text-slate-700">쿠폰코드 *</span>
+                <input name="couponCode" required className="w-full rounded-lg border border-sky-100 px-4 py-3 text-sm font-black uppercase tracking-wide outline-none focus:border-cyan-500" placeholder="PARKS-0000-0000" />
               </label>
               <label className="block">
                 <span className="mb-2 block text-sm font-bold text-slate-700">구매자명 *</span>
                 <input name="buyerName" required className="w-full rounded-lg border border-sky-100 px-4 py-3 text-sm outline-none focus:border-cyan-500" placeholder="네이버 구매자명" />
               </label>
               <label className="block">
+                <span className="mb-2 block text-sm font-bold text-slate-700">예약번호</span>
+                <input name="reservationNumber" className="w-full rounded-lg border border-sky-100 px-4 py-3 text-sm outline-none focus:border-cyan-500" placeholder="선택 입력" />
+              </label>
+              <label className="block">
                 <span className="mb-2 block text-sm font-bold text-slate-700">전화번호 *</span>
                 <input name="phone" required className="w-full rounded-lg border border-sky-100 px-4 py-3 text-sm outline-none focus:border-cyan-500" placeholder="010-0000-0000" />
               </label>
               <label className="block">
-                <span className="mb-2 block text-sm font-bold text-slate-700">결과 받을 이메일 *</span>
+                <span className="mb-2 block text-sm font-bold text-slate-700">이메일 *</span>
                 <input name="email" type="email" required className="w-full rounded-lg border border-sky-100 px-4 py-3 text-sm outline-none focus:border-cyan-500" placeholder="diver@example.com" />
               </label>
             </div>
@@ -398,9 +404,7 @@ const PhotoCouponPage: React.FC = () => {
                   ))}
                 </div>
 
-                {couponStatus.submission.resultEmailSentAt && (
-                  <p className="mt-3 text-xs font-bold text-emerald-700">결과 이메일도 발송되었습니다.</p>
-                )}
+                <p className="mt-3 text-xs font-bold text-slate-500">결과는 이메일이 아니라 이 화면의 다운로드 버튼으로 받을 수 있습니다.</p>
               </div>
             )}
 
