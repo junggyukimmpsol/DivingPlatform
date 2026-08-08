@@ -448,45 +448,57 @@ const BranchPage: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
                 <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
-                <div className="text-slate-600 leading-relaxed mb-6 space-y-4">
-                  <ul className="list-disc list-inside space-y-2">
-                    {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
-                      <li key={idx}>{feature}</li>
-                    ))}
-                  </ul>
+                <div className="mb-6 grid gap-3 sm:grid-cols-3">
+                  {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
+                    <div key={idx} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
+                      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                        {String(idx + 1).padStart(2, '0')}
+                      </div>
+                      <p className="text-sm font-bold leading-6 text-slate-700">{feature}</p>
+                    </div>
+                  ))}
                 </div>
 
                 {currentBranch.id === 'cebu' && (
                   <div className="mb-8 space-y-6">
                     <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                      <div className="rounded-2xl bg-[#06334a] p-6 text-white">
+                      <div className="rounded-2xl bg-[#06334a] p-6 text-white shadow-[0_24px_70px_rgba(3,51,74,0.2)]">
                         <p className="mb-3 inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#06334a]">
                           세부 막탄 올 인클루시브 투어
                         </p>
                         <h4 className="text-3xl font-black leading-tight">
-                          가격, 픽업, 장비, 촬영까지
-                          <span className="block text-parks-gold">한 번에 준비합니다.</span>
+                          결제한 금액 그대로,
+                          <span className="block text-parks-gold">필수 추가금 ZERO.</span>
                         </h4>
-                        <p className="mt-4 text-sm leading-7 text-cyan-50/80">
+                        <p className="mt-4 text-sm font-semibold leading-7 text-cyan-50/90">
                           세부 1호점은 막탄 주요 다이빙 포인트를 중심으로 체험다이빙, 펀다이빙,
-                          스노클링, 해양 스포츠를 운영합니다. 처음 바다에 들어가는 분도 교육부터
-                          입수까지 천천히 적응할 수 있게 진행합니다.
+                          스노클링, 해양 스포츠를 운영합니다. 처음 바다에 들어가는 분도 한국어 안내와
+                          현지 가이드 케어를 통해 교육부터 입수까지 천천히 적응할 수 있게 진행합니다.
+                        </p>
+                        <p className="mt-4 rounded-xl bg-white/10 p-4 text-sm font-bold leading-6 text-white">
+                          장비 렌탈, 막탄 내 픽드랍, 보트 다이빙, 점심 한식, 환경세, 입장료,
+                          수중 사진/영상 촬영까지 투어 필수 항목에 포함됩니다.
                         </p>
                       </div>
 
                       <div className="grid gap-3 sm:grid-cols-2">
                         {[
-                          { icon: FaCheckCircle, title: '추가금 걱정 최소화', text: '장비 렌탈, 픽드랍, 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영 포함' },
-                          { icon: FaClock, title: '1회 35분 이상', text: '체험다이빙도 짧은 촬영이 아니라 교육과 수중 적응을 포함해 여유 있게 진행' },
-                          { icon: FaUsers, title: '전문 로컬 가이드', text: '2,000회 이상 진행 경험을 바탕으로 당일 바다 상황에 맞춰 안전하게 안내' },
-                          { icon: FaCertificate, title: 'PADI 5 Star 기준', text: '장비 점검과 안전 브리핑을 우선으로 하는 공식 다이빙샵 운영 기준' },
+                          { icon: FaCheckCircle, number: '01', title: '투어 필수 항목 추가금 ZERO', text: '장비 렌탈, 막탄 내 픽드랍, 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영 포함' },
+                          { icon: FaClock, number: '02', title: '1회 다이빙 35분 이상', text: '짧게 사진만 찍는 체험이 아니라 교육과 수중 적응 시간을 포함해 여유 있게 진행' },
+                          { icon: FaUsers, number: '03', title: '2,000회 이상 진행 가이드', text: '현지 바다 상황과 포인트를 잘 아는 가이드가 당일 컨디션에 맞춰 안전하게 안내' },
+                          { icon: FaCertificate, number: '04', title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 다이빙샵과 강사, 가이드 기준으로 초보자도 믿고 맡길 수 있게 구성' },
                         ].map((item) => {
                           const Icon = item.icon
                           return (
-                            <div key={item.title} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
-                              <Icon className="mb-3 text-cyan-600" size={22} />
-                              <h5 className="font-black text-[#06334a]">{item.title}</h5>
-                              <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
+                            <div key={item.title} className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-[0_14px_36px_rgba(8,145,178,0.1)]">
+                              <div className="mb-4 flex items-center justify-between gap-3">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#ffe66d] text-sm font-black text-[#06334a]">
+                                  {item.number}
+                                </div>
+                                <Icon className="text-cyan-600" size={22} />
+                              </div>
+                              <h5 className="text-lg font-black leading-6 text-[#06334a]">{item.title}</h5>
+                              <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{item.text}</p>
                             </div>
                           )
                         })}
@@ -510,9 +522,9 @@ const BranchPage: React.FC = () => {
                           ['12:00', '점심 식사'],
                           ['14:30', '3회 상품 종료/드랍'],
                         ].map(([time, label], index) => (
-                          <div key={`${time}-${label}`} className="rounded-xl bg-cyan-50 p-4">
+                          <div key={`${time}-${label}`} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
                             <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
-                              {index + 1}
+                              {String(index + 1).padStart(2, '0')}
                             </div>
                             <p className="font-black text-cyan-600">{time}</p>
                             <p className="mt-1 text-sm font-bold text-slate-700">{label}</p>
@@ -537,27 +549,43 @@ const BranchPage: React.FC = () => {
                     </div>
 
                     <div className="grid gap-4 lg:grid-cols-3">
-                      <div className="rounded-2xl bg-[#e8fbff] p-6">
-                        <FaMapMarkedAlt className="mb-4 text-cyan-600" size={26} />
+                      <div className="rounded-2xl bg-white p-6 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">01</div>
+                          <FaMapMarkedAlt className="text-cyan-600" size={26} />
+                        </div>
                         <h4 className="text-xl font-black text-[#06334a]">세부 포인트 Top 3</h4>
-                        <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
-                          <li><strong>콘티키</strong> - 정어리떼를 자주 볼 수 있는 인기 포인트</li>
-                          <li><strong>올랑고 섬</strong> - 산호와 열대어가 많은 해양국립공원</li>
-                          <li><strong>마리곤돈 동굴</strong> - 해저 동굴을 경험할 수 있는 대표 포인트</li>
-                        </ul>
+                        <div className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+                          {[
+                            ['1', '콘티키', '정어리떼를 자주 볼 수 있는 인기 포인트'],
+                            ['2', '올랑고 섬', '산호와 열대어가 많은 해양국립공원'],
+                            ['3', '마리곤돈 동굴', '해저 동굴을 경험할 수 있는 대표 포인트'],
+                          ].map(([number, name, text]) => (
+                            <div key={name} className="flex gap-3 rounded-xl bg-cyan-50 p-3">
+                              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-cyan-600 text-xs font-black text-white">{number}</span>
+                              <p><strong>{name}</strong> - {text}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="rounded-2xl bg-[#fff7d6] p-6">
-                        <FaCamera className="mb-4 text-amber-500" size={26} />
+                      <div className="rounded-2xl bg-white p-6 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">02</div>
+                          <FaCamera className="text-amber-500" size={26} />
+                        </div>
                         <h4 className="text-xl font-black text-[#06334a]">사진/영상 혜택</h4>
-                        <p className="mt-4 text-sm leading-6 text-slate-700">
+                        <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
                           투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 공유해드립니다.
                           사진 리뷰 이벤트 참여 시 추가 혜택도 받을 수 있습니다.
                         </p>
                       </div>
-                      <div className="rounded-2xl bg-[#eef4ff] p-6">
-                        <FaStar className="mb-4 text-blue-500" size={26} />
+                      <div className="rounded-2xl bg-white p-6 shadow-sm">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">03</div>
+                          <FaStar className="text-blue-500" size={26} />
+                        </div>
                         <h4 className="text-xl font-black text-[#06334a]">동행자도 함께</h4>
-                        <p className="mt-4 text-sm leading-6 text-slate-700">
+                        <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
                           자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서
                           연인/친구/가족이 함께 즐길 수 있습니다.
                         </p>
