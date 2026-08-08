@@ -622,9 +622,9 @@ export const translations = {
       },
       empty: '가격 정보가 준비 중입니다.',
       cebu: [
-        { program: '보트 체험다이빙 2회(+장비렌탈 + 점심)', balance: 105 },
-        { program: '보트 펀다이빙 2회(+장비렌탈 + 점심)', balance: 85 },
-        { program: '보트 펀다이빙 3회(+장비렌탈 + 점심)', balance: 95 },
+        { program: '보트 체험다이빙 2회(+장비렌탈 + 점심)', balance: 105, priceKrw: 140000 },
+        { program: '보트 펀다이빙 2회(+장비렌탈 + 점심)', balance: 85, priceKrw: 100000 },
+        { program: '보트 펀다이빙 3회(+장비렌탈 + 점심)', balance: 95, priceKrw: 120000 },
       ],
       bohol: [
         { program: '알로나 비치 체험 다이빙 2회(+장비렌탈)', balance: 105 },
@@ -1278,9 +1278,9 @@ export const translations = {
       },
       empty: 'Pricing information is being prepared.',
       cebu: [
-        { program: 'Boat Discovery Diving 2x (+Rental + Lunch)', balance: 105 },
-        { program: 'Boat Fun Diving 2x (+Rental + Lunch)', balance: 85 },
-        { program: 'Boat Fun Diving 3x (+Rental + Lunch)', balance: 95 },
+        { program: 'Boat Discovery Diving 2x (+Rental + Lunch)', balance: 105, priceKrw: 140000 },
+        { program: 'Boat Fun Diving 2x (+Rental + Lunch)', balance: 85, priceKrw: 100000 },
+        { program: 'Boat Fun Diving 3x (+Rental + Lunch)', balance: 95, priceKrw: 120000 },
       ],
       bohol: [
         { program: 'Alona Beach Discovery Diving 2x (+Rental)', balance: 105 },
@@ -1934,9 +1934,9 @@ export const translations = {
       },
       empty: '价格信息正在准备中。',
       cebu: [
-        { program: '船潜体验潜水 2次 (+装备租赁 + 午餐)', balance: 105 },
-        { program: '船潜休闲潜水 2次 (+装备租赁 + 午餐)', balance: 85 },
-        { program: '船潜休闲潜水 3次 (+装备租赁 + 午餐)', balance: 95 },
+        { program: '船潜体验潜水 2次 (+装备租赁 + 午餐)', balance: 105, priceKrw: 140000 },
+        { program: '船潜休闲潜水 2次 (+装备租赁 + 午餐)', balance: 85, priceKrw: 100000 },
+        { program: '船潜休闲潜水 3次 (+装备租赁 + 午餐)', balance: 95, priceKrw: 120000 },
       ],
       bohol: [
         { program: '阿罗纳海滩体验潜水 2次 (+装备租赁)', balance: 105 },

@@ -28,6 +28,7 @@ import {
 type TourProduct = {
   program: string
   balance: number
+  priceKrw?: number
 }
 
 type CartItem = {
@@ -106,6 +107,8 @@ const KAKAO_CHAT_URL = 'http://pf.kakao.com/_xhhbxcn/chat'
 const usdToKrw = (usd: number) => Math.round(usd * KRW_PER_USD)
 
 const formatKrw = (amount: number) => `${Math.round(amount).toLocaleString('ko-KR')}원`
+
+const getProductPriceKrw = (product: TourProduct) => product.priceKrw ?? usdToKrw(product.balance)
 
 const dateToInputValue = (date: Date) => {
   const year = date.getFullYear()
@@ -289,7 +292,7 @@ const BranchPage: React.FC = () => {
   })
   const canGoPreviousMonth = getMonthKey(calendarMonth) > getMonthKey(bookingStartMonth)
   const canGoNextMonth = getMonthKey(calendarMonth) < getMonthKey(bookingEndMonth)
-  const selectedProductPriceKrw = selectedProduct ? usdToKrw(selectedProduct.balance) : 0
+  const selectedProductPriceKrw = selectedProduct ? getProductPriceKrw(selectedProduct) : 0
   const totalAmount = selectedProductPriceKrw * guestCount
   const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
   const cartTotalGuests = cartItems.reduce((sum, item) => sum + item.guests, 0)
@@ -814,7 +817,7 @@ const BranchPage: React.FC = () => {
                         <tr key={index} className="hover:bg-cyan-50 transition-colors">
                           <td className="py-4 px-6 font-medium">{item.program}</td>
                           <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
-                            {formatKrw(usdToKrw(item.balance))}
+                            {formatKrw(getProductPriceKrw(item))}
                           </td>
                           <td className="py-4 px-6 text-right">
                             <button
@@ -838,7 +841,9 @@ const BranchPage: React.FC = () => {
                   </table>
                 </div>
                 <p className="mt-3 text-xs text-slate-500">
-                  1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.
+                  {currentBranch.id === 'cebu'
+                    ? '세부 상품은 원화 고정 결제 금액입니다.'
+                    : '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.'}
                 </p>
 
                 <div className="mt-6 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
@@ -1173,7 +1178,9 @@ const BranchPage: React.FC = () => {
                   {formatKrw(selectedProductPriceKrw)}
                   <span className="ml-1 text-sm font-bold text-slate-400">/ 1인</span>
                 </p>
-                <p className="mt-2 text-xs text-slate-500">1 USD = 1,550원 기준</p>
+                <p className="mt-2 text-xs text-slate-500">
+                  {selectedProduct.priceKrw ? '원화 고정가' : '1 USD = 1,550원 기준'}
+                </p>
               </div>
 
               <div className="grid gap-4">
