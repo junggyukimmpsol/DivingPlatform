@@ -7,6 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext'
 import { useAuth } from '../contexts/AuthContext'
 import {
   FaCamera,
+  FaCar,
   FaCalendarAlt,
   FaCertificate,
   FaCheckCircle,
@@ -79,6 +80,11 @@ type BranchPresentation = {
     snorkeling?: string
   }
   mealNotice?: {
+    title: string
+    description: string
+    items: { label: string; detail: string }[]
+  }
+  pickupNotice?: {
     title: string
     description: string
     items: { label: string; detail: string }[]
@@ -384,6 +390,71 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
       { nickname: 'jeff****', visitedAt: '2026.06 방문', product: '체험다이빙 2회', groupType: '모녀 여행', highlight: '엄마와 처음 다이빙했는데 니모도 보고 제일 기억에 남는 하루였어요.' },
     ],
   },
+  'nha-trang': {
+    includedTitle: '나트랑 투어 포함사항',
+    includedDescription: '나트랑 시내 무료 픽드랍, 장비렌탈, 보트 다이빙, 식사, 수중 사진/영상 촬영까지 하루 투어에 필요한 항목을 한 번에 포함합니다.',
+    includedItems: ['시내 무료 픽드랍', '장비 렌탈', '보트 다이빙', '식사 제공', '수중 사진/영상', '외곽 픽드랍 가능'],
+    refundItems: [
+      { label: '7일 전', value: '100% 환불' },
+      { label: '5일 전', value: '50% 환불' },
+      { label: '3일 전', value: '0% 환불' },
+    ],
+    heroBadge: '베트남 나트랑 보트 다이빙',
+    heroTitle: '시내 픽업부터 보트 다이빙까지,',
+    heroAccent: '나트랑 바다를 편하게 즐깁니다.',
+    heroDescription: '나트랑 지점은 오전 7시 픽업을 기준으로 보트 다이빙, 체험다이빙, 스노쿨링 호핑투어를 운영합니다. 나트랑 시내는 무료 픽드랍이 가능하고, 깜란 공항·다이아몬드 베이·아미아나 지역은 그룹별 왕복 추가요금으로 이용할 수 있습니다.',
+    heroNote: '픽드랍, 장비렌탈, 보트 다이빙, 식사, 수중 사진/영상 촬영까지 포함되어 처음 예약하는 고객도 추가 준비 없이 참여할 수 있습니다.',
+    featureCards: [
+      { icon: FaCar, title: '오전 7시 픽업', text: '나트랑 시내는 무료 픽업, 외곽 지역은 그룹별 왕복 추가요금으로 진행' },
+      { icon: FaCheckCircle, title: '핵심 포함사항 한 번에', text: '픽드랍, 장비렌탈, 보트 다이빙, 식사, 수중 사진/영상 촬영 포함' },
+      { icon: FaUsers, title: '다이버와 비다이버 동행 가능', text: '펀다이빙, 체험다이빙, 스노쿨링 호핑투어를 같은 일정 안에서 선택 가능' },
+      { icon: FaCertificate, title: '공식 샵 기준 운영', text: '장비 점검과 안전 브리핑 후 현지 바다 상황에 맞춰 안전하게 진행' },
+    ],
+    scheduleTitle: '나트랑 다이빙 투어 일정',
+    scheduleNote: '기본 픽업은 오전 7시이며, 지역별 픽드랍 추가요금은 그룹당 왕복 기준입니다.',
+    scheduleItems: [
+      { time: '07:00', label: '나트랑 시내 픽업' },
+      { time: '08:00', label: '보트 탑승 및 포인트 이동' },
+      { time: '09:00', label: '다이빙 교육/브리핑' },
+      { time: '10:00', label: '1번째 보트 다이빙' },
+      { time: '12:00', label: '식사 및 휴식' },
+      { time: '13:00', label: '2번째 다이빙/스노쿨링' },
+    ],
+    scheduleFootnote: '나트랑 시내는 무료 픽드랍이며, 깜란 공항 근처 35,000원, 다이아몬드 베이 30,000원, 아미아나 리조트 20,000원이 그룹당 왕복 기준으로 추가됩니다.',
+    topPointsTitle: '나트랑 포인트 Top 3',
+    topPoints: [
+      { name: '혼문섬', text: '나트랑 대표 보트 다이빙과 스노쿨링 포인트' },
+      { name: '나트랑 베이', text: '호핑투어와 바다 휴식을 함께 즐기기 좋은 지역' },
+      { name: '코랄 포인트', text: '초보 체험다이빙과 수중 촬영에 적합한 산호 포인트' },
+    ],
+    photoBenefitText: '투어 중 수중 사진과 영상을 촬영해 나트랑 바다에서의 장면을 여행 기록으로 남길 수 있게 도와드립니다.',
+    mixedDivingText: '자격증 보유자는 펀다이빙, 처음인 고객은 체험다이빙, 다이빙을 원하지 않는 동행자는 스노쿨링 호핑투어로 같은 일정 안에서 함께 참여할 수 있습니다.',
+    priceNote: '나트랑 상품은 원화 고정 결제 금액입니다. 나트랑 시내 픽드랍은 무료이며 외곽 지역은 그룹당 왕복 추가요금이 발생합니다.',
+    productCopy: {
+      discovery: '처음 다이빙하는 고객도 교육 후 보트 다이빙 2회를 경험할 수 있는 나트랑 추천 상품입니다.',
+      fun: '자격증 보유 다이버가 나트랑 보트 포인트를 합리적인 가격으로 즐기기 좋은 상품입니다.',
+      snorkeling: '다이빙을 하지 않아도 보트 이동과 식사, 바다 시간을 함께 즐길 수 있는 호핑투어입니다.',
+    },
+    pickupNotice: {
+      title: '나트랑 픽드랍 안내',
+      description: '오전 7시 픽업 기준입니다. 나트랑 시내는 무료이며, 외곽 지역은 그룹당 왕복 추가요금이 발생합니다.',
+      items: [
+        { label: '나트랑 시내', detail: '무료 픽드랍' },
+        { label: '깜란 공항 근처', detail: '그룹당 왕복 35,000원' },
+        { label: '다이아몬드 베이 지역', detail: '그룹당 왕복 30,000원' },
+        { label: '아미아나 리조트 지역', detail: '그룹당 왕복 20,000원' },
+      ],
+    },
+    reviewTitle: '나트랑 실제 이용 고객 후기',
+    reviewSubtitle: '나트랑 지점 후기는 준비 중입니다.',
+    reviewHighlights: [
+      { label: '기본 픽업', value: '시내 무료' },
+      { label: '대표 상품', value: '보트 다이빙' },
+      { label: '동행 선택', value: '스노쿨링 가능' },
+      { label: '포함사항', value: '식사·촬영 포함' },
+    ],
+    reviewMeta: [],
+  },
   bali: {
     includedTitle: '발리 투어 포함사항',
     includedDescription: '포인트별 이동과 장비, 식사 포함 여부를 예약 전에 확인해 발리 다이빙을 깔끔하게 준비할 수 있습니다.',
@@ -663,7 +734,7 @@ const BranchPage: React.FC = () => {
       eyebrow: 'Snorkeling',
       title: '다이버가 아니어도 함께 즐기는 코스',
       subtitle: '스노쿨링 호핑투어',
-      description: '다이빙을 하지 않는 동행자도 보홀 바다와 선상 투어를 함께 즐길 수 있는 코스입니다.',
+      description: '다이빙을 하지 않는 동행자도 바다와 선상 투어를 함께 즐길 수 있는 코스입니다.',
       entries: branchProductEntries.filter(({ product }) => isSnorkelingProduct(product.program)),
     },
   ].filter((section) => section.entries.length > 0)
@@ -895,6 +966,36 @@ const BranchPage: React.FC = () => {
                   )}
                   </div>
 
+                  {branchContent.pickupNotice && (
+                    <div className="rounded-2xl border border-sky-100 bg-sky-50 p-6">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex gap-4">
+                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#06334a] text-white">
+                            <FaCar size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Pickup Guide</p>
+                            <h4 className="mt-1 text-2xl font-black text-[#06334a]">{branchContent.pickupNotice.title}</h4>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                              {branchContent.pickupNotice.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2 lg:w-[52%]">
+                          {branchContent.pickupNotice.items.map((item, index) => (
+                            <div key={item.label} className="rounded-xl bg-white p-4 shadow-sm">
+                              <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                                {String(index + 1).padStart(2, '0')}
+                              </div>
+                              <p className="text-sm font-black text-cyan-700">{item.label}</p>
+                              <p className="mt-2 text-sm font-bold leading-6 text-slate-700">{item.detail}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   {branchContent.mealNotice && (
                     <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-6">
                       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -1085,6 +1186,33 @@ const BranchPage: React.FC = () => {
                       ))}
                     </div>
                   </div>
+
+                  {branchContent.pickupNotice && (
+                    <div className="rounded-2xl border border-sky-100 bg-sky-50 p-5">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex gap-4">
+                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#06334a] text-white">
+                            <FaCar size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Pickup Guide</p>
+                            <h4 className="mt-1 text-xl font-black text-[#06334a]">{branchContent.pickupNotice.title}</h4>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                              {branchContent.pickupNotice.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:w-[52%]">
+                          {branchContent.pickupNotice.items.map((item) => (
+                            <div key={item.label} className="rounded-xl bg-white px-4 py-3 shadow-sm">
+                              <p className="text-sm font-black text-cyan-700">{item.label}</p>
+                              <p className="mt-1 text-xs font-bold leading-5 text-slate-600">{item.detail}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="rounded-2xl border border-cyan-200 bg-[#e8fbff] p-5">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

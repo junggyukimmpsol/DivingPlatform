@@ -68,11 +68,11 @@ const HomePage: React.FC = () => {
               Parks Local Diving
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/90 drop-shadow md:text-xl">
-              세부, 보홀, 코타키나발루, 발리의 검증된 현지 다이빙 투어를 비교하고 예약하세요.
+              세부, 보홀, 코타키나발루, 발리, 나트랑의 검증된 현지 다이빙 투어를 비교하고 예약하세요.
             </p>
           </div>
 
-          <div className="grid max-w-5xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
+          <div className="grid max-w-6xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
             {DIVING_LOCATIONS.map((location, index) => {
               const locT = t.locations.locations[index]
               return (

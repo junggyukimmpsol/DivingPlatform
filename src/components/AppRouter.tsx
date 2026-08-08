@@ -30,11 +30,15 @@ const AppRouter: React.FC = () => {
       {/* Indonesia */}
       <Route path="/indonesia/bali" element={<BranchPage />} />
 
+      {/* Vietnam */}
+      <Route path="/vietnam/nha-trang" element={<BranchPage />} />
+
       {/* Legacy/Fallback redirects */}
       <Route path="/cebu" element={<Navigate to="/philippines/cebu" replace />} />
       <Route path="/bohol" element={<Navigate to="/philippines/bohol" replace />} />
       <Route path="/kota-kinabalu" element={<Navigate to="/malaysia/kota-kinabalu" replace />} />
       <Route path="/bali" element={<Navigate to="/indonesia/bali" replace />} />
+      <Route path="/nha-trang" element={<Navigate to="/vietnam/nha-trang" replace />} />
 
       {/* Catch-all redirect to home */}
       <Route path="*" element={<Navigate to="/" replace />} />

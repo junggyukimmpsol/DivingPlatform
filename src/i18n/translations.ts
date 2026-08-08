@@ -13,7 +13,7 @@ export const translations = {
       badge: 'PADI 5 Star Diving Shop',
       title1: 'Discover the',
       title2: "Ocean's Magic",
-      subtitle: '세부 · 보홀 · 코타키나발루 · 발리',
+      subtitle: '세부 · 보홀 · 코타키나발루 · 발리 · 나트랑',
       subtitleHighlight: 'Parks Local Diving',
       subtitleEnd: '과 함께하는',
       subtitlePremium: '프리미엄 다이빙',
@@ -22,7 +22,7 @@ export const translations = {
       watchVideo: '투어 영상 보기',
       scroll: 'Scroll',
       stats: [
-        { label: '지점', value: '4', sub: '세계 곳곳', icon: '🌏' },
+        { label: '지점', value: '5', sub: '세계 곳곳', icon: '🌏' },
         { label: '리뷰', value: '1,000+', sub: '5점 만점', icon: '⭐' },
         { label: '가격', value: '-30%', sub: '최저가 보장', icon: '💰' },
         { label: '안전', value: '100%', sub: 'PADI 인증', icon: '🛡️' },
@@ -57,7 +57,7 @@ export const translations = {
         },
         {
           icon: '🌍',
-          title: '전세계 4개 지점',
+          title: '전세계 5개 지점',
           highlight: '다이빙 샵 운영',
           description: '',
           highlight2: '고객 만족도 1위, 재구매율 1위',
@@ -107,7 +107,7 @@ export const translations = {
     locations: {
       badge: 'PADI 5 Star 공식 리조트',
       title: 'Parks Local Diving',
-      subtitle: '전세계 4개 지점',
+      subtitle: '전세계 5개 지점',
       subtitleEnd: '다이빙 샵 운영',
       description1: '고객 만족도 1위, 재구매율 1위',
       description2: '운영하여 소중한 여행을 저희에게 맡겨주세요!!',
@@ -164,6 +164,19 @@ export const translations = {
             { icon: '📷', name: '수중 촬영' },
             { icon: '🤿', name: '장비 렌탈' },
             { icon: '🏝️', name: '리조트 연계' },
+          ],
+        },
+        {
+          number: '5호점',
+          name: 'Nha Trang',
+          nameKo: '나트랑',
+          description: '시내 무료 픽업과 보트 다이빙',
+          features: ['혼문섬', '나트랑 베이', '호핑투어'],
+          services: [
+            { icon: '🚗', name: '시내 무료 픽업', highlight: true },
+            { icon: '🍽️', name: '식사 포함' },
+            { icon: '📷', name: '수중 촬영' },
+            { icon: '🤿', name: '장비 렌탈' },
           ],
         },
       ],
@@ -462,7 +475,7 @@ export const translations = {
         { title: '특별 할인 제공', subtitle: '단체 예약 시 추가 할인' },
         { title: '만족도 보장', subtitle: '5점 만점 리뷰 인증' },
       ],
-      trustBadges: ['PADI 5 Star', '1,000+ 고객', '4개 지점', '최저가 보장'],
+      trustBadges: ['PADI 5 Star', '1,000+ 고객', '5개 지점', '최저가 보장'],
     },
     videoGallery: {
       badge: '실제 다이빙 영상',
@@ -559,6 +572,7 @@ export const translations = {
         '보홀 (Bohol) - 2호점',
         '코타키나발루 - 3호점',
         '발리 (Bali) - 4호점',
+        '나트랑 (Nha Trang) - 5호점',
       ],
       servicesTitle: '주요 서비스',
       servicesList: ['체험 다이빙', '펀 다이빙', 'PADI 자격증 과정', '단체 투어', '수중 촬영'],
@@ -615,6 +629,14 @@ export const translations = {
           '쿠타/사누르 픽드랍 및 페리 서비스 포함 올인클루시브 케어',
         ],
       },
+      'nha-trang': {
+        title: '지점 특징 및 갤러리',
+        features: [
+          '오전 7시 나트랑 시내 무료 픽업',
+          '픽드랍, 장비렌탈, 보트 다이빙, 식사, 수중 사진/영상 촬영 포함',
+          '깜란 공항, 다이아몬드 베이, 아미아나 지역은 그룹별 왕복 추가요금 안내',
+        ],
+      },
     },
     branchPricing: {
       title: '투어 일정 및 옵션 별 가격',
@@ -654,6 +676,11 @@ export const translations = {
         { program: '누사 페니다 펀다이빙 2회', balance: 125 },
         { program: '누사 페니다 펀다이빙 3회', balance: 155 },
         { program: '누사 페니다 체험다이빙 2회', balance: 165 },
+      ],
+      'nha-trang': [
+        { program: '체험다이빙 2회', balance: 0, priceKrw: 140000 },
+        { program: '펀다이빙 2회', balance: 0, priceKrw: 110000 },
+        { program: '스노쿨링 호핑투어', balance: 0, priceKrw: 65000 },
       ],
     },
     branchTabs: {
@@ -703,7 +730,7 @@ export const translations = {
       badge: 'PADI 5 Star Diving Shop',
       title1: 'Discover the',
       title2: "Ocean's Magic",
-      subtitle: 'Cebu · Bohol · Kota Kinabalu · Bali',
+      subtitle: 'Cebu · Bohol · Kota Kinabalu · Bali · Nha Trang',
       subtitleHighlight: 'Parks Local Diving',
       subtitleEnd: ' - Your',
       subtitlePremium: 'Premium Diving',
@@ -712,7 +739,7 @@ export const translations = {
       watchVideo: 'Watch Tour Video',
       scroll: 'Scroll',
       stats: [
-        { label: 'Locations', value: '4', sub: 'Worldwide', icon: '🌏' },
+        { label: 'Locations', value: '5', sub: 'Worldwide', icon: '🌏' },
         { label: 'Reviews', value: '1,000+', sub: '5 Star Rating', icon: '⭐' },
         { label: 'Price', value: '-30%', sub: 'Best Price', icon: '💰' },
         { label: 'Safety', value: '100%', sub: 'PADI Certified', icon: '🛡️' },
@@ -747,7 +774,7 @@ export const translations = {
         },
         {
           icon: '🌍',
-          title: '4 Global Locations',
+          title: '5 Global Locations',
           highlight: 'Dive Shop Operations',
           description: '',
           highlight2: '#1 Customer Satisfaction, #1 Rebooking Rate',
@@ -797,7 +824,7 @@ export const translations = {
     locations: {
       badge: 'PADI 5 Star Official Resort',
       title: 'Parks Local Diving',
-      subtitle: '4 Global Locations',
+      subtitle: '5 Global Locations',
       subtitleEnd: ' Dive Shop Operations',
       description1: '#1 in customer satisfaction and rebooking rate',
       description2: 'Trust us with your precious vacation!!',
@@ -854,6 +881,19 @@ export const translations = {
             { icon: '📷', name: 'Photo/Video' },
             { icon: '🤿', name: 'Equipment' },
             { icon: '🏝️', name: 'Resort Link' },
+          ],
+        },
+        {
+          number: 'Branch 5',
+          name: 'Nha Trang',
+          nameKo: 'Vietnam',
+          description: 'City pick-up and boat diving included',
+          features: ['Hon Mun Island', 'Nha Trang Bay', 'Hopping Tour'],
+          services: [
+            { icon: '🚗', name: 'City Pick-up', highlight: true },
+            { icon: '🍽️', name: 'Meal Included' },
+            { icon: '📷', name: 'Photo/Video' },
+            { icon: '🤿', name: 'Equipment' },
           ],
         },
       ],
@@ -1121,7 +1161,7 @@ export const translations = {
         { title: 'Special Discounts', subtitle: 'Extra discount for groups' },
         { title: 'Satisfaction Guaranteed', subtitle: '5 Star Verified Reviews' },
       ],
-      trustBadges: ['PADI 5 Star', '1,000+ Customers', '4 Locations', 'Best Price'],
+      trustBadges: ['PADI 5 Star', '1,000+ Customers', '5 Locations', 'Best Price'],
     },
     videoGallery: {
       badge: 'Real Diving Footage',
@@ -1218,6 +1258,7 @@ export const translations = {
         'Bohol - Branch 2',
         'Kota Kinabalu - Branch 3',
         'Bali - Branch 4',
+        'Nha Trang - Branch 5',
       ],
       servicesTitle: 'Our Services',
       servicesList: ['Discovery Diving', 'Fun Diving', 'PADI Certification', 'Group Tours', 'Underwater Photography'],
@@ -1274,6 +1315,14 @@ export const translations = {
           'All-inclusive care including Kuta/Sanur pick-up/drop-off and ferry service',
         ],
       },
+      'nha-trang': {
+        title: 'Branch Features & Gallery',
+        features: [
+          'Free 7:00 AM pick-up within Nha Trang city',
+          'Pick-up/drop-off, rental gear, boat diving, meal, and underwater photo/video included',
+          'Round-trip group transfer surcharge applies for Cam Ranh Airport, Diamond Bay, and Amiana areas',
+        ],
+      },
     },
     branchPricing: {
       title: 'Tour Schedule & Pricing by Option',
@@ -1313,6 +1362,11 @@ export const translations = {
         { program: 'Nusa Penida Fun Diving 2x', balance: 125 },
         { program: 'Nusa Penida Fun Diving 3x', balance: 155 },
         { program: 'Nusa Penida Discovery Diving 2x', balance: 165 },
+      ],
+      'nha-trang': [
+        { program: 'Discovery Diving 2x', balance: 0, priceKrw: 140000 },
+        { program: 'Fun Diving 2x', balance: 0, priceKrw: 110000 },
+        { program: 'Snorkeling Hopping Tour', balance: 0, priceKrw: 65000 },
       ],
     },
     branchTabs: {
@@ -1362,7 +1416,7 @@ export const translations = {
       badge: 'PADI 5星潜水店',
       title1: 'Discover the',
       title2: "Ocean's Magic",
-      subtitle: '宿务 · 薄荷岛 · 亚庇 · 巴厘岛',
+      subtitle: '宿务 · 薄荷岛 · 亚庇 · 巴厘岛 · 芽庄',
       subtitleHighlight: 'Parks Local Diving',
       subtitleEnd: ' - 您的',
       subtitlePremium: '尊贵潜水',
@@ -1371,7 +1425,7 @@ export const translations = {
       watchVideo: '观看旅游视频',
       scroll: '滚动',
       stats: [
-        { label: '分店', value: '4', sub: '全球各地', icon: '🌏' },
+        { label: '分店', value: '5', sub: '全球各地', icon: '🌏' },
         { label: '评价', value: '1,000+', sub: '满分5星', icon: '⭐' },
         { label: '价格', value: '-30%', sub: '最低价保证', icon: '💰' },
         { label: '安全', value: '100%', sub: 'PADI认证', icon: '🛡️' },
@@ -1406,7 +1460,7 @@ export const translations = {
         },
         {
           icon: '🌍',
-          title: '全球4个分店',
+          title: '全球5个分店',
           highlight: '潜水店运营',
           description: '',
           highlight2: '客户满意度第一、复购率第一',
@@ -1456,7 +1510,7 @@ export const translations = {
     locations: {
       badge: 'PADI 5星官方度假村',
       title: 'Parks Local Diving',
-      subtitle: '全球4个分店',
+      subtitle: '全球5个分店',
       subtitleEnd: ' 潜水店运营',
       description1: '客户满意度第一、复购率第一',
       description2: '把您珍贵的假期交给我们吧！！',
@@ -1513,6 +1567,19 @@ export const translations = {
             { icon: '📷', name: '摄影摄像' },
             { icon: '🤿', name: '装备租赁' },
             { icon: '🏝️', name: '度假村链接' },
+          ],
+        },
+        {
+          number: '5号店',
+          name: 'Nha Trang',
+          nameKo: '芽庄',
+          description: '市区免费接送与船潜行程',
+          features: ['黑岛', '芽庄湾', '跳岛游'],
+          services: [
+            { icon: '🚗', name: '市区免费接', highlight: true },
+            { icon: '🍽️', name: '含餐食' },
+            { icon: '📷', name: '摄影摄像' },
+            { icon: '🤿', name: '装备租赁' },
           ],
         },
       ],
@@ -1780,7 +1847,7 @@ export const translations = {
         { title: '特别折扣', subtitle: '团体预订额外折扣' },
         { title: '满意保证', subtitle: '5星评价认证' },
       ],
-      trustBadges: ['PADI 5星', '1,000+客户', '4个分店', '最低价'],
+      trustBadges: ['PADI 5星', '1,000+客户', '5个分店', '最低价'],
     },
     videoGallery: {
       badge: '真实潜水视频',
@@ -1877,6 +1944,7 @@ export const translations = {
         '薄荷岛 - 2号店',
         '亚庇 - 3号店',
         '巴厘岛 - 4号店',
+        '芽庄 - 5号店',
       ],
       servicesTitle: '主要服务',
       servicesList: ['体验潜水', '休闲潜水', 'PADI认证课程', '团体旅游', '水下摄影'],
@@ -1933,6 +2001,14 @@ export const translations = {
           '包含库塔/萨努尔接送及轮渡服务的全包式照顾',
         ],
       },
+      'nha-trang': {
+        title: '分店特点与相册',
+        features: [
+          '早上7点芽庄市区免费接客',
+          '包含接送、装备租赁、船潜、餐食、水下照片/视频拍摄',
+          '金兰机场、钻石湾、阿米亚娜区域按团队收取往返接送附加费',
+        ],
+      },
     },
     branchPricing: {
       title: '行程安排与各选项价格',
@@ -1972,6 +2048,11 @@ export const translations = {
         { program: '佩尼达岛休闲潜水 2次', balance: 125 },
         { program: '佩尼达岛休闲潜水 3次', balance: 155 },
         { program: '佩尼达岛体验潜水 2次', balance: 165 },
+      ],
+      'nha-trang': [
+        { program: '体验潜水 2次', balance: 0, priceKrw: 140000 },
+        { program: '休闲潜水 2次', balance: 0, priceKrw: 110000 },
+        { program: '浮潜跳岛游', balance: 0, priceKrw: 65000 },
       ],
     },
     branchTabs: {

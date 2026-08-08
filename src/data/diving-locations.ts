@@ -22,9 +22,9 @@ export const MAP_CONFIG: MapConfig = {
   },
   geoBounds: {
     north: 20, // 북위 20도
-    south: 5,  // 북위 5도
+    south: -10, // 남위 10도
     east: 125, // 동경 125도
-    west: 115, // 동경 115도
+    west: 108, // 동경 108도
   },
   perspective: {
     value: 1500, // perspective 값 (px)
@@ -101,5 +101,22 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     icon: 'id',
     description: '만타 가오리 & 개복치 포인트(Nusa Penida) 포함 발리 전역 다이빙',
     path: '/indonesia/bali',
+  },
+
+  // 베트남 - 나트랑 (Nha Trang)
+  {
+    id: 'nha-trang',
+    name: 'Nha Trang',
+    nameKo: '나트랑',
+    coordinates: {
+      lat: 12.2388,
+      lng: 109.1967,
+      x: 300,
+      y: 330,
+    },
+    color: 'from-red-500 to-red-700',
+    icon: 'vn',
+    description: '나트랑 시내 무료 픽업과 보트 다이빙, 식사, 수중 촬영 포함 투어',
+    path: '/vietnam/nha-trang',
   },
 ]

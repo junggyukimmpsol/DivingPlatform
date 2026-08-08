@@ -28,7 +28,8 @@ export const REVIEW_DATA: Record<Language, Record<CenterId, string[]>> = {
       "여행 가서 제일 재밌었던 게 스쿠버다이빙이에요!! 처음에 배 타고 사피섬으로 갔을 때는 서울에서 웬만한 바다에서 배 타고 도는 것보다 재밌었고 언어의 장벽 때문에 못 하면 어떡하지? 했는데 다 알아들을 수 있게 잘 설명해 주시고 얕은 곳에서 시뮬레이션 먼저 하고 진행해서 수월하게 할 수 있었어요. 박물관에서 봤던 물고기도 실제로 보는 기회가 돼서 너무 신기하고 좋았어요!! 너무 재미있는 하루가 됐고 다시 기회 되면 또 가고 싶어요!☺️",
       "이번 자유여행 기간 중에 해양스포츠 관련해서 이것저것 알아보다가 스킨스쿠버에 관심을 갖게 돼서 위 업체를 알아보게 되었고 전문 자격증을 갖고 계신 강사님이 2:1로 하나하나 친절하게 알려주시고 케어해 주셔서 즐거운 다이빙 하고 코타키나발루에서 가장 즐거운 시간을 보냈던 것 같아요.",
       "엄마랑 체험 다이빙 처음 해봤는데 니모도 보고 너무 재미있었어요:) 첫 다이빙 도와준 재프 감사합니다."
-    ]
+    ],
+    'nha-trang': []
   },
   en: {
     bali: [
@@ -56,7 +57,8 @@ export const REVIEW_DATA: Record<Language, Record<CenterId, string[]>> = {
       "Diving was the best part of our trip! Taking the boat to Sapi Island was better than any boat trip in Seoul. I was worried about the language barrier, but they explained everything clearly and we practiced in shallow water first. Seeing fish I'd only seen in museums in real life was fascinating. It was an amazing day, and I want to go again! ☺️",
       "During our free travel trip, I became interested in scuba diving and found this shop. Professional certified instructors provided 1:1 care and kind instruction. It was the most enjoyable time we had in Kota Kinabalu.",
       "First diving experience with my mom! We saw Nemo and it was a blast. Thanks to Jeff for being such a great help."
-    ]
+    ],
+    'nha-trang': []
   },
   zh: {
     bali: [
@@ -84,6 +86,7 @@ export const REVIEW_DATA: Record<Language, Record<CenterId, string[]>> = {
       "潜水是整个旅程中最棒的部分！乘船前往沙比岛的体验非常好。原本担心语言不通，但教练讲解得非常清晰，我们先在浅水区进行了练习。在现实中看到之前博物馆见过的鱼类非常有成就感。完美的一天！☺️",
       "在自由行期间，我对水肺潜水产生了兴趣。专业认证教练提供了一对一的照顾和亲切的指导。这是我们在亚庇度过的最愉快的时光。",
       "和妈妈第一次尝试潜水！见到了尼莫，玩得很开心。感谢Jeff教练的全程帮助。"
-    ]
+    ],
+    'nha-trang': []
   }
 }

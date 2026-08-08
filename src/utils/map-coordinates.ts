@@ -12,6 +12,7 @@ export const COLOR_MAP: Record<string, { start: string; end: string }> = {
   'from-purple-500 to-purple-700': { start: '#a855f7', end: '#7e22ce' },
   'from-emerald-500 to-emerald-700': { start: '#10b981', end: '#047857' },
   'from-orange-500 to-orange-700': { start: '#f97316', end: '#c2410c' },
+  'from-red-500 to-red-700': { start: '#ef4444', end: '#b91c1c' },
 }
 
 export const getGradientColors = (colorClass: string) => {
