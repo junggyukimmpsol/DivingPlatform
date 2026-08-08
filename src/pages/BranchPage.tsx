@@ -800,9 +800,6 @@ const BranchPage: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
                 <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchPricing.title}</h3>
-                <p className="text-slate-600 leading-relaxed mb-6">
-                  {displayName}{t.branchPricing.subtitle}
-                </p>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left bg-white rounded-xl overflow-hidden shadow-sm">
                     <thead>
