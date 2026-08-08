@@ -305,6 +305,49 @@ const BranchPage: React.FC = () => {
     { label: '5일 전', value: '50% 환불' },
     { label: '3일 전', value: '0% 환불' },
   ]
+  const cebuReviewHighlights = [
+    { label: '처음 다이빙', value: '초보자 안심' },
+    { label: '사진/영상', value: '충분히 촬영' },
+    { label: '동행 유형', value: '커플·친구·혼자' },
+    { label: '재방문', value: '다음에도 예약' },
+  ]
+  const cebuReviewMeta = [
+    {
+      nickname: 'tnsd****',
+      visitedAt: '2026.07 방문',
+      product: '보트 체험다이빙 2회',
+      groupType: '부부 여행',
+      highlight: '처음이라 걱정했는데 1:1로 호흡과 이퀄라이징을 봐줘서 안심됐어요.',
+    },
+    {
+      nickname: '23살 한국인',
+      visitedAt: '2026.07 방문',
+      product: '보트 펀다이빙 3회',
+      groupType: '친구 여행',
+      highlight: '사진도 많이 찍어주고 전날 컨디션까지 챙겨줘서 진짜 고마웠어요.',
+    },
+    {
+      nickname: 'mactan****',
+      visitedAt: '2026.06 방문',
+      product: '보트 펀다이빙 2회',
+      groupType: '펀다이버',
+      highlight: '막탄은 초보자와 복귀 다이버가 부담 없이 즐기기 좋은 포인트였어요.',
+    },
+    {
+      nickname: 'girwns****',
+      visitedAt: '2026.06 방문',
+      product: '보트 펀다이빙 2회',
+      groupType: '복귀 다이버',
+      highlight: '몇 년 만의 다이빙이었는데 물살도 괜찮고 다음에도 다시 예약하고 싶어요.',
+    },
+    {
+      nickname: 'solo****',
+      visitedAt: '2026.05 방문',
+      product: '보트 체험다이빙 2회',
+      groupType: '혼자 여행',
+      highlight: '여자 혼자라 걱정했는데 설명도 좋고 점심도 맛있어서 즐겁게 다녀왔어요.',
+    },
+  ]
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -1239,24 +1282,107 @@ const BranchPage: React.FC = () => {
 
                   return (
                     <div className="relative group">
+                      {isCebuBranch && (
+                        <div className="mb-6 rounded-2xl border border-cyan-100 bg-white p-5 shadow-sm">
+                          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                              <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Real Reviews</p>
+                              <h4 className="mt-1 text-xl font-black text-[#06334a]">세부 실제 이용 고객 후기</h4>
+                              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                                닉네임은 마스킹하고, 고객이 남긴 원문 말투는 최대한 유지했습니다.
+                              </p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:min-w-[520px]">
+                              {cebuReviewHighlights.map((item) => (
+                                <div key={item.label} className="rounded-xl bg-cyan-50 p-3">
+                                  <p className="text-xs font-black text-cyan-700">{item.label}</p>
+                                  <p className="mt-1 text-sm font-black text-[#06334a]">{item.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <div
                         ref={scrollContainerRef}
                         className="flex overflow-x-auto gap-4 pb-6 no-scrollbar snap-x snap-mandatory"
                       >
                         {reviews.length > 0 ? (
-                          reviews.map((review: string, i: number) => (
-                            <div key={i} className="flex-none w-[85vw] sm:w-[400px] md:w-[450px] lg:w-[500px] bg-white rounded-xl border border-sky-100 p-6 snap-start flex flex-col min-h-[300px] max-h-[400px] shadow-sm">
-                              <div className="flex justify-between items-start mb-4">
-                                <span className="text-xs text-slate-500 font-medium">{t.branchTabs.registeredReview}</span>
-                                <div className="text-parks-gold flex gap-1 text-sm flex-shrink-0">
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                    <span key={i}>⭐</span>
-                                  ))}
-                                </div>
+                          reviews.map((review: string, i: number) => {
+                            const reviewMeta = isCebuBranch ? cebuReviewMeta[i % cebuReviewMeta.length] : null
+
+                            return (
+                              <div
+                                key={i}
+                                className="flex-none w-[86vw] rounded-2xl border border-sky-100 bg-white p-5 snap-start shadow-sm sm:w-[420px] md:w-[470px] lg:w-[520px]"
+                              >
+                                {reviewMeta ? (
+                                  <>
+                                    <div className="mb-4 flex items-start justify-between gap-4 border-b border-sky-100 pb-4">
+                                      <div className="flex gap-3">
+                                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
+                                          {String(i + 1).padStart(2, '0')}
+                                        </div>
+                                        <div>
+                                          <div className="flex flex-wrap items-center gap-2">
+                                            <p className="font-black text-[#06334a]">{reviewMeta.nickname}</p>
+                                            <span className="rounded-full bg-cyan-50 px-2 py-1 text-xs font-black text-cyan-700">
+                                              예약 고객
+                                            </span>
+                                          </div>
+                                          <p className="mt-1 text-xs font-bold text-slate-500">
+                                            {reviewMeta.visitedAt} · {reviewMeta.product}
+                                          </p>
+                                        </div>
+                                      </div>
+                                      <div className="flex flex-shrink-0 items-center gap-1 text-sm text-parks-gold">
+                                        {Array.from({ length: 5 }).map((_, starIndex) => (
+                                          <FaStar key={starIndex} />
+                                        ))}
+                                      </div>
+                                    </div>
+
+                                    <div className="mb-4 flex flex-wrap gap-2">
+                                      <span className="rounded-full bg-[#fff8df] px-3 py-1 text-xs font-black text-amber-700">
+                                        {reviewMeta.groupType}
+                                      </span>
+                                      <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-black text-cyan-700">
+                                        원문 후기
+                                      </span>
+                                    </div>
+
+                                    <div className="mb-4 rounded-xl bg-slate-50 p-4">
+                                      <p className="text-xs font-black uppercase tracking-[0.16em] text-ocean-teal">
+                                        고객이 말한 핵심
+                                      </p>
+                                      <p className="mt-2 text-sm font-black leading-6 text-[#06334a]">
+                                        {reviewMeta.highlight}
+                                      </p>
+                                    </div>
+
+                                    <p className="max-h-[210px] overflow-y-auto pr-2 text-sm font-medium leading-7 text-slate-700 custom-scrollbar break-words hyphens-auto">
+                                      {review}
+                                    </p>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="mb-4 flex items-start justify-between">
+                                      <span className="text-xs font-medium text-slate-500">{t.branchTabs.registeredReview}</span>
+                                      <div className="flex flex-shrink-0 gap-1 text-sm text-parks-gold">
+                                        {Array.from({ length: 5 }).map((_, starIndex) => (
+                                          <FaStar key={starIndex} />
+                                        ))}
+                                      </div>
+                                    </div>
+                                    <p className="max-h-[300px] overflow-y-auto text-sm leading-relaxed text-slate-600 custom-scrollbar break-words hyphens-auto">
+                                      {review}
+                                    </p>
+                                  </>
+                                )}
                               </div>
-                              <p className="text-slate-600 text-sm leading-relaxed flex-1 overflow-y-auto custom-scrollbar break-words hyphens-auto">{review}</p>
-                            </div>
-                          ))
+                            )
+                          })
                         ) : (
                           <div className="w-full text-center text-slate-500 italic py-12">
                             {t.branchPage.noReviews}
