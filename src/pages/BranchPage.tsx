@@ -605,10 +605,10 @@ const BranchPage: React.FC = () => {
                           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">03</div>
                           <FaStar className="text-blue-500" size={26} />
                         </div>
-                        <h4 className="text-xl font-black text-[#06334a]">동행자도 함께</h4>
+                        <h4 className="text-xl font-black text-[#06334a]">펀다이빙 + 체험다이빙 동행 가능</h4>
                         <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
-                          자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서
-                          연인/친구/가족이 함께 즐길 수 있습니다.
+                          자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정과 같은 보트 안에서
+                          각자 수준에 맞게 즐길 수 있습니다.
                         </p>
                       </div>
                     </div>
@@ -829,6 +829,28 @@ const BranchPage: React.FC = () => {
                             <p className="text-sm font-black text-[#06334a]">{item}</p>
                           </div>
                         ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-cyan-200 bg-[#e8fbff] p-5">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="flex gap-4">
+                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#06334a] text-white">
+                            <FaUsers size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Together</p>
+                            <h4 className="mt-1 text-xl font-black text-[#06334a]">펀다이빙 + 체험다이빙 동행 가능</h4>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                              자격증이 있는 일행은 펀다이빙, 처음인 일행은 체험다이빙으로 같은 일정 안에서 함께 출발하고 함께 즐길 수 있습니다.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 md:justify-end">
+                          <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">자격증 보유자</span>
+                          <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">다이빙 처음</span>
+                          <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">같은 보트/일정</span>
+                        </div>
                       </div>
                     </div>
 
