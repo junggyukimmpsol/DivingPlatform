@@ -321,17 +321,17 @@ export const translations = {
           location: '[코타키나발루]\n사피 섬\n(다이빙)',
           type: '보트 체험 다이빙 2회',
           duration: '(1회 교육 다이빙 - 25분~30분\n1회 다이빙(정) 40분 이상)',
-          competitor: '18만원\n($ 130)',
-          parks: '12만원',
-          savings: '(6만원 SAVE)',
+          competitor: '18만원',
+          parks: '18만원',
+          savings: '(원화 고정가)',
         },
         {
           location: '[코타키나발루]\n마무틱 섬\n(다이빙)',
-          type: '펀다이빙 2회',
+          type: '펀다이빙 3회',
           duration: '(1회 다이빙시 40분 이상)',
-          competitor: '19만원\n($ 135)',
-          parks: '13만원',
-          savings: '(6만원 SAVE)',
+          competitor: '18만원',
+          parks: '18만원',
+          savings: '(원화 고정가)',
         },
 
         // === 발리 지점 ===
@@ -617,6 +617,7 @@ export const translations = {
         title: '지점 특징 및 갤러리',
         features: [
           'Tunku Abdul Rahman Marine Park의 청정 해역에서 모든 다이빙 진행',
+          '오전 중 2회 다이빙 후 점심 식사, 펀다이빙 3회 상품은 오후 3번째 다이빙 진행',
           '가야섬 레스토랑 내 10가지 이상의 다양한 점심 메뉴 선택 가능',
           '운이 좋으면 고래상어를 만날 수 있는 포인트 보유',
         ],
@@ -663,8 +664,8 @@ export const translations = {
         { program: '스노쿨링 호핑투어', balance: 0, priceKrw: 70000 },
       ],
       'kota-kinabalu': [
-        { program: '아일랜드 보트 체험다이빙 2회(올 인클루시브)', balance: 110 },
-        { program: '아일랜드 보트 펀다이빙 3회(올 인클루시브)', balance: 110 },
+        { program: '아일랜드 보트 체험다이빙 2회(올 인클루시브)', balance: 0, priceKrw: 180000 },
+        { program: '아일랜드 보트 펀다이빙 3회(올 인클루시브)', balance: 0, priceKrw: 180000 },
       ],
       bali: [
         { program: '뚤람벤 체험다이빙 2회(+장비렌탈 + 점심)', balance: 105 },
@@ -1304,6 +1305,7 @@ export const translations = {
         title: 'Branch Features & Gallery',
         features: [
           'All dives held in the pristine waters of Tunku Abdul Rahman Marine Park',
+          'Two morning dives, lunch, then a third afternoon dive for the 3-dive fun diving package',
           'Choose from over 10 different lunch menus at Gaya Island restaurant',
           'Points where you might spot whale sharks if you\'re lucky',
         ],
@@ -1350,8 +1352,8 @@ export const translations = {
         { program: 'Snorkeling Hopping Tour', balance: 0, priceKrw: 70000 },
       ],
       'kota-kinabalu': [
-        { program: 'Island Boat Discovery Diving 2x (All-inclusive)', balance: 110 },
-        { program: 'Island Boat Fun Diving 3x (All-inclusive)', balance: 110 },
+        { program: 'Island Boat Discovery Diving 2x (All-inclusive)', balance: 0, priceKrw: 180000 },
+        { program: 'Island Boat Fun Diving 3x (All-inclusive)', balance: 0, priceKrw: 180000 },
       ],
       bali: [
         { program: 'Tulamben Discovery Diving 2x (+Rental + Lunch)', balance: 105 },
@@ -1991,6 +1993,7 @@ export const translations = {
         title: '分店特点与相册',
         features: [
           '在东姑阿都拉曼海洋公园的纯净海域进行所有潜水',
+          '上午进行2次潜水，午餐后休闲潜水3次套餐继续进行第3次潜水',
           '伽耶岛餐厅内10种以上多样午餐菜单供选',
           '有机会遇见鲸鲨的特色潜点',
         ],
@@ -2037,8 +2040,8 @@ export const translations = {
         { program: '浮潜跳岛游', balance: 0, priceKrw: 70000 },
       ],
       'kota-kinabalu': [
-        { program: '海岛船潜体验潜水 2次 (全包)', balance: 110 },
-        { program: '海岛船潜休闲潜水 3次 (全包)', balance: 110 },
+        { program: '海岛船潜体验潜水 2次 (全包)', balance: 0, priceKrw: 180000 },
+        { program: '海岛船潜休闲潜水 3次 (全包)', balance: 0, priceKrw: 180000 },
       ],
       bali: [
         { program: '图兰本体验潜水 2次 (+装备租赁 + 午餐)', balance: 105 },
