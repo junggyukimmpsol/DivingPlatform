@@ -65,7 +65,7 @@ type PortOnePaymentRequest = {
   paymentId: string
   orderName: string
   totalAmount: number
-  currency: 'CURRENCY_KRW'
+  currency: 'KRW'
   payMethod: 'CARD'
   customer?: {
     fullName?: string
@@ -390,7 +390,7 @@ const BranchPage: React.FC = () => {
         paymentId: prepared.paymentId,
         orderName: prepared.orderName,
         totalAmount: prepared.totalAmount,
-        currency: 'CURRENCY_KRW',
+        currency: 'KRW',
         payMethod: 'CARD',
         customer: {
           fullName: prepared.customer?.fullName || checkoutCustomer.name,
