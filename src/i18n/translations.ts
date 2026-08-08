@@ -343,13 +343,13 @@ export const translations = {
       notes: [
         {
           number: '1',
-          text: '모든 투어는 올인클루시브 패키지입니다. (장비 렌탈, 픽드랍, 점심 식사, 환경세, 입장료, 수중 촬영 포함)',
+          text: '지점과 상품에 따라 장비 렌탈, 식사/간식, 환경세, 입장료, 수중 촬영 등 포함사항이 다릅니다.',
           highlight: 'Parks Local Diving',
         },
         {
           number: '2',
-          text: '지점별 픽드랍 서비스: 세부(막탄 내 무료), 보홀(막탄 내 무료), 코타키나발루·발리(별도 문의)',
-          subtext: '',
+          text: '지점별 이동 안내: 세부(막탄 내 무료 픽드랍), 보홀(픽드랍 미제공·알로나비치 메인 위치), 코타키나발루·발리(별도 문의)',
+          subtext: '세부와 보홀은 투어 당일 캐리어 무료 보관이 가능합니다.',
         },
         {
           number: '3',
@@ -585,6 +585,7 @@ export const translations = {
         title: '지점 특징 및 갤러리',
         features: [
           '막탄 내 픽업/드랍 무료 제공',
+          '투어 당일 캐리어 무료 보관 가능',
           '정성스러운 한식 점심 제공',
           '안전하고 쾌적한 보트 다이빙 진행',
         ],
@@ -592,6 +593,8 @@ export const translations = {
       bohol: {
         title: '지점 특징 및 갤러리',
         features: [
+          '픽드랍은 제공하지 않지만 알로나비치 메인 위치로 접근성이 매우 좋음',
+          '투어 당일 캐리어 무료 보관 가능',
           '비치 다이빙: 알로나 비치 근방의 아름다운 연안 다이빙',
           '보트 다이빙: 알로나 비치 산호 직벽 포인트 또는 파말라칸 아일랜드 선택 가능',
         ],
@@ -999,18 +1002,18 @@ export const translations = {
       notes: [
         {
           number: '1',
-          text: ' tours include free Mactan pick-up/drop-off as an all-inclusive package.',
-          highlight: 'All Bohol',
+          text: 'Inclusions vary by branch and product, including rental gear, meals/snacks, environmental fees, entrance fees, and underwater media.',
+          highlight: 'Parks Local Diving',
         },
         {
           number: '2',
-          text: 'Tour Schedule (Free pick-up/drop-off)',
-          subtext: '(Hotel pickup → Diving point → Lunch → Hotel drop-off)',
+          text: 'Transfer guide: Cebu offers free Mactan pick-up/drop-off. Bohol does not offer pick-up/drop-off but is located on main Alona Beach.',
+          subtext: 'Free luggage storage is available for Cebu and Bohol tour guests.',
         },
         {
           number: '3',
-          text: 'All tours include free pick-up/drop-off service,',
-          subtext: 'safely and comfortably returning you to your hotel.',
+          text: 'Prices are for reference and may be confirmed again at booking.',
+          subtext: '',
         },
       ],
       discountHighlight: [
@@ -1241,6 +1244,7 @@ export const translations = {
         title: 'Branch Features & Gallery',
         features: [
           'Free pick-up/drop-off within Mactan',
+          'Free luggage storage on the tour day',
           'Quality Korean lunch provided',
           'Safe and comfortable boat diving',
         ],
@@ -1248,6 +1252,8 @@ export const translations = {
       bohol: {
         title: 'Branch Features & Gallery',
         features: [
+          'No pick-up/drop-off, but easy access from the main Alona Beach area',
+          'Free luggage storage on the tour day',
           'Beach Diving: Beautiful coastal diving near Alona Beach',
           'Boat Diving: Choose between Alona Beach coral wall or Pamilacan Island',
         ],
@@ -1655,18 +1661,18 @@ export const translations = {
       notes: [
         {
           number: '1',
-          text: '的所有行程包含麦克坦免费接送的全包套餐。',
-          highlight: '薄荷岛',
+          text: '各分店和项目的包含事项不同，可能包括装备租赁、餐食/水果、环境税、入场费和水下拍摄等。',
+          highlight: 'Parks Local Diving',
         },
         {
           number: '2',
-          text: '行程安排（免费接送）',
-          subtext: '（酒店接客 → 潜水点 → 午餐 → 送回酒店）',
+          text: '接送说明：宿务提供麦克坦区域免费接送；薄荷岛不提供接送，但位于阿罗娜海滩主街，交通方便。',
+          subtext: '宿务和薄荷岛游客当天可免费寄存行李。',
         },
         {
           number: '3',
-          text: '所有行程包含免费接送服务，',
-          subtext: '安全舒适地送您回酒店。',
+          text: '价格仅供参考，实际金额请以预约时确认为准。',
+          subtext: '',
         },
       ],
       discountHighlight: [
@@ -1897,6 +1903,7 @@ export const translations = {
         title: '分店特点与相册',
         features: [
           '麦克坦区域内免费接送',
+          '行程当天可免费寄存行李',
           '精心准备的韩式午餐',
           '安全舒心的船潜体验',
         ],
@@ -1904,6 +1911,8 @@ export const translations = {
       bohol: {
         title: '分店特点与相册',
         features: [
+          '不提供接送，但位于阿罗娜海滩主街，交通非常方便',
+          '行程当天可免费寄存行李',
           '岸潜：阿罗纳海滩附近的优美海岸潜水',
           '船潜：可选阿罗纳海滩珊瑚墙潜点或帕米拉坎岛',
         ],

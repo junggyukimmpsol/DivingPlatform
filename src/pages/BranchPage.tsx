@@ -19,6 +19,7 @@ import {
   FaPlus,
   FaShoppingCart,
   FaStar,
+  FaSuitcase,
   FaTimes,
   FaTrash,
   FaUtensils,
@@ -185,8 +186,8 @@ const getProductMealNote = (branchId: CenterId, program: string) => {
 const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
   cebu: {
     includedTitle: '세부 투어 포함사항',
-    includedDescription: '아래 항목은 투어 필수 구성에 포함되어 있어 현장에서 별도 추가금 걱정 없이 예약할 수 있습니다.',
-    includedItems: ['장비 렌탈', '막탄 픽드랍', '점심 한식', '환경세·입장료', '수중 사진/영상', '보트 다이빙'],
+    includedDescription: '아래 항목은 투어 필수 구성에 포함되어 있어 현장에서 별도 추가금 걱정 없이 예약할 수 있습니다. 투어 당일 캐리어도 무료로 보관해드립니다.',
+    includedItems: ['장비 렌탈', '막탄 픽드랍', '캐리어 무료 보관', '점심 한식', '환경세·입장료', '수중 사진/영상', '보트 다이빙'],
     refundItems: [
       { label: '7일 전', value: '100% 환불' },
       { label: '5일 전', value: '50% 환불' },
@@ -196,12 +197,13 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     heroTitle: '결제한 금액 그대로,',
     heroAccent: '필수 추가금 ZERO.',
     heroDescription: '세부 1호점은 막탄 주요 다이빙 포인트를 중심으로 체험다이빙, 펀다이빙, 스노클링, 해양 스포츠를 운영합니다. 처음 바다에 들어가는 분도 한국어 안내와 현지 가이드 케어를 통해 교육부터 입수까지 천천히 적응할 수 있게 진행합니다.',
-    heroNote: '장비 렌탈, 막탄 내 픽드랍, 보트 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영까지 투어 필수 항목에 포함됩니다.',
+    heroNote: '장비 렌탈, 막탄 내 픽드랍, 보트 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영과 캐리어 무료 보관까지 투어 필수 항목에 포함됩니다.',
     featureCards: [
       { icon: FaCheckCircle, title: '투어 필수 항목 추가금 ZERO', text: '장비 렌탈, 막탄 내 픽드랍, 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영 포함' },
       { icon: FaClock, title: '1회 다이빙 35분 이상', text: '짧게 사진만 찍는 체험이 아니라 교육과 수중 적응 시간을 포함해 여유 있게 진행' },
       { icon: FaUsers, title: '2,000회 이상 진행 가이드', text: '현지 바다 상황과 포인트를 잘 아는 가이드가 당일 컨디션에 맞춰 안전하게 안내' },
       { icon: FaCertificate, title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 다이빙샵과 강사, 가이드 기준으로 초보자도 믿고 맡길 수 있게 구성' },
+      { icon: FaSuitcase, title: '캐리어 무료 보관', text: '체크아웃 후 바로 투어에 참여하는 고객도 캐리어를 맡기고 편하게 다이빙 가능' },
     ],
     scheduleTitle: '세부 다이빙 투어 일정',
     scheduleNote: '상품과 당일 해양 상황에 따라 시간은 조정될 수 있습니다.',
@@ -227,7 +229,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     ],
     photoBenefitText: '투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 공유해드립니다. 사진 리뷰 이벤트 참여 시 추가 혜택도 받을 수 있습니다.',
     mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정과 같은 보트 안에서 각자 수준에 맞게 즐길 수 있습니다.',
-    priceNote: '세부 상품은 원화 고정 결제 금액입니다.',
+    priceNote: '세부 상품은 원화 고정 결제 금액이며, 막탄 내 픽드랍과 캐리어 무료 보관이 가능합니다.',
     productCopy: {
       discovery: '처음 다이빙하는 고객도 교육부터 입수까지 천천히 진행하는 기본 추천 상품입니다.',
       fun: '자격증 보유 다이버가 막탄 포인트를 여유 있게 즐기기 좋은 상품입니다.',
@@ -250,20 +252,22 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
   },
   bohol: {
     includedTitle: '보홀 투어 포함사항',
-    includedDescription: '포인트별 포함사항과 식사 제공 기준을 예약 전 한 번에 확인하고, 안내된 금액 기준으로 필수 추가금 없이 준비할 수 있습니다.',
-    includedItems: ['장비 렌탈', '보트 다이빙', '포인트 예약', '환경세·입장료', '수중 사진/영상', '상품별 식사·과일'],
+    includedDescription: '보홀은 픽드랍을 제공하지 않지만 알로나비치 메인에 위치해 직접 방문이 쉽습니다. 포인트별 포함사항과 식사 제공 기준도 예약 전 한 번에 확인할 수 있습니다.',
+    includedItems: ['장비 렌탈', '알로나비치 메인 위치', '캐리어 무료 보관', '포인트 예약', '환경세·입장료', '수중 사진/영상', '상품별 식사·과일'],
     refundItems: [
       { label: '7일 전', value: '100% 환불' },
       { label: '5일 전', value: '50% 환불' },
       { label: '3일 전', value: '0% 환불' },
     ],
-    heroBadge: '보홀 알로나 올 인클루시브 투어',
+    heroBadge: '보홀 알로나비치 메인 위치',
     heroTitle: '거북이, 산호 절벽, 섬 투어까지',
     heroAccent: '보홀 바다를 제대로 즐깁니다.',
-    heroDescription: '보홀 지점은 알로나 비치 산호 절벽 포인트부터 나팔링, 발리카삭, 파밀라칸까지 다양한 포인트를 운영합니다. 원하는 포인트와 일정에 맞춰 체험다이빙과 펀다이빙을 선택할 수 있습니다.',
-    heroNote: '예약 후 일정과 포인트를 확인해드리고, 발리카삭·파밀라칸처럼 인기 있는 포인트는 사전 예약 기준으로 안정적으로 준비합니다.',
+    heroDescription: '보홀 지점은 알로나비치 메인에 위치해 픽드랍 없이도 접근성이 좋습니다. 알로나 비치 산호 절벽 포인트부터 나팔링, 발리카삭, 파밀라칸까지 원하는 포인트와 일정에 맞춰 체험다이빙과 펀다이빙을 선택할 수 있습니다.',
+    heroNote: '보홀은 픽드랍을 제공하지 않지만 샵 위치가 좋아 직접 방문이 쉽고, 투어 당일 캐리어 무료 보관이 가능합니다. 발리카삭·파밀라칸처럼 인기 있는 포인트는 사전 예약 기준으로 안정적으로 준비합니다.',
     featureCards: [
       { icon: FaCheckCircle, title: '포인트별 포함사항 한눈에 확인', text: '알로나, 나팔링, 발리카삭, 파밀라칸 상품별 포함사항과 준비 항목을 예약 전에 안내' },
+      { icon: FaMapMarkedAlt, title: '알로나비치 메인 위치', text: '보홀은 픽드랍 미제공 지점이지만 샵이 알로나비치 메인에 있어 직접 방문이 편리' },
+      { icon: FaSuitcase, title: '캐리어 무료 보관', text: '체크아웃 후 투어에 참여하거나 투어 후 이동 일정이 있어도 캐리어를 무료로 보관 가능' },
       { icon: FaClock, title: '1회 다이빙 40분 내외', text: '펀다이빙은 여유 있는 수중 시간을 기준으로, 체험다이빙은 교육 후 안전하게 진행' },
       { icon: FaMapMarkedAlt, title: '원하는 포인트 선택 가능', text: '거북이, 산호 절벽, 물고기떼 등 여행 목적에 맞춰 포인트를 선택' },
       { icon: FaCertificate, title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 샵과 가이드 기준으로 장비 점검과 안전 브리핑을 진행' },
@@ -271,7 +275,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     scheduleTitle: '보홀 다이빙 투어 일정',
     scheduleNote: '발리카삭/파밀라칸 다이빙은 최소 1달 전 예약을 권장합니다.',
     scheduleItems: [
-      { time: '09:00', label: '알로나 비치 도착' },
+      { time: '09:00', label: '알로나비치 메인 샵 도착' },
       { time: '09:00', label: '다이빙 교육' },
       { time: '10:00', label: '1번째 보트 다이빙' },
       { time: '11:00', label: '2번째 보트 다이빙' },
@@ -293,7 +297,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     ],
     photoBenefitText: '투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 무료로 공유해드립니다. 사진 리뷰 이벤트 참여 시 네이버 포인트 혜택도 받을 수 있습니다.',
     mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서 연인/친구/가족이 함께 즐길 수 있습니다.',
-    priceNote: '보홀 상품은 달러 환산 없이 원화 고정 결제 금액으로 표시됩니다.',
+    priceNote: '보홀 상품은 달러 환산 없이 원화 고정 결제 금액으로 표시됩니다. 픽드랍은 제공하지 않으며, 알로나비치 메인 샵에서 캐리어 무료 보관이 가능합니다.',
     productCopy: {
       discovery: '보홀 바다가 처음인 고객도 교육부터 입수까지 차분하게 진행하는 체험 추천 상품입니다.',
       fun: '거북이와 산호 포인트를 여유 있게 보고 싶은 자격증 보유 다이버에게 추천합니다.',
@@ -817,7 +821,7 @@ const BranchPage: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
                 <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchDetails[branchId].title}</h3>
-                <div className="mb-6 grid gap-3 sm:grid-cols-3">
+                <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {t.branchDetails[branchId].features.map((feature, idx) => (
                     <div key={idx} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
                       <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
@@ -1070,7 +1074,7 @@ const BranchPage: React.FC = () => {
                         {branchContent.includedDescription}
                       </p>
                     </div>
-                    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
                       {branchContent.includedItems.map((item, index) => (
                         <div key={item} className="rounded-xl bg-cyan-50 p-3 text-center">
                           <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
