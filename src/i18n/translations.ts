@@ -629,7 +629,6 @@ export const translations = {
       bohol: [
         { program: '알로나 체험다이빙 1.5회', balance: 0, priceKrw: 120000 },
         { program: '알로나 체험다이빙 2.5회', balance: 0, priceKrw: 160000 },
-        { program: '나팔링 체험다이빙 1.5회', balance: 0, priceKrw: 130000 },
         { program: '나팔링 체험다이빙 2.5회', balance: 0, priceKrw: 170000 },
         { program: '알로나 펀다이빙 2회', balance: 0, priceKrw: 120000 },
         { program: '나팔링 펀다이빙 2회', balance: 0, priceKrw: 130000 },
@@ -1285,7 +1284,6 @@ export const translations = {
       bohol: [
         { program: 'Alona Discovery Diving 1.5x', balance: 0, priceKrw: 120000 },
         { program: 'Alona Discovery Diving 2.5x', balance: 0, priceKrw: 160000 },
-        { program: 'Napaling Discovery Diving 1.5x', balance: 0, priceKrw: 130000 },
         { program: 'Napaling Discovery Diving 2.5x', balance: 0, priceKrw: 170000 },
         { program: 'Alona Fun Diving 2x', balance: 0, priceKrw: 120000 },
         { program: 'Napaling Fun Diving 2x', balance: 0, priceKrw: 130000 },
@@ -1941,7 +1939,6 @@ export const translations = {
       bohol: [
         { program: '阿罗纳体验潜水 1.5次', balance: 0, priceKrw: 120000 },
         { program: '阿罗纳体验潜水 2.5次', balance: 0, priceKrw: 160000 },
-        { program: '纳帕林体验潜水 1.5次', balance: 0, priceKrw: 130000 },
         { program: '纳帕林体验潜水 2.5次', balance: 0, priceKrw: 170000 },
         { program: '阿罗纳休闲潜水 2次', balance: 0, priceKrw: 120000 },
         { program: '纳帕林休闲潜水 2次', balance: 0, priceKrw: 130000 },

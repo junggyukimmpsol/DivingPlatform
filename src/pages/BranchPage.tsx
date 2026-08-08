@@ -604,32 +604,22 @@ const BranchPage: React.FC = () => {
   const branchProducts = (t.branchPricing[branchId] as TourProduct[]) ?? []
   const recommendedProductIndex = Math.max(branchProducts.findIndex((item) => isDiscoveryProduct(item.program)), 0)
   const branchProductEntries = branchProducts.map((product, index) => ({ product, index }))
-  const productSections = branchId === 'bohol'
-    ? [
-      {
-        eyebrow: 'Discovery',
-        title: '자격증이 없는 분들을 위한 코스',
-        subtitle: '체험다이빙',
-        description: '스쿠버 자격증 없이도 교육 후 강사와 함께 안전하게 들어가는 입문 코스입니다.',
-        entries: branchProductEntries.filter(({ product }) => isDiscoveryProduct(product.program)),
-      },
-      {
-        eyebrow: 'Fun Diving',
-        title: '자격증이 있는 분들을 위한 코스',
-        subtitle: '펀다이빙',
-        description: '오픈워터 이상 자격증 보유자가 보홀 대표 포인트를 여유 있게 즐기는 코스입니다.',
-        entries: branchProductEntries.filter(({ product }) => !isDiscoveryProduct(product.program)),
-      },
-    ]
-    : [
-      {
-        eyebrow: '',
-        title: '',
-        subtitle: '',
-        description: '',
-        entries: branchProductEntries,
-      },
-    ]
+  const productSections = [
+    {
+      eyebrow: 'Discovery',
+      title: '자격증이 없는 분들을 위한 코스',
+      subtitle: '체험다이빙',
+      description: '스쿠버 자격증 없이도 교육 후 강사와 함께 안전하게 들어가는 입문 코스입니다.',
+      entries: branchProductEntries.filter(({ product }) => isDiscoveryProduct(product.program)),
+    },
+    {
+      eyebrow: 'Fun Diving',
+      title: '자격증이 있는 분들을 위한 코스',
+      subtitle: '펀다이빙',
+      description: '오픈워터 이상 자격증 보유자가 각 지점의 대표 포인트를 여유 있게 즐기는 코스입니다.',
+      entries: branchProductEntries.filter(({ product }) => !isDiscoveryProduct(product.program)),
+    },
+  ].filter((section) => section.entries.length > 0)
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -1075,10 +1065,10 @@ const BranchPage: React.FC = () => {
                           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                             <div>
                               <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">{section.eyebrow}</p>
-                              <h4 className="mt-1 text-xl font-black text-[#06334a]">
-                                {section.title}
-                                <span className="ml-2 text-parks-gold">{section.subtitle}</span>
-                              </h4>
+                              <h4 className="mt-1 text-xl font-black text-[#06334a]">{section.title}</h4>
+                              <span className="mt-2 inline-flex rounded-full bg-cyan-100 px-3 py-1 text-sm font-black text-cyan-800">
+                                {section.subtitle}
+                              </span>
                             </div>
                             <p className="max-w-xl text-sm font-semibold leading-6 text-slate-600">{section.description}</p>
                           </div>
