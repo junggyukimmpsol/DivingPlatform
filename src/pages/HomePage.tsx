@@ -47,10 +47,10 @@ const HomePage: React.FC = () => {
     },
   ]
   const includedItems = [
-    { icon: FaShip, label: '보트 다이빙', text: '세부, 보홀, 코타키나발루, 발리의 주요 포인트를 지점별로 선택' },
-    { icon: FaCamera, label: '수중 촬영', text: '투어 중 사진과 영상으로 여행 기록을 남길 수 있도록 지원' },
-    { icon: FaMapMarkedAlt, label: '당일 포인트 운영', text: '기상과 해양 상황에 따라 가장 안전하고 좋은 포인트로 진행' },
-    { icon: FaTags, label: '원화 가격 비교', text: '지점별 상품 가격을 원화 기준으로 비교하고 장바구니 결제 가능' },
+    { icon: FaCamera, label: '한국어 메뉴얼/영상 제공', text: '체험 다이빙이 처음이어도 출발 전 한국어 안내 자료로 호흡법, 수신호, 입수 흐름을 미리 확인할 수 있습니다.' },
+    { icon: FaCheckCircle, label: '장비 사이즈·자격증 원클릭 예약', text: '키, 몸무게, 발사이즈, 자격증 정보를 한 번만 등록하면 다음 예약부터 반복 제출 없이 바로 사용할 수 있습니다.' },
+    { icon: FaCertificate, label: 'PADI · SSI 공식 다이빙샵 구성', text: '공식 등록된 다이빙샵과 강사, 가이드 중심으로 투어를 구성해 더 안전하게 믿고 맡길 수 있습니다.' },
+    { icon: FaTags, label: 'Parks 통합 포인트', text: '투어 후 적립되는 포인트를 세부, 보홀, 코타키나발루, 발리 등 다른 Parks 지점 예약에도 사용할 수 있도록 준비 중입니다.' },
   ]
   return (
     <div className="pb-20">
@@ -142,35 +142,31 @@ const HomePage: React.FC = () => {
       <section className="bg-[#e8fbff] px-4 pb-6 text-slate-900 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl overflow-hidden rounded-2xl bg-gradient-to-br from-[#00b4d8] via-[#00d4a8] to-[#ffe66d] p-[1px] shadow-[0_28px_90px_rgba(0,180,216,0.24)] md:grid-cols-[1.08fr_0.92fr]">
           <div className="relative overflow-hidden rounded-[15px] bg-[#053047] p-7 text-white md:rounded-r-none md:p-10">
-            <div className="absolute right-8 top-8 hidden rounded-full bg-white/10 px-5 py-3 text-sm font-black text-white backdrop-blur md:block">
-              LIMITED OPEN
-            </div>
-            <p className="mb-4 inline-flex rounded-full bg-white px-4 py-2 text-sm font-black text-[#0077b6] shadow-lg">
-              2026 SUMMER DIVE PASS
+            <p className="mb-3 text-sm font-black uppercase tracking-[0.22em] text-parks-gold">
+              Parks Local Advantage
             </p>
-            <h2 className="max-w-2xl text-4xl font-black leading-tight tracking-normal md:text-6xl">
-              원하는 바다를 고르고,
-              <span className="block text-[#ffe66d]">바로 예약하세요.</span>
+            <h2 className="max-w-2xl text-3xl font-black leading-tight tracking-normal md:text-5xl">
+              투어 포함 핵심
+              <span className="block text-[#ffe66d]">Parks만의 예약 경험</span>
             </h2>
-            <p className="mt-5 max-w-2xl text-base font-semibold leading-8 text-cyan-50/85 md:text-lg">
-              세부, 보홀, 코타키나발루, 발리 투어 가격을 한 번에 비교하고
-              체험다이빙부터 펀다이빙까지 빠르게 예약 준비를 시작하세요.
+            <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-cyan-50/85 md:text-base">
+              처음 다이빙하는 고객도, 자격증을 가진 다이버도 반복 입력 없이 더 편하게 예약할 수 있도록 필요한 정보를 한 번에 정리합니다.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => navigate('/philippines/bohol?tab=tours')}
-                className="rounded-full bg-[#ffe66d] px-7 py-3 text-sm font-black text-[#053047] shadow-[0_12px_30px_rgba(255,230,109,0.28)] transition hover:-translate-y-0.5 hover:bg-white"
-              >
-                투어 가격 비교
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/photo-enhance')}
-                className="rounded-full border border-white/40 bg-white/10 px-7 py-3 text-sm font-black text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/20"
-              >
-                사진보정 5장 무료
-              </button>
+            <div className="mt-6 grid gap-3">
+              {includedItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <div key={item.label} className="flex gap-4 rounded-xl bg-white/10 p-4 backdrop-blur">
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#053047]">
+                      <Icon size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-white">{item.label}</h3>
+                      <p className="mt-1 text-sm leading-6 text-white/75">{item.text}</p>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
           <div className="relative min-h-[260px] overflow-hidden rounded-[15px] md:rounded-l-none">
@@ -202,18 +198,23 @@ const HomePage: React.FC = () => {
               </p>
             </div>
             <div className="rounded-2xl bg-[#06334a] p-6 text-white shadow-[0_24px_70px_rgba(3,51,74,0.24)]">
-              <p className="text-sm font-black text-parks-gold">투어 포함 핵심</p>
+              <p className="text-sm font-black text-parks-gold">예약 전환 포인트</p>
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {includedItems.map((item) => {
-                  const Icon = item.icon
-                  return (
-                    <div key={item.label} className="rounded-xl bg-white/10 p-4">
-                      <Icon className="mb-3 text-parks-gold" size={22} />
-                      <h3 className="font-black">{item.label}</h3>
-                      <p className="mt-2 text-sm leading-6 text-white/75">{item.text}</p>
-                    </div>
-                  )
-                })}
+                {[
+                  { icon: FaShip, label: '지점별 투어 비교', text: '세부, 보홀, 코타키나발루, 발리 상품을 한 화면에서 비교' },
+                  { icon: FaCamera, label: '수중 촬영 혜택', text: '투어 후 사진과 영상, AI 사진 보정 혜택까지 연결' },
+                  { icon: FaMapMarkedAlt, label: '당일 포인트 운영', text: '기상과 해양 상황에 맞춰 안전한 포인트로 진행' },
+                  { icon: FaTags, label: '원화 예약/결제', text: '원화 기준 가격 확인과 장바구니 결제로 예약 준비' },
+                ].map((item) => {
+                    const Icon = item.icon
+                    return (
+                      <div key={item.label} className="rounded-xl bg-white/10 p-4">
+                        <Icon className="mb-3 text-parks-gold" size={22} />
+                        <h3 className="font-black">{item.label}</h3>
+                        <p className="mt-2 text-sm leading-6 text-white/75">{item.text}</p>
+                      </div>
+                    )
+                  })}
               </div>
             </div>
           </div>
