@@ -273,7 +273,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     ],
     photoBenefitText: '투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 무료로 공유해드립니다. 사진 리뷰 이벤트 참여 시 네이버 포인트 혜택도 받을 수 있습니다.',
     mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서 연인/친구/가족이 함께 즐길 수 있습니다.',
-    priceNote: '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.',
+    priceNote: '보홀 상품은 달러 환산 없이 원화 고정 결제 금액으로 표시됩니다.',
     productCopy: {
       discovery: '보홀 바다가 처음인 고객도 교육부터 입수까지 차분하게 진행하는 체험 추천 상품입니다.',
       fun: '거북이와 산호 포인트를 여유 있게 보고 싶은 자격증 보유 다이버에게 추천합니다.',
@@ -603,6 +603,33 @@ const BranchPage: React.FC = () => {
   const leadTimeBlockedItems = cartItems.filter((item) => item.tourDate < instantPaymentStartDate)
   const branchProducts = (t.branchPricing[branchId] as TourProduct[]) ?? []
   const recommendedProductIndex = Math.max(branchProducts.findIndex((item) => isDiscoveryProduct(item.program)), 0)
+  const branchProductEntries = branchProducts.map((product, index) => ({ product, index }))
+  const productSections = branchId === 'bohol'
+    ? [
+      {
+        eyebrow: 'Discovery',
+        title: '자격증이 없는 분들을 위한 코스',
+        subtitle: '체험다이빙',
+        description: '스쿠버 자격증 없이도 교육 후 강사와 함께 안전하게 들어가는 입문 코스입니다.',
+        entries: branchProductEntries.filter(({ product }) => isDiscoveryProduct(product.program)),
+      },
+      {
+        eyebrow: 'Fun Diving',
+        title: '자격증이 있는 분들을 위한 코스',
+        subtitle: '펀다이빙',
+        description: '오픈워터 이상 자격증 보유자가 보홀 대표 포인트를 여유 있게 즐기는 코스입니다.',
+        entries: branchProductEntries.filter(({ product }) => !isDiscoveryProduct(product.program)),
+      },
+    ]
+    : [
+      {
+        eyebrow: '',
+        title: '',
+        subtitle: '',
+        description: '',
+        entries: branchProductEntries,
+      },
+    ]
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -1037,57 +1064,79 @@ const BranchPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-3">
-                  {branchProducts.length > 0 ? (
-                    branchProducts.map((item, index) => {
-                      const isBeginnerPick = index === recommendedProductIndex && isDiscoveryProduct(item.program)
-                      return (
-                        <div
-                          key={item.program}
-                          className={`flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
-                            isBeginnerPick ? 'border-parks-gold ring-2 ring-parks-gold/30' : 'border-cyan-100'
-                          }`}
-                        >
-                          <div className="mb-4 flex items-start justify-between gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
-                              {String(index + 1).padStart(2, '0')}
+                {branchProducts.length > 0 ? (
+                  <div className="space-y-5">
+                    {productSections.map((section) => (
+                      <section
+                        key={section.title || 'all-products'}
+                        className={section.title ? 'rounded-2xl border border-cyan-100 bg-white/70 p-4 shadow-sm' : ''}
+                      >
+                        {section.title && (
+                          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">{section.eyebrow}</p>
+                              <h4 className="mt-1 text-xl font-black text-[#06334a]">
+                                {section.title}
+                                <span className="ml-2 text-parks-gold">{section.subtitle}</span>
+                              </h4>
                             </div>
-                            {isBeginnerPick && (
-                              <span className="rounded-full bg-parks-gold px-3 py-1 text-xs font-black text-[#06334a]">
-                                초보자 추천
-                              </span>
-                            )}
+                            <p className="max-w-xl text-sm font-semibold leading-6 text-slate-600">{section.description}</p>
                           </div>
-                          <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
-                          <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-                            {isDiscoveryProduct(item.program) ? branchContent.productCopy.discovery : branchContent.productCopy.fun}
-                          </p>
-                          <div className="mt-auto pt-5">
-                            <div className="rounded-xl bg-cyan-50 p-4">
-                              <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">1인 결제금액</p>
-                              <p className="mt-1 text-3xl font-black text-[#06334a]">{formatKrw(getProductPriceKrw(item))}</p>
-                              <p className="mt-1 text-xs font-bold text-slate-500">
-                                {item.priceKrw ? '원화 고정가' : '1 USD = 1,550원 기준'}
-                              </p>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => openPaymentModal(item)}
-                              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-3 text-sm font-black text-ocean-dark transition hover:bg-[#06334a] hover:text-white"
-                            >
-                              <FaShoppingCart size={14} />
-                              장바구니 담기
-                            </button>
-                          </div>
+                        )}
+
+                        <div className="grid gap-4 lg:grid-cols-3">
+                          {section.entries.map(({ product: item, index }) => {
+                            const isBeginnerPick = index === recommendedProductIndex && isDiscoveryProduct(item.program)
+                            return (
+                              <div
+                                key={item.program}
+                                className={`flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
+                                  isBeginnerPick ? 'border-parks-gold ring-2 ring-parks-gold/30' : 'border-cyan-100'
+                                }`}
+                              >
+                                <div className="mb-4 flex items-start justify-between gap-3">
+                                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
+                                    {String(index + 1).padStart(2, '0')}
+                                  </div>
+                                  {isBeginnerPick && (
+                                    <span className="rounded-full bg-parks-gold px-3 py-1 text-xs font-black text-[#06334a]">
+                                      초보자 추천
+                                    </span>
+                                  )}
+                                </div>
+                                <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
+                                <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
+                                  {isDiscoveryProduct(item.program) ? branchContent.productCopy.discovery : branchContent.productCopy.fun}
+                                </p>
+                                <div className="mt-auto pt-5">
+                                  <div className="rounded-xl bg-cyan-50 p-4">
+                                    <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">1인 결제금액</p>
+                                    <p className="mt-1 text-3xl font-black text-[#06334a]">{formatKrw(getProductPriceKrw(item))}</p>
+                                    <p className="mt-1 text-xs font-bold text-slate-500">
+                                      {item.priceKrw ? '원화 고정가' : '1 USD = 1,550원 기준'}
+                                    </p>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => openPaymentModal(item)}
+                                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-3 text-sm font-black text-ocean-dark transition hover:bg-[#06334a] hover:text-white"
+                                  >
+                                    <FaShoppingCart size={14} />
+                                    장바구니 담기
+                                  </button>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
-                      )
-                    })
-                  ) : (
-                    <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center text-slate-500">
-                      {t.branchPricing.empty}
-                    </div>
-                  )}
-                </div>
+                      </section>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center text-slate-500">
+                    {t.branchPricing.empty}
+                  </div>
+                )}
                 <p className="mt-3 text-xs text-slate-500">
                   {branchContent.priceNote}
                 </p>
