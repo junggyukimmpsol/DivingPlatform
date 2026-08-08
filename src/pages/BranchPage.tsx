@@ -297,6 +297,14 @@ const BranchPage: React.FC = () => {
   const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
   const cartTotalGuests = cartItems.reduce((sum, item) => sum + item.guests, 0)
   const leadTimeBlockedItems = cartItems.filter((item) => item.tourDate < instantPaymentStartDate)
+  const branchProducts = (t.branchPricing[currentBranch.id as CenterId] as TourProduct[]) ?? []
+  const isCebuBranch = currentBranch.id === 'cebu'
+  const cebuIncludedItems = ['장비 렌탈', '막탄 픽드랍', '점심 한식', '환경세·입장료', '수중 사진/영상', '보트 다이빙']
+  const cebuRefundItems = [
+    { label: '7일 전', value: '100% 환불' },
+    { label: '5일 전', value: '50% 환불' },
+    { label: '3일 전', value: '0% 환불' },
+  ]
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -800,48 +808,170 @@ const BranchPage: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
                 <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchPricing.title}</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left bg-white rounded-xl overflow-hidden shadow-sm">
-                    <thead>
-                      <tr className="bg-[#06334a] text-white">
-                        <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
-                        <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
-                        <th className="py-4 px-6 text-right font-bold">장바구니</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-slate-700 divide-y divide-sky-100">
-                      {(t.branchPricing[currentBranch.id as CenterId] as TourProduct[])?.map((item, index) => (
-                        <tr key={index} className="hover:bg-cyan-50 transition-colors">
-                          <td className="py-4 px-6 font-medium">{item.program}</td>
-                          <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
-                            {formatKrw(getProductPriceKrw(item))}
-                          </td>
-                          <td className="py-4 px-6 text-right">
+                {isCebuBranch && (
+                  <div className="mb-5 space-y-4">
+                    <div className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-sm">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div>
+                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Included</p>
+                          <h4 className="mt-1 text-xl font-black text-[#06334a]">세부 투어 포함사항</h4>
+                        </div>
+                        <p className="max-w-xl text-sm font-bold leading-6 text-slate-600">
+                          아래 항목은 투어 필수 구성에 포함되어 있어 현장에서 별도 추가금 걱정 없이 예약할 수 있습니다.
+                        </p>
+                      </div>
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+                        {cebuIncludedItems.map((item, index) => (
+                          <div key={item} className="rounded-xl bg-cyan-50 p-3 text-center">
+                            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                              {String(index + 1).padStart(2, '0')}
+                            </div>
+                            <p className="text-sm font-black text-[#06334a]">{item}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-amber-200 bg-[#fff8df] p-5">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                          <p className="flex items-center gap-2 text-sm font-black text-amber-700">
+                            <FaCalendarAlt />
+                            오늘/내일 출발은 카카오톡 문의
+                          </p>
+                          <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                            온라인 즉시결제는 투어 2일 전부터 3개월 이내 일정만 가능합니다. 급한 일정은 가능 여부를 먼저 확인해주세요.
+                          </p>
+                        </div>
+                        <a
+                          href={KAKAO_CHAT_URL}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center justify-center rounded-full bg-[#06334a] px-5 py-3 text-sm font-black text-white transition hover:bg-cyan-700"
+                        >
+                          카카오톡 문의
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {isCebuBranch ? (
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    {branchProducts.length > 0 ? (
+                      branchProducts.map((item, index) => {
+                        const isBeginnerPick = index === 0
+                        return (
+                          <div
+                            key={item.program}
+                            className={`flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
+                              isBeginnerPick ? 'border-parks-gold ring-2 ring-parks-gold/30' : 'border-cyan-100'
+                            }`}
+                          >
+                            <div className="mb-4 flex items-start justify-between gap-3">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
+                                {String(index + 1).padStart(2, '0')}
+                              </div>
+                              {isBeginnerPick && (
+                                <span className="rounded-full bg-parks-gold px-3 py-1 text-xs font-black text-[#06334a]">
+                                  초보자 추천
+                                </span>
+                              )}
+                            </div>
+                            <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
+                            <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
+                              {isBeginnerPick
+                                ? '처음 다이빙하는 고객도 교육부터 입수까지 천천히 진행하는 기본 추천 상품입니다.'
+                                : '자격증 보유 다이버가 막탄 포인트를 여유 있게 즐기기 좋은 상품입니다.'}
+                            </p>
+                            <div className="mt-5 rounded-xl bg-cyan-50 p-4">
+                              <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">1인 결제금액</p>
+                              <p className="mt-1 text-3xl font-black text-[#06334a]">{formatKrw(getProductPriceKrw(item))}</p>
+                              <p className="mt-1 text-xs font-bold text-slate-500">원화 고정가</p>
+                            </div>
                             <button
                               type="button"
                               onClick={() => openPaymentModal(item)}
-                              className="inline-flex items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-2 text-sm font-black text-ocean-dark transition hover:bg-white"
+                              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-3 text-sm font-black text-ocean-dark transition hover:bg-[#06334a] hover:text-white"
                             >
                               <FaShoppingCart size={14} />
-                              담기
+                              장바구니 담기
                             </button>
-                          </td>
+                          </div>
+                        )
+                      })
+                    ) : (
+                      <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center text-slate-500">
+                        {t.branchPricing.empty}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left bg-white rounded-xl overflow-hidden shadow-sm">
+                      <thead>
+                        <tr className="bg-[#06334a] text-white">
+                          <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
+                          <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
+                          <th className="py-4 px-6 text-right font-bold">장바구니</th>
                         </tr>
-                      )) || (
+                      </thead>
+                      <tbody className="text-slate-700 divide-y divide-sky-100">
+                        {branchProducts.length > 0 ? (
+                          branchProducts.map((item, index) => (
+                            <tr key={index} className="hover:bg-cyan-50 transition-colors">
+                              <td className="py-4 px-6 font-medium">{item.program}</td>
+                              <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
+                                {formatKrw(getProductPriceKrw(item))}
+                              </td>
+                              <td className="py-4 px-6 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() => openPaymentModal(item)}
+                                  className="inline-flex items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-2 text-sm font-black text-ocean-dark transition hover:bg-white"
+                                >
+                                  <FaShoppingCart size={14} />
+                                  담기
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
                           <tr>
                             <td colSpan={3} className="py-8 text-center text-slate-500 italic">
                               {t.branchPricing.empty}
                             </td>
                           </tr>
                         )}
-                    </tbody>
-                  </table>
-                </div>
+                      </tbody>
+                    </table>
+                  </div>
+                )}
                 <p className="mt-3 text-xs text-slate-500">
-                  {currentBranch.id === 'cebu'
+                  {isCebuBranch
                     ? '세부 상품은 원화 고정 결제 금액입니다.'
                     : '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.'}
                 </p>
+
+                {isCebuBranch && (
+                  <div className="mt-5 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Refund</p>
+                        <h4 className="mt-1 text-xl font-black text-[#06334a]">환불 규정</h4>
+                      </div>
+                      <p className="text-sm font-semibold text-slate-500">투어 시작일 기준으로 적용됩니다.</p>
+                    </div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                      {cebuRefundItems.map((item) => (
+                        <div key={item.label} className="rounded-xl bg-cyan-50 p-4">
+                          <p className="text-sm font-black text-cyan-700">{item.label}</p>
+                          <p className="mt-1 text-lg font-black text-[#06334a]">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className="mt-6 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
