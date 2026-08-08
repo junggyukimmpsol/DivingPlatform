@@ -392,7 +392,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
   },
   'nha-trang': {
     includedTitle: '나트랑 투어 포함사항',
-    includedDescription: '나트랑 시내 무료 픽드랍, 장비렌탈, 허가 포인트 2회 보트 다이빙, 선상 점심, 수중 사진/영상 촬영까지 하루 투어에 필요한 항목을 한 번에 포함합니다.',
+    includedDescription: '나트랑 시내 무료 픽드랍, 장비렌탈, 당일 배정 허가 포인트 2회 보트 다이빙, 선상 점심, 수중 사진/영상 촬영까지 하루 투어에 필요한 항목을 한 번에 포함합니다.',
     includedItems: ['시내 무료 픽드랍', '장비 렌탈', '2회 보트 다이빙', '선상 점심', '수중 사진/영상', '외곽 픽드랍 가능'],
     refundItems: [
       { label: '7일 전', value: '100% 환불' },
@@ -402,11 +402,11 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     heroBadge: '베트남 나트랑 보트 다이빙',
     heroTitle: '시내 픽업부터 보트 다이빙까지,',
     heroAccent: '나트랑 바다를 편하게 즐깁니다.',
-    heroDescription: '나트랑 지점은 오전 7:00~7:30 호텔 픽업 후 항구로 이동하고, 보트로 약 1시간 이동해 Dam Bay(Tre Island)와 Madonna Rock(Rom Island)에서 2회 다이빙을 진행합니다.',
+    heroDescription: '나트랑 지점은 오전 7:00~7:30 호텔 픽업 후 항구로 이동하고, 보트로 약 1시간 이동합니다. 다이빙 포인트는 당일 바다 상황에 따라 Dam Bay(Tre Island) 또는 Madonna Rock(Rom Island) 중 한 곳으로 배정됩니다.',
     heroNote: '나트랑 시내 픽드랍, 장비렌탈, 2회 보트 다이빙, 선상 점심, 수중 사진/영상 촬영까지 포함되어 처음 예약하는 고객도 추가 준비 없이 참여할 수 있습니다.',
     featureCards: [
       { icon: FaCar, title: '오전 7:00~7:30 픽업', text: '나트랑 시내는 무료 픽업, 외곽 지역은 그룹별 왕복 추가요금으로 진행' },
-      { icon: FaMapMarkedAlt, title: '허가 포인트 2회 다이빙', text: 'Dam Bay와 Madonna Rock, 나트랑 스쿠버 허가 포인트 기준으로 운영' },
+      { icon: FaMapMarkedAlt, title: '허가 포인트 중 1곳 배정', text: 'Dam Bay 또는 Madonna Rock 중 당일 해양 상황에 맞는 포인트에서 2회 다이빙' },
       { icon: FaCheckCircle, title: '핵심 포함사항 한 번에', text: '픽드랍, 장비렌탈, 보트 다이빙, 선상 점심, 수중 사진/영상 촬영 포함' },
       { icon: FaUsers, title: '다이버와 비다이버 동행 가능', text: '펀다이빙, 체험다이빙, 스노쿨링 호핑투어를 같은 일정 안에서 선택 가능' },
     ],
@@ -415,25 +415,25 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     scheduleItems: [
       { time: '07:00~07:30', label: '호텔 픽업' },
       { time: '08:00', label: '항구 도착 후 보트 탑승' },
-      { time: '09:00', label: 'Dam Bay 1번째 다이빙' },
+      { time: '09:00', label: '배정 포인트 1번째 다이빙' },
       { time: '09:40', label: '수면 휴식 및 포인트 이동' },
-      { time: '11:00', label: 'Madonna Rock 2번째 다이빙' },
+      { time: '11:00', label: '배정 포인트 2번째 다이빙' },
       { time: '12:00', label: '2번째 다이빙 후 선상 점심' },
       { time: '14:00', label: '항구 복귀 후 호텔 드랍' },
     ],
-    scheduleFootnote: '나트랑 스쿠버다이빙은 Dam Bay(Tre Island)와 Madonna Rock(Rom Island) 두 허가 포인트를 기준으로 운영합니다. 나트랑 시내는 무료 픽드랍이며, 깜란 공항 근처 35,000원, 다이아몬드 베이 30,000원, 아미아나 리조트 20,000원이 그룹당 왕복 기준으로 추가됩니다.',
+    scheduleFootnote: '나트랑 스쿠버다이빙은 Dam Bay(Tre Island) 또는 Madonna Rock(Rom Island) 중 당일 해양 상황에 맞는 한 포인트에서 2회 진행됩니다. 나트랑 시내는 무료 픽드랍이며, 깜란 공항 근처 35,000원, 다이아몬드 베이 30,000원, 아미아나 리조트 20,000원이 그룹당 왕복 기준으로 추가됩니다.',
     topPointsTitle: '나트랑 허가 다이빙 포인트',
     topPoints: [
-      { name: 'Dam Bay (Tre Island)', text: '보트로 이동해 진행하는 나트랑 대표 1차 다이빙 포인트' },
-      { name: 'Madonna Rock (Rom Island)', text: '두 번째 다이빙으로 운영되는 나트랑 허가 스쿠버 포인트' },
-      { name: '운영 포인트 안내', text: '나트랑 스쿠버는 현재 위 두 포인트를 기준으로 허가 운영됩니다' },
+      { name: 'Dam Bay (Tre Island)', text: '나트랑에서 스쿠버 허가 운영되는 대표 보트 다이빙 포인트' },
+      { name: 'Madonna Rock (Rom Island)', text: '당일 해양 상황에 따라 배정될 수 있는 허가 스쿠버 포인트' },
+      { name: '운영 포인트 안내', text: '하루에 두 곳을 모두 방문하는 방식이 아니라, 둘 중 한 포인트에서 2회 다이빙을 진행합니다' },
     ],
     photoBenefitText: '투어 중 수중 사진과 영상을 촬영해 나트랑 바다에서의 장면을 여행 기록으로 남길 수 있게 도와드립니다.',
     mixedDivingText: '자격증 보유자는 펀다이빙, 처음인 고객은 체험다이빙, 다이빙을 원하지 않는 동행자는 스노쿨링 호핑투어로 같은 일정 안에서 함께 참여할 수 있습니다.',
     priceNote: '나트랑 상품은 원화 고정 결제 금액입니다. 나트랑 시내 픽드랍은 무료이며 외곽 지역은 그룹당 왕복 추가요금이 발생합니다.',
     productCopy: {
-      discovery: '처음 다이빙하는 고객도 교육 후 Dam Bay와 Madonna Rock에서 보트 다이빙 2회를 경험할 수 있는 나트랑 추천 상품입니다.',
-      fun: '자격증 보유 다이버가 나트랑 허가 보트 포인트 2곳을 합리적인 가격으로 즐기기 좋은 상품입니다.',
+      discovery: '처음 다이빙하는 고객도 교육 후 당일 배정된 나트랑 허가 포인트에서 보트 다이빙 2회를 경험할 수 있는 추천 상품입니다.',
+      fun: '자격증 보유 다이버가 Dam Bay 또는 Madonna Rock 중 당일 배정 포인트에서 2회 보트 다이빙을 즐기는 상품입니다.',
       snorkeling: '다이빙을 하지 않아도 보트 이동, 선상 점심, 바다 시간을 함께 즐길 수 있는 호핑투어입니다.',
     },
     mealNotice: {
@@ -441,7 +441,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
       description: '2번째 다이빙이 끝난 뒤 보트 위에서 점심을 제공합니다.',
       items: [
         { label: '제공 메뉴', detail: '밥, 치킨, 돼지고기, 달걀, 누들, 당근 수프' },
-        { label: '제공 시점', detail: 'Madonna Rock 2번째 다이빙 종료 후 선상 점심 제공' },
+        { label: '제공 시점', detail: '2번째 다이빙 종료 후 선상 점심 제공' },
       ],
     },
     pickupNotice: {
@@ -458,7 +458,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     reviewSubtitle: '나트랑 지점 후기는 준비 중입니다.',
     reviewHighlights: [
       { label: '기본 픽업', value: '7:00~7:30' },
-      { label: '대표 포인트', value: 'Dam Bay' },
+      { label: '대표 포인트', value: '둘 중 1곳' },
       { label: '동행 선택', value: '스노쿨링 가능' },
       { label: '포함사항', value: '선상 점심·촬영' },
     ],
@@ -683,6 +683,13 @@ const BranchPage: React.FC = () => {
       { type: 'video', src: '/assets/bali/bali-intro-video-2.mp4' },
       { type: 'video', src: '/assets/bali/bali-intro-video-3.mp4' },
       { type: 'video', src: '/assets/bali/bali-intro-video-4.mp4' },
+    ],
+    'nha-trang': [
+      { type: 'image', src: '/assets/nha-trang/nha-trang-real-dive-20260721-01-photo.jpeg', alt: '나트랑 다이빙 고객 수중 촬영' },
+      { type: 'image', src: '/assets/nha-trang/nha-trang-real-dive-20260706-02-photo.jpeg', alt: '나트랑 보트 다이빙 수중 사진' },
+      { type: 'image', src: '/assets/nha-trang/nha-trang-real-dive-20260727-03-photo.jpeg', alt: '나트랑 다이버 수중 사진' },
+      { type: 'video', src: '/assets/nha-trang/nha-trang-real-dive-20260721-01-video.mp4' },
+      { type: 'video', src: '/assets/nha-trang/nha-trang-real-dive-20260721-02-video.mp4' },
     ],
   }
 
