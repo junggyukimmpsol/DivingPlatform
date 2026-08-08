@@ -448,16 +448,26 @@ const BranchPage: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
                 <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
-                <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                  {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
-                    <div key={idx} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
-                      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
-                        {String(idx + 1).padStart(2, '0')}
+                {currentBranch.id === 'cebu' ? (
+                  <div className="mb-6 grid gap-3 sm:grid-cols-3">
+                    {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
+                      <div key={idx} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
+                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                          {String(idx + 1).padStart(2, '0')}
+                        </div>
+                        <p className="text-sm font-bold leading-6 text-slate-700">{feature}</p>
                       </div>
-                      <p className="text-sm font-bold leading-6 text-slate-700">{feature}</p>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-slate-600 leading-relaxed mb-6 space-y-4">
+                    <ul className="list-disc list-inside space-y-2">
+                      {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
+                        <li key={idx}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 {currentBranch.id === 'cebu' && (
                   <div className="mb-8 space-y-6">
