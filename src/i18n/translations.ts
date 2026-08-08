@@ -634,6 +634,7 @@ export const translations = {
         { program: '나팔링 펀다이빙 2회', balance: 0, priceKrw: 130000 },
         { program: '발리카삭 or 파밀라칸 펀다이빙 2회', balance: 0, priceKrw: 140000 },
         { program: '발리카삭 or 파밀라칸 펀다이빙 3회', balance: 0, priceKrw: 180000 },
+        { program: '스노쿨링 호핑투어', balance: 0, priceKrw: 70000 },
       ],
       'kota-kinabalu': [
         { program: '아일랜드 보트 체험다이빙 2회(올 인클루시브)', balance: 110 },
@@ -1289,6 +1290,7 @@ export const translations = {
         { program: 'Napaling Fun Diving 2x', balance: 0, priceKrw: 130000 },
         { program: 'Balicasag or Pamilacan Fun Diving 2x', balance: 0, priceKrw: 140000 },
         { program: 'Balicasag or Pamilacan Fun Diving 3x', balance: 0, priceKrw: 180000 },
+        { program: 'Snorkeling Hopping Tour', balance: 0, priceKrw: 70000 },
       ],
       'kota-kinabalu': [
         { program: 'Island Boat Discovery Diving 2x (All-inclusive)', balance: 110 },
@@ -1944,6 +1946,7 @@ export const translations = {
         { program: '纳帕林休闲潜水 2次', balance: 0, priceKrw: 130000 },
         { program: '巴里卡萨或帕米拉坎休闲潜水 2次', balance: 0, priceKrw: 140000 },
         { program: '巴里卡萨或帕米拉坎休闲潜水 3次', balance: 0, priceKrw: 180000 },
+        { program: '浮潜跳岛游', balance: 0, priceKrw: 70000 },
       ],
       'kota-kinabalu': [
         { program: '海岛船潜体验潜水 2次 (全包)', balance: 110 },

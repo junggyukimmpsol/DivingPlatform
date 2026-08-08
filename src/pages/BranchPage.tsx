@@ -21,6 +21,7 @@ import {
   FaStar,
   FaTimes,
   FaTrash,
+  FaUtensils,
   FaUsers,
 } from 'react-icons/fa'
 // Note: Tabs are now managed by the Navigation component in Tier 2
@@ -74,6 +75,12 @@ type BranchPresentation = {
   productCopy: {
     discovery: string
     fun: string
+    snorkeling?: string
+  }
+  mealNotice?: {
+    title: string
+    description: string
+    items: { label: string; detail: string }[]
   }
   reviewTitle: string
   reviewSubtitle: string
@@ -162,6 +169,19 @@ const getProductPriceKrw = (product: TourProduct) => product.priceKrw ?? usdToKr
 
 const isDiscoveryProduct = (program: string) => /체험|Discovery|体验/.test(program)
 
+const isSnorkelingProduct = (program: string) => /스노|Snorkeling|浮潜/.test(program)
+
+const isBoholFullMealProduct = (program: string) =>
+  /발리카삭|파밀라칸|Balicasag|Pamilacan|巴里卡萨|帕米拉坎|스노|Snorkeling|浮潜/.test(program)
+
+const getProductMealNote = (branchId: CenterId, program: string) => {
+  if (branchId !== 'bohol') return null
+
+  return isBoholFullMealProduct(program)
+    ? '식사 포함: 선상 바베큐 + 밥 제공'
+    : '간식 포함: 열대과일 제공'
+}
+
 const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
   cebu: {
     includedTitle: '세부 투어 포함사항',
@@ -230,8 +250,8 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
   },
   bohol: {
     includedTitle: '보홀 투어 포함사항',
-    includedDescription: '포인트별 포함사항을 예약 전 한 번에 확인하고, 안내된 금액 기준으로 필수 추가금 없이 준비할 수 있습니다.',
-    includedItems: ['장비 렌탈', '보트 다이빙', '포인트 예약', '환경세·입장료', '수중 사진/영상', '점심 제공 상품'],
+    includedDescription: '포인트별 포함사항과 식사 제공 기준을 예약 전 한 번에 확인하고, 안내된 금액 기준으로 필수 추가금 없이 준비할 수 있습니다.',
+    includedItems: ['장비 렌탈', '보트 다이빙', '포인트 예약', '환경세·입장료', '수중 사진/영상', '상품별 식사·과일'],
     refundItems: [
       { label: '7일 전', value: '100% 환불' },
       { label: '5일 전', value: '50% 환불' },
@@ -258,7 +278,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
       { time: '12:00', label: '점심 식사' },
       { time: '14:30', label: '3회 상품 종료' },
     ],
-    scheduleFootnote: '점심 샌드위치는 발리카삭 또는 파밀라칸 다이빙 상품에만 제공됩니다.',
+    scheduleFootnote: '선상 바베큐 + 밥은 발리카삭/파밀라칸 펀다이빙과 스노쿨링 호핑투어에 제공되며, 그 외 보홀 상품은 열대과일을 제공합니다.',
     pointMap: {
       title: '보홀 다이빙 포인트 지도',
       note: '원하는 포인트로 선택 예약이 가능하며, 당일 해양 상황에 따라 조정될 수 있습니다.',
@@ -277,6 +297,15 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     productCopy: {
       discovery: '보홀 바다가 처음인 고객도 교육부터 입수까지 차분하게 진행하는 체험 추천 상품입니다.',
       fun: '거북이와 산호 포인트를 여유 있게 보고 싶은 자격증 보유 다이버에게 추천합니다.',
+      snorkeling: '다이빙을 하지 않아도 보홀 바다와 섬 분위기를 함께 즐길 수 있는 호핑투어입니다.',
+    },
+    mealNotice: {
+      title: '보홀 식사/간식 제공 기준',
+      description: '보홀은 포인트별 이동 동선이 달라 상품에 따라 제공 방식이 다릅니다. 예약 전 아래 기준으로 확인해주세요.',
+      items: [
+        { label: '선상 바베큐 + 밥 제공', detail: '파밀라칸 펀다이빙, 발리카삭 펀다이빙, 스노쿨링 호핑투어' },
+        { label: '열대과일 제공', detail: '알로나 체험다이빙, 나팔링 체험다이빙, 알로나 펀다이빙, 나팔링 펀다이빙' },
+      ],
     },
     reviewTitle: '보홀 실제 이용 고객 후기',
     reviewSubtitle: '거북이, 발리카삭, 가족 체험 후기를 중심으로 실제 이용감을 살렸습니다.',
@@ -604,6 +633,13 @@ const BranchPage: React.FC = () => {
   const branchProducts = (t.branchPricing[branchId] as TourProduct[]) ?? []
   const recommendedProductIndex = Math.max(branchProducts.findIndex((item) => isDiscoveryProduct(item.program)), 0)
   const branchProductEntries = branchProducts.map((product, index) => ({ product, index }))
+  const getProductDescription = (program: string) => {
+    if (isSnorkelingProduct(program)) {
+      return branchContent.productCopy.snorkeling ?? '다이빙 없이 바다와 포인트를 함께 즐기는 투어입니다.'
+    }
+
+    return isDiscoveryProduct(program) ? branchContent.productCopy.discovery : branchContent.productCopy.fun
+  }
   const productSections = [
     {
       eyebrow: 'Discovery',
@@ -617,7 +653,14 @@ const BranchPage: React.FC = () => {
       title: '자격증이 있는 분들을 위한 코스',
       subtitle: '펀다이빙',
       description: '오픈워터 이상 자격증 보유자가 각 지점의 대표 포인트를 여유 있게 즐기는 코스입니다.',
-      entries: branchProductEntries.filter(({ product }) => !isDiscoveryProduct(product.program)),
+      entries: branchProductEntries.filter(({ product }) => !isDiscoveryProduct(product.program) && !isSnorkelingProduct(product.program)),
+    },
+    {
+      eyebrow: 'Snorkeling',
+      title: '다이버가 아니어도 함께 즐기는 코스',
+      subtitle: '스노쿨링 호핑투어',
+      description: '다이빙을 하지 않는 동행자도 보홀 바다와 선상 투어를 함께 즐길 수 있는 코스입니다.',
+      entries: branchProductEntries.filter(({ product }) => isSnorkelingProduct(product.program)),
     },
   ].filter((section) => section.entries.length > 0)
 
@@ -841,12 +884,42 @@ const BranchPage: React.FC = () => {
                         </div>
                       ))}
                     </div>
-                    {branchContent.scheduleFootnote && (
-                      <p className="mt-4 text-sm font-semibold leading-6 text-amber-600">
-                        {branchContent.scheduleFootnote}
-                      </p>
-                    )}
+                  {branchContent.scheduleFootnote && (
+                    <p className="mt-4 text-sm font-semibold leading-6 text-amber-600">
+                      {branchContent.scheduleFootnote}
+                    </p>
+                  )}
                   </div>
+
+                  {branchContent.mealNotice && (
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-6">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="flex gap-4">
+                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                            <FaUtensils size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-700">Meal Guide</p>
+                            <h4 className="mt-1 text-2xl font-black text-[#06334a]">{branchContent.mealNotice.title}</h4>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                              {branchContent.mealNotice.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid gap-3 sm:grid-cols-2 lg:w-[48%]">
+                          {branchContent.mealNotice.items.map((item, index) => (
+                            <div key={item.label} className="rounded-xl bg-white p-4 shadow-sm">
+                              <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                                {String(index + 1).padStart(2, '0')}
+                              </div>
+                              <p className="text-sm font-black text-emerald-700">{item.label}</p>
+                              <p className="mt-2 text-sm font-bold leading-6 text-slate-700">{item.detail}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {branchContent.pointMap && (
                     <div className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
@@ -1031,6 +1104,33 @@ const BranchPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {branchContent.mealNotice && (
+                    <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex gap-4">
+                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white">
+                            <FaUtensils size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-700">Meal Guide</p>
+                            <h4 className="mt-1 text-xl font-black text-[#06334a]">{branchContent.mealNotice.title}</h4>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                              {branchContent.mealNotice.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="grid gap-2 sm:grid-cols-2 lg:w-[46%]">
+                          {branchContent.mealNotice.items.map((item) => (
+                            <div key={item.label} className="rounded-xl bg-white px-4 py-3 shadow-sm">
+                              <p className="text-sm font-black text-emerald-700">{item.label}</p>
+                              <p className="mt-1 text-xs font-bold leading-5 text-slate-600">{item.detail}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="rounded-2xl border border-amber-200 bg-[#fff8df] p-5">
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <div>
@@ -1077,6 +1177,7 @@ const BranchPage: React.FC = () => {
                         <div className="grid gap-4 lg:grid-cols-3">
                           {section.entries.map(({ product: item, index }) => {
                             const isBeginnerPick = index === recommendedProductIndex && isDiscoveryProduct(item.program)
+                            const mealNote = getProductMealNote(branchId, item.program)
                             return (
                               <div
                                 key={item.program}
@@ -1096,8 +1197,13 @@ const BranchPage: React.FC = () => {
                                 </div>
                                 <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
                                 <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-                                  {isDiscoveryProduct(item.program) ? branchContent.productCopy.discovery : branchContent.productCopy.fun}
+                                  {getProductDescription(item.program)}
                                 </p>
+                                {mealNote && (
+                                  <p className="mt-3 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-black leading-5 text-emerald-800">
+                                    {mealNote}
+                                  </p>
+                                )}
                                 <div className="mt-auto pt-5">
                                   <div className="rounded-xl bg-cyan-50 p-4">
                                     <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">1인 결제금액</p>
