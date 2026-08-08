@@ -50,17 +50,18 @@ const Navigation: React.FC = () => {
           {/* Tier 1: Logo and Main Links */}
           <div className="flex items-center justify-between h-16 lg:h-20">
             <div className="flex items-center gap-4 md:gap-8 lg:gap-12">
-              {/* Logo */}
+              {/* Brand */}
               <Link
                 to="/"
-                className="group flex items-center transition-all duration-300 hover:scale-105"
+                className="group flex min-w-[128px] items-center transition-all duration-300 hover:opacity-90 md:min-w-[158px]"
               >
-                <div className="relative h-10 w-10 md:h-12 md:w-12 overflow-hidden rounded-xl border border-white/10 shadow-lg group-hover:border-parks-gold/50 transition-all duration-300">
-                  <img
-                    src="/dive_logo.jpg"
-                    alt={t.common.logoAlt}
-                    className="h-full w-full object-cover"
-                  />
+                <div className="leading-tight">
+                  <span className="block text-lg font-black text-white md:text-xl">
+                    빡스로컬다이빙
+                  </span>
+                  <span className="hidden text-[11px] font-bold text-parks-gold sm:block">
+                    Parks Local Diving
+                  </span>
                 </div>
               </Link>
 
