@@ -116,7 +116,7 @@ export const DIVING_LOCATIONS: DivingLocation[] = [
     },
     color: 'from-red-500 to-red-700',
     icon: 'vn',
-    description: '나트랑 시내 무료 픽업과 보트 다이빙, 식사, 수중 촬영 포함 투어',
+    description: '나트랑 시내 무료 픽업과 Dam Bay·Madonna Rock 2회 보트 다이빙',
     path: '/vietnam/nha-trang',
   },
 ]

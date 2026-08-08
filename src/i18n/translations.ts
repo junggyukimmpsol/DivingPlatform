@@ -170,8 +170,8 @@ export const translations = {
           number: '5호점',
           name: 'Nha Trang',
           nameKo: '나트랑',
-          description: '시내 무료 픽업과 보트 다이빙',
-          features: ['혼문섬', '나트랑 베이', '호핑투어'],
+          description: '시내 무료 픽업과 허가 포인트 2회 보트 다이빙',
+          features: ['Dam Bay', 'Madonna Rock', '선상 점심'],
           services: [
             { icon: '🚗', name: '시내 무료 픽업', highlight: true },
             { icon: '🍽️', name: '식사 포함' },
@@ -632,8 +632,9 @@ export const translations = {
       'nha-trang': {
         title: '지점 특징 및 갤러리',
         features: [
-          '오전 7시 나트랑 시내 무료 픽업',
-          '픽드랍, 장비렌탈, 보트 다이빙, 식사, 수중 사진/영상 촬영 포함',
+          '오전 7:00~7:30 호텔 픽업, 나트랑 시내는 무료',
+          'Dam Bay(Tre Island), Madonna Rock(Rom Island) 허가 포인트 2회 보트 다이빙',
+          '2번째 다이빙 후 밥, 치킨, 돼지고기, 달걀, 누들, 당근 수프 선상 점심 제공',
           '깜란 공항, 다이아몬드 베이, 아미아나 지역은 그룹별 왕복 추가요금 안내',
         ],
       },
@@ -887,8 +888,8 @@ export const translations = {
           number: 'Branch 5',
           name: 'Nha Trang',
           nameKo: 'Vietnam',
-          description: 'City pick-up and boat diving included',
-          features: ['Hon Mun Island', 'Nha Trang Bay', 'Hopping Tour'],
+          description: 'City pick-up and 2 authorized boat dives',
+          features: ['Dam Bay', 'Madonna Rock', 'Boat Lunch'],
           services: [
             { icon: '🚗', name: 'City Pick-up', highlight: true },
             { icon: '🍽️', name: 'Meal Included' },
@@ -1318,8 +1319,9 @@ export const translations = {
       'nha-trang': {
         title: 'Branch Features & Gallery',
         features: [
-          'Free 7:00 AM pick-up within Nha Trang city',
-          'Pick-up/drop-off, rental gear, boat diving, meal, and underwater photo/video included',
+          '7:00-7:30 AM hotel pick-up, free within Nha Trang city',
+          'Two authorized boat dives at Dam Bay (Tre Island) and Madonna Rock (Rom Island)',
+          'Boat lunch after the second dive with rice, chicken, pork, eggs, noodles, and carrot soup',
           'Round-trip group transfer surcharge applies for Cam Ranh Airport, Diamond Bay, and Amiana areas',
         ],
       },
@@ -1573,8 +1575,8 @@ export const translations = {
           number: '5号店',
           name: 'Nha Trang',
           nameKo: '芽庄',
-          description: '市区免费接送与船潜行程',
-          features: ['黑岛', '芽庄湾', '跳岛游'],
+          description: '市区免费接送与2次授权船潜',
+          features: ['Dam Bay', 'Madonna Rock', '船上午餐'],
           services: [
             { icon: '🚗', name: '市区免费接', highlight: true },
             { icon: '🍽️', name: '含餐食' },
@@ -2004,8 +2006,9 @@ export const translations = {
       'nha-trang': {
         title: '分店特点与相册',
         features: [
-          '早上7点芽庄市区免费接客',
-          '包含接送、装备租赁、船潜、餐食、水下照片/视频拍摄',
+          '早上7:00-7:30酒店接客，芽庄市区免费',
+          '在 Dam Bay(Tre Island) 与 Madonna Rock(Rom Island) 两个授权潜点进行2次船潜',
+          '第二次潜水后在船上提供米饭、鸡肉、猪肉、鸡蛋、面条、胡萝卜汤午餐',
           '金兰机场、钻石湾、阿米亚娜区域按团队收取往返接送附加费',
         ],
       },
