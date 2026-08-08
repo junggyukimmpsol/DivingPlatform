@@ -31,6 +31,56 @@ type TourProduct = {
   priceKrw?: number
 }
 
+type BranchContentCard = {
+  icon: React.ElementType
+  title: string
+  text: string
+}
+
+type BranchReviewMeta = {
+  nickname: string
+  visitedAt: string
+  product: string
+  groupType: string
+  highlight: string
+}
+
+type BranchPresentation = {
+  includedTitle: string
+  includedDescription: string
+  includedItems: string[]
+  refundItems: { label: string; value: string }[]
+  heroBadge: string
+  heroTitle: string
+  heroAccent: string
+  heroDescription: string
+  heroNote: string
+  featureCards: BranchContentCard[]
+  scheduleTitle: string
+  scheduleNote: string
+  scheduleItems: { time: string; label: string }[]
+  scheduleFootnote?: string
+  pointMap?: {
+    title: string
+    note: string
+    src: string
+    alt: string
+  }
+  topPointsTitle: string
+  topPoints: { name: string; text: string }[]
+  photoBenefitText: string
+  mixedDivingText: string
+  priceNote: string
+  productCopy: {
+    discovery: string
+    fun: string
+  }
+  reviewTitle: string
+  reviewSubtitle: string
+  reviewHighlights: { label: string; value: string }[]
+  reviewMeta: BranchReviewMeta[]
+}
+
 type CartItem = {
   id: string
   locationId: string
@@ -109,6 +159,258 @@ const usdToKrw = (usd: number) => Math.round(usd * KRW_PER_USD)
 const formatKrw = (amount: number) => `${Math.round(amount).toLocaleString('ko-KR')}원`
 
 const getProductPriceKrw = (product: TourProduct) => product.priceKrw ?? usdToKrw(product.balance)
+
+const isDiscoveryProduct = (program: string) => /체험|Discovery|体验/.test(program)
+
+const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
+  cebu: {
+    includedTitle: '세부 투어 포함사항',
+    includedDescription: '아래 항목은 투어 필수 구성에 포함되어 있어 현장에서 별도 추가금 걱정 없이 예약할 수 있습니다.',
+    includedItems: ['장비 렌탈', '막탄 픽드랍', '점심 한식', '환경세·입장료', '수중 사진/영상', '보트 다이빙'],
+    refundItems: [
+      { label: '7일 전', value: '100% 환불' },
+      { label: '5일 전', value: '50% 환불' },
+      { label: '3일 전', value: '0% 환불' },
+    ],
+    heroBadge: '세부 막탄 올 인클루시브 투어',
+    heroTitle: '결제한 금액 그대로,',
+    heroAccent: '필수 추가금 ZERO.',
+    heroDescription: '세부 1호점은 막탄 주요 다이빙 포인트를 중심으로 체험다이빙, 펀다이빙, 스노클링, 해양 스포츠를 운영합니다. 처음 바다에 들어가는 분도 한국어 안내와 현지 가이드 케어를 통해 교육부터 입수까지 천천히 적응할 수 있게 진행합니다.',
+    heroNote: '장비 렌탈, 막탄 내 픽드랍, 보트 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영까지 투어 필수 항목에 포함됩니다.',
+    featureCards: [
+      { icon: FaCheckCircle, title: '투어 필수 항목 추가금 ZERO', text: '장비 렌탈, 막탄 내 픽드랍, 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영 포함' },
+      { icon: FaClock, title: '1회 다이빙 35분 이상', text: '짧게 사진만 찍는 체험이 아니라 교육과 수중 적응 시간을 포함해 여유 있게 진행' },
+      { icon: FaUsers, title: '2,000회 이상 진행 가이드', text: '현지 바다 상황과 포인트를 잘 아는 가이드가 당일 컨디션에 맞춰 안전하게 안내' },
+      { icon: FaCertificate, title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 다이빙샵과 강사, 가이드 기준으로 초보자도 믿고 맡길 수 있게 구성' },
+    ],
+    scheduleTitle: '세부 다이빙 투어 일정',
+    scheduleNote: '상품과 당일 해양 상황에 따라 시간은 조정될 수 있습니다.',
+    scheduleItems: [
+      { time: '08:00', label: '막탄 호텔 픽업' },
+      { time: '09:00', label: '다이빙 교육' },
+      { time: '10:00', label: '1번째 보트 다이빙' },
+      { time: '11:00', label: '2번째 보트 다이빙' },
+      { time: '12:00', label: '점심 식사' },
+      { time: '14:30', label: '3회 상품 종료/드랍' },
+    ],
+    pointMap: {
+      title: '세부 다이빙 포인트 지도',
+      note: '당일 기상과 해양 상황에 따라 다이빙샵에서 포인트를 지정합니다.',
+      src: '/assets/cebu/cebu-dive-point-map.png',
+      alt: '세부 막탄과 올랑고 섬 다이빙 포인트 지도',
+    },
+    topPointsTitle: '세부 포인트 Top 3',
+    topPoints: [
+      { name: '콘티키', text: '정어리떼를 자주 볼 수 있는 인기 포인트' },
+      { name: '올랑고 섬', text: '산호와 열대어가 많은 해양국립공원' },
+      { name: '마리곤돈 동굴', text: '해저 동굴을 경험할 수 있는 대표 포인트' },
+    ],
+    photoBenefitText: '투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 공유해드립니다. 사진 리뷰 이벤트 참여 시 추가 혜택도 받을 수 있습니다.',
+    mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정과 같은 보트 안에서 각자 수준에 맞게 즐길 수 있습니다.',
+    priceNote: '세부 상품은 원화 고정 결제 금액입니다.',
+    productCopy: {
+      discovery: '처음 다이빙하는 고객도 교육부터 입수까지 천천히 진행하는 기본 추천 상품입니다.',
+      fun: '자격증 보유 다이버가 막탄 포인트를 여유 있게 즐기기 좋은 상품입니다.',
+    },
+    reviewTitle: '세부 실제 이용 고객 후기',
+    reviewSubtitle: '닉네임은 마스킹하고, 고객이 남긴 원문 말투는 최대한 유지했습니다.',
+    reviewHighlights: [
+      { label: '처음 다이빙', value: '초보자 안심' },
+      { label: '사진/영상', value: '충분히 촬영' },
+      { label: '동행 유형', value: '커플·친구·혼자' },
+      { label: '재방문', value: '다음에도 예약' },
+    ],
+    reviewMeta: [
+      { nickname: 'tnsd****', visitedAt: '2026.07 방문', product: '보트 체험다이빙 2회', groupType: '부부 여행', highlight: '처음이라 걱정했는데 1:1로 호흡과 이퀄라이징을 봐줘서 안심됐어요.' },
+      { nickname: '23살 한국인', visitedAt: '2026.07 방문', product: '보트 펀다이빙 3회', groupType: '친구 여행', highlight: '사진도 많이 찍어주고 전날 컨디션까지 챙겨줘서 진짜 고마웠어요.' },
+      { nickname: 'mactan****', visitedAt: '2026.06 방문', product: '보트 펀다이빙 2회', groupType: '펀다이버', highlight: '막탄은 초보자와 복귀 다이버가 부담 없이 즐기기 좋은 포인트였어요.' },
+      { nickname: 'girwns****', visitedAt: '2026.06 방문', product: '보트 펀다이빙 2회', groupType: '복귀 다이버', highlight: '몇 년 만의 다이빙이었는데 물살도 괜찮고 다음에도 다시 예약하고 싶어요.' },
+      { nickname: 'solo****', visitedAt: '2026.05 방문', product: '보트 체험다이빙 2회', groupType: '혼자 여행', highlight: '여자 혼자라 걱정했는데 설명도 좋고 점심도 맛있어서 즐겁게 다녀왔어요.' },
+    ],
+  },
+  bohol: {
+    includedTitle: '보홀 투어 포함사항',
+    includedDescription: '포인트별 포함사항을 예약 전 한 번에 확인하고, 안내된 금액 기준으로 필수 추가금 없이 준비할 수 있습니다.',
+    includedItems: ['장비 렌탈', '보트 다이빙', '포인트 예약', '환경세·입장료', '수중 사진/영상', '점심 제공 상품'],
+    refundItems: [
+      { label: '7일 전', value: '100% 환불' },
+      { label: '5일 전', value: '50% 환불' },
+      { label: '3일 전', value: '0% 환불' },
+    ],
+    heroBadge: '보홀 알로나 올 인클루시브 투어',
+    heroTitle: '거북이, 산호 절벽, 섬 투어까지',
+    heroAccent: '보홀 바다를 제대로 즐깁니다.',
+    heroDescription: '보홀 지점은 알로나 비치 산호 절벽 포인트부터 나팔링, 발리카삭, 파밀라칸까지 다양한 포인트를 운영합니다. 원하는 포인트와 일정에 맞춰 체험다이빙과 펀다이빙을 선택할 수 있습니다.',
+    heroNote: '예약 후 일정과 포인트를 확인해드리고, 발리카삭·파밀라칸처럼 인기 있는 포인트는 사전 예약 기준으로 안정적으로 준비합니다.',
+    featureCards: [
+      { icon: FaCheckCircle, title: '포인트별 포함사항 한눈에 확인', text: '알로나, 나팔링, 발리카삭, 파밀라칸 상품별 포함사항과 준비 항목을 예약 전에 안내' },
+      { icon: FaClock, title: '1회 다이빙 40분 내외', text: '펀다이빙은 여유 있는 수중 시간을 기준으로, 체험다이빙은 교육 후 안전하게 진행' },
+      { icon: FaMapMarkedAlt, title: '원하는 포인트 선택 가능', text: '거북이, 산호 절벽, 물고기떼 등 여행 목적에 맞춰 포인트를 선택' },
+      { icon: FaCertificate, title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 샵과 가이드 기준으로 장비 점검과 안전 브리핑을 진행' },
+    ],
+    scheduleTitle: '보홀 다이빙 투어 일정',
+    scheduleNote: '발리카삭/파밀라칸 다이빙은 최소 1달 전 예약을 권장합니다.',
+    scheduleItems: [
+      { time: '09:00', label: '알로나 비치 도착' },
+      { time: '09:00', label: '다이빙 교육' },
+      { time: '10:00', label: '1번째 보트 다이빙' },
+      { time: '11:00', label: '2번째 보트 다이빙' },
+      { time: '12:00', label: '점심 식사' },
+      { time: '14:30', label: '3회 상품 종료' },
+    ],
+    scheduleFootnote: '점심 샌드위치는 발리카삭 또는 파밀라칸 다이빙 상품에만 제공됩니다.',
+    pointMap: {
+      title: '보홀 다이빙 포인트 지도',
+      note: '원하는 포인트로 선택 예약이 가능하며, 당일 해양 상황에 따라 조정될 수 있습니다.',
+      src: '/assets/bohol/bohol-dive-point-map.png',
+      alt: '보홀 발리카삭, 팡라오, 파밀라칸 다이빙 포인트 지도',
+    },
+    topPointsTitle: '보홀 포인트 Top 3',
+    topPoints: [
+      { name: '파밀라칸', text: '수만 마리 물고기떼와 거북이를 만날 수 있는 인기 포인트' },
+      { name: '발리카삭', text: '하루 100명 제한이 있는 보홀 대표 섬 다이빙' },
+      { name: '알로나 비치 리프', text: '알로나 해변에 길게 펼쳐진 산호 절벽 포인트' },
+    ],
+    photoBenefitText: '투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 무료로 공유해드립니다. 사진 리뷰 이벤트 참여 시 네이버 포인트 혜택도 받을 수 있습니다.',
+    mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서 연인/친구/가족이 함께 즐길 수 있습니다.',
+    priceNote: '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.',
+    productCopy: {
+      discovery: '보홀 바다가 처음인 고객도 교육부터 입수까지 차분하게 진행하는 체험 추천 상품입니다.',
+      fun: '거북이와 산호 포인트를 여유 있게 보고 싶은 자격증 보유 다이버에게 추천합니다.',
+    },
+    reviewTitle: '보홀 실제 이용 고객 후기',
+    reviewSubtitle: '거북이, 발리카삭, 가족 체험 후기를 중심으로 실제 이용감을 살렸습니다.',
+    reviewHighlights: [
+      { label: '대표 포인트', value: '발리카삭·알로나' },
+      { label: '고객 유형', value: '가족·커플' },
+      { label: '수중 경험', value: '거북이·산호' },
+      { label: '예약 포인트', value: '카드·원화 결제' },
+    ],
+    reviewMeta: [
+      { nickname: 'bohol****', visitedAt: '2026.07 방문', product: '알로나 비치 펀다이빙 2회', groupType: '복귀 다이버', highlight: '3년 만의 펀다이빙이었는데 마스터가 잘 리드해줘서 편하게 들어갔어요.' },
+      { nickname: 'victor****', visitedAt: '2026.07 방문', product: '알로나 비치 체험다이빙 2회', groupType: '커플 여행', highlight: '스노클링으로는 볼 수 없는 산호와 물고기를 가까이 볼 수 있어서 만족도가 높았어요.' },
+      { nickname: 'family****', visitedAt: '2026.06 방문', product: '보트 체험다이빙 2회', groupType: '가족 여행', highlight: '수영을 못해도 쉬운 설명과 바디랭귀지로 따라갈 수 있어서 좋았어요.' },
+      { nickname: 'license****', visitedAt: '2026.06 방문', product: '자격증 상담', groupType: '가족 여행', highlight: '체험 후 자격증까지 이어질 만큼 아이가 재미있어 했어요.' },
+    ],
+  },
+  'kota-kinabalu': {
+    includedTitle: '코타키나발루 투어 포함사항',
+    includedDescription: '해상국립공원 이동, 다이빙, 점심까지 하루 일정에 필요한 항목을 한 번에 확인할 수 있습니다.',
+    includedItems: ['장비 렌탈', '섬 이동 보트', '해상국립공원', '다이빙 교육', '점심 메뉴', '수중 사진/영상'],
+    refundItems: [
+      { label: '7일 전', value: '100% 환불' },
+      { label: '5일 전', value: '50% 환불' },
+      { label: '3일 전', value: '0% 환불' },
+    ],
+    heroBadge: '코타키나발루 해상국립공원 투어',
+    heroTitle: '도심과 가까운 섬에서',
+    heroAccent: '부담 없이 시작하는 다이빙.',
+    heroDescription: '코타키나발루 지점은 툰쿠 압둘 라만 해상국립공원 주변 포인트를 중심으로 운영합니다. 여행 일정 안에 넣기 쉬운 동선과 초보자도 따라가기 쉬운 교육 흐름이 장점입니다.',
+    heroNote: '섬 이동, 장비 준비, 다이빙 교육, 점심 식사까지 하루 일정으로 묶어 처음 다이빙하는 가족과 커플도 부담 없이 참여할 수 있습니다.',
+    featureCards: [
+      { icon: FaCheckCircle, title: '하루 일정으로 편하게 진행', text: '도심에서 가까운 섬 포인트를 중심으로 이동 부담을 줄인 투어 구성' },
+      { icon: FaClock, title: '2회 이상 수중 적응', text: '얕은 곳에서 연습 후 실제 다이빙을 진행해 처음인 고객도 차분하게 적응' },
+      { icon: FaUsers, title: '가족·커플 체험에 적합', text: '수영을 못하거나 깊은 물이 걱정되는 고객도 단계별로 케어' },
+      { icon: FaCertificate, title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 샵과 가이드를 기준으로 안전 브리핑과 장비 점검을 진행' },
+    ],
+    scheduleTitle: '코타키나발루 다이빙 투어 일정',
+    scheduleNote: '섬 이동 시간과 당일 바다 상황에 따라 순서는 조정될 수 있습니다.',
+    scheduleItems: [
+      { time: '08:30', label: '선착장 미팅' },
+      { time: '09:00', label: '섬 이동' },
+      { time: '10:00', label: '다이빙 교육' },
+      { time: '11:00', label: '1번째 다이빙' },
+      { time: '12:30', label: '가야섬 점심' },
+      { time: '14:00', label: '2번째 다이빙/복귀' },
+    ],
+    topPointsTitle: '코타키나발루 포인트 Top 3',
+    topPoints: [
+      { name: '사피섬', text: '초보자 체험 다이빙과 스노클링을 함께 즐기기 좋은 포인트' },
+      { name: '가야섬', text: '점심과 휴식 동선을 함께 잡기 좋은 대표 섬 포인트' },
+      { name: '툰쿠 압둘 라만 해상국립공원', text: '도심과 가까워 짧은 여행 일정에도 넣기 좋은 해양공원' },
+    ],
+    photoBenefitText: '수중 적응 장면부터 열대어 포인트까지 여행 기록으로 남기기 좋은 사진과 영상을 챙겨드립니다.',
+    mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서 가족/친구가 함께 참여할 수 있습니다.',
+    priceNote: '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.',
+    productCopy: {
+      discovery: '가족, 커플, 첫 다이빙 고객이 섬 투어와 함께 즐기기 좋은 기본 추천 상품입니다.',
+      fun: '해상국립공원 안에서 하루 일정으로 편하게 펀다이빙을 즐기고 싶은 분께 추천합니다.',
+    },
+    reviewTitle: '코타키나발루 실제 이용 고객 후기',
+    reviewSubtitle: '가족 체험, 첫 다이빙, 섬 투어 만족 후기를 보기 쉽게 정리했습니다.',
+    reviewHighlights: [
+      { label: '주요 고객', value: '가족·커플' },
+      { label: '초보자 케어', value: '얕은 곳 연습' },
+      { label: '일정 장점', value: '섬 투어 동선' },
+      { label: '만족 포인트', value: '친절한 가이드' },
+    ],
+    reviewMeta: [
+      { nickname: 'lily****', visitedAt: '2026.07 방문', product: '아일랜드 보트 체험다이빙 2회', groupType: '가족 여행', highlight: '아이들이 가이드님을 계속 칭찬할 정도로 친절하게 케어해줬어요.' },
+      { nickname: 'sapi****', visitedAt: '2026.07 방문', product: '체험다이빙 2회', groupType: '부부 여행', highlight: '수영을 못해도 얕은 곳에서 연습하고 들어가서 여행 중 가장 만족한 체험이 됐어요.' },
+      { nickname: 'nemo****', visitedAt: '2026.06 방문', product: '아일랜드 보트 체험다이빙 2회', groupType: '친구 여행', highlight: '언어가 걱정됐지만 알아듣기 쉽게 설명해줘서 수월하게 진행했어요.' },
+      { nickname: 'jeff****', visitedAt: '2026.06 방문', product: '체험다이빙 2회', groupType: '모녀 여행', highlight: '엄마와 처음 다이빙했는데 니모도 보고 제일 기억에 남는 하루였어요.' },
+    ],
+  },
+  bali: {
+    includedTitle: '발리 투어 포함사항',
+    includedDescription: '포인트별 이동과 장비, 식사 포함 여부를 예약 전에 확인해 발리 다이빙을 깔끔하게 준비할 수 있습니다.',
+    includedItems: ['장비 렌탈', '포인트 이동', '보트/차량 동선', '다이빙 교육', '점심 제공 상품', '수중 사진/영상'],
+    refundItems: [
+      { label: '7일 전', value: '100% 환불' },
+      { label: '5일 전', value: '50% 환불' },
+      { label: '3일 전', value: '0% 환불' },
+    ],
+    heroBadge: '발리 누사페니다·뚤람벤 투어',
+    heroTitle: '만타가오리부터 난파선까지',
+    heroAccent: '발리 대표 포인트를 한 번에.',
+    heroDescription: '발리 지점은 누사페니다, 누사두아, 뚤람벤 등 목적이 분명한 포인트를 중심으로 운영합니다. 만타가오리, 산호, 난파선처럼 보고 싶은 장면에 맞춰 상품을 고를 수 있습니다.',
+    heroNote: '지역별 이동 시간이 긴 편이라 예약 전 포인트와 일정 동선을 확인하고, 체험다이빙과 펀다이빙 모두 안전 브리핑 후 진행합니다.',
+    featureCards: [
+      { icon: FaCheckCircle, title: '포인트별 목적이 명확한 상품', text: '만타가오리, 난파선, 산호 포인트 등 원하는 장면에 맞춰 상품 선택' },
+      { icon: FaClock, title: '긴 이동도 고려한 일정 안내', text: '누사페니다와 뚤람벤 등 지역별 이동 시간을 예약 전에 미리 안내' },
+      { icon: FaMapMarkedAlt, title: '발리 대표 포인트 운영', text: '누사페니다, 누사두아, 뚤람벤 등 발리 핵심 다이빙 지역 구성' },
+      { icon: FaCertificate, title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 샵과 가이드 기준으로 안전하게 투어를 진행' },
+    ],
+    scheduleTitle: '발리 다이빙 투어 일정',
+    scheduleNote: '포인트별 이동 시간이 달라 예약 후 확정 일정으로 안내됩니다.',
+    scheduleItems: [
+      { time: '07:00', label: '숙소/미팅 픽업' },
+      { time: '08:30', label: '포인트 이동' },
+      { time: '10:00', label: '다이빙 교육/브리핑' },
+      { time: '11:00', label: '1번째 다이빙' },
+      { time: '12:30', label: '점심 및 휴식' },
+      { time: '14:00', label: '2~3번째 다이빙' },
+    ],
+    scheduleFootnote: '누사페니다, 누사두아, 뚤람벤은 이동 동선과 출발 시간이 서로 다를 수 있습니다.',
+    topPointsTitle: '발리 포인트 Top 3',
+    topPoints: [
+      { name: '누사페니다', text: '만타가오리를 기대할 수 있는 발리 대표 펀다이빙 포인트' },
+      { name: '뚤람벤', text: '난파선과 잔잔한 포인트로 체험과 펀다이빙 모두 인기' },
+      { name: '누사두아', text: '초보자 체험다이빙과 짧은 일정에 넣기 좋은 포인트' },
+    ],
+    photoBenefitText: '만타가오리, 산호, 난파선 등 포인트별 장면을 여행 기록으로 남길 수 있도록 사진과 영상을 챙겨드립니다.',
+    mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 여행 일정 안에서 각자 수준에 맞게 즐길 수 있습니다.',
+    priceNote: '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.',
+    productCopy: {
+      discovery: '발리에서 체험다이빙을 시작하고 싶은 고객이 포인트별 특징에 맞춰 선택하기 좋은 상품입니다.',
+      fun: '만타가오리, 난파선, 산호 등 목적이 분명한 포인트를 찾는 자격증 보유 다이버에게 추천합니다.',
+    },
+    reviewTitle: '발리 실제 이용 고객 후기',
+    reviewSubtitle: '누사페니다 만타, 뚤람벤, 합리적인 가격 후기를 보기 쉽게 정리했습니다.',
+    reviewHighlights: [
+      { label: '대표 장면', value: '만타가오리' },
+      { label: '포인트', value: '누사페니다·뚤람벤' },
+      { label: '일정 만족', value: '식사·간식 제공' },
+      { label: '가격', value: '합리적 구성' },
+    ],
+    reviewMeta: [
+      { nickname: 'manta****', visitedAt: '2026.07 방문', product: '누사 페니다 펀다이빙 3회', groupType: '펀다이버', highlight: '3회 다이빙 모두 만타가오리를 만나서 버킷리스트를 제대로 이뤘어요.' },
+      { nickname: 'penida****', visitedAt: '2026.07 방문', product: '누사 페니다 체험다이빙 2회', groupType: '커플 여행', highlight: '교육을 먼저 충분히 해줘서 바다에서 더 편하게 릴렉스할 수 있었어요.' },
+      { nickname: 'bali****', visitedAt: '2026.06 방문', product: '누사페니다 일일투어', groupType: '친구 여행', highlight: '전날 급하게 예약했는데 상담과 당일 진행 모두 친절했어요.' },
+      { nickname: 'turtle****', visitedAt: '2026.06 방문', product: '뚤람벤 펀다이빙 2회', groupType: '펀다이버', highlight: '장비와 보트 관리가 잘 되어 있고 거북이도 많이 봐서 만족했습니다.' },
+    ],
+  },
+}
 
 const dateToInputValue = (date: Date) => {
   const year = date.getFullYear()
@@ -275,10 +577,12 @@ const BranchPage: React.FC = () => {
     return <div className="pt-24 text-center text-white">{t.branchPage.notFound}</div>
   }
 
+  const branchId = currentBranch.id as CenterId
   const locationIndex = DIVING_LOCATIONS.findIndex(loc => loc.id === currentBranch.id)
   const locT = t.locations.locations[locationIndex]
   const displayName = language === 'en' ? currentBranch.name : locT.nameKo
   const gallery = BRANCH_GALLERIES[currentBranch.id]
+  const branchContent = BRANCH_PRESENTATION[branchId]
   const instantPaymentStartDate = dateToInputValue(addDays(new Date(), 2))
   const bookingEndDate = dateToInputValue(addMonths(new Date(), 3))
   const bookingStartMonth = toMonthStart(new Date())
@@ -297,57 +601,8 @@ const BranchPage: React.FC = () => {
   const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.unitPriceKrw * item.guests, 0)
   const cartTotalGuests = cartItems.reduce((sum, item) => sum + item.guests, 0)
   const leadTimeBlockedItems = cartItems.filter((item) => item.tourDate < instantPaymentStartDate)
-  const branchProducts = (t.branchPricing[currentBranch.id as CenterId] as TourProduct[]) ?? []
-  const isCebuBranch = currentBranch.id === 'cebu'
-  const cebuIncludedItems = ['장비 렌탈', '막탄 픽드랍', '점심 한식', '환경세·입장료', '수중 사진/영상', '보트 다이빙']
-  const cebuRefundItems = [
-    { label: '7일 전', value: '100% 환불' },
-    { label: '5일 전', value: '50% 환불' },
-    { label: '3일 전', value: '0% 환불' },
-  ]
-  const cebuReviewHighlights = [
-    { label: '처음 다이빙', value: '초보자 안심' },
-    { label: '사진/영상', value: '충분히 촬영' },
-    { label: '동행 유형', value: '커플·친구·혼자' },
-    { label: '재방문', value: '다음에도 예약' },
-  ]
-  const cebuReviewMeta = [
-    {
-      nickname: 'tnsd****',
-      visitedAt: '2026.07 방문',
-      product: '보트 체험다이빙 2회',
-      groupType: '부부 여행',
-      highlight: '처음이라 걱정했는데 1:1로 호흡과 이퀄라이징을 봐줘서 안심됐어요.',
-    },
-    {
-      nickname: '23살 한국인',
-      visitedAt: '2026.07 방문',
-      product: '보트 펀다이빙 3회',
-      groupType: '친구 여행',
-      highlight: '사진도 많이 찍어주고 전날 컨디션까지 챙겨줘서 진짜 고마웠어요.',
-    },
-    {
-      nickname: 'mactan****',
-      visitedAt: '2026.06 방문',
-      product: '보트 펀다이빙 2회',
-      groupType: '펀다이버',
-      highlight: '막탄은 초보자와 복귀 다이버가 부담 없이 즐기기 좋은 포인트였어요.',
-    },
-    {
-      nickname: 'girwns****',
-      visitedAt: '2026.06 방문',
-      product: '보트 펀다이빙 2회',
-      groupType: '복귀 다이버',
-      highlight: '몇 년 만의 다이빙이었는데 물살도 괜찮고 다음에도 다시 예약하고 싶어요.',
-    },
-    {
-      nickname: 'solo****',
-      visitedAt: '2026.05 방문',
-      product: '보트 체험다이빙 2회',
-      groupType: '혼자 여행',
-      highlight: '여자 혼자라 걱정했는데 설명도 좋고 점심도 맛있어서 즐겁게 다녀왔어요.',
-    },
-  ]
+  const branchProducts = (t.branchPricing[branchId] as TourProduct[]) ?? []
+  const recommendedProductIndex = Math.max(branchProducts.findIndex((item) => isDiscoveryProduct(item.program)), 0)
 
   const openPaymentModal = (product: TourProduct) => {
     setSelectedProduct(product)
@@ -501,275 +756,138 @@ const BranchPage: React.FC = () => {
           {activeTab === 'intro' && (
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
-                <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchDetails[currentBranch.id as CenterId].title}</h3>
-                {currentBranch.id === 'cebu' ? (
-                  <div className="mb-6 grid gap-3 sm:grid-cols-3">
-                    {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
-                      <div key={idx} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
-                        <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
-                          {String(idx + 1).padStart(2, '0')}
-                        </div>
-                        <p className="text-sm font-bold leading-6 text-slate-700">{feature}</p>
+                <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchDetails[branchId].title}</h3>
+                <div className="mb-6 grid gap-3 sm:grid-cols-3">
+                  {t.branchDetails[branchId].features.map((feature, idx) => (
+                    <div key={idx} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
+                      <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                        {String(idx + 1).padStart(2, '0')}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-slate-600 leading-relaxed mb-6 space-y-4">
-                    <ul className="list-disc list-inside space-y-2">
-                      {t.branchDetails[currentBranch.id as CenterId].features.map((feature, idx) => (
-                        <li key={idx}>{feature}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {currentBranch.id === 'cebu' && (
-                  <div className="mb-8 space-y-6">
-                    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                      <div className="rounded-2xl bg-[#06334a] p-6 text-white shadow-[0_24px_70px_rgba(3,51,74,0.2)]">
-                        <p className="mb-3 inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#06334a]">
-                          세부 막탄 올 인클루시브 투어
-                        </p>
-                        <h4 className="text-3xl font-black leading-tight">
-                          결제한 금액 그대로,
-                          <span className="block text-parks-gold">필수 추가금 ZERO.</span>
-                        </h4>
-                        <p className="mt-4 text-sm font-semibold leading-7 text-cyan-50/90">
-                          세부 1호점은 막탄 주요 다이빙 포인트를 중심으로 체험다이빙, 펀다이빙,
-                          스노클링, 해양 스포츠를 운영합니다. 처음 바다에 들어가는 분도 한국어 안내와
-                          현지 가이드 케어를 통해 교육부터 입수까지 천천히 적응할 수 있게 진행합니다.
-                        </p>
-                        <p className="mt-4 rounded-xl bg-white/10 p-4 text-sm font-bold leading-6 text-white">
-                          장비 렌탈, 막탄 내 픽드랍, 보트 다이빙, 점심 한식, 환경세, 입장료,
-                          수중 사진/영상 촬영까지 투어 필수 항목에 포함됩니다.
-                        </p>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {[
-                          { icon: FaCheckCircle, number: '01', title: '투어 필수 항목 추가금 ZERO', text: '장비 렌탈, 막탄 내 픽드랍, 다이빙, 점심 한식, 환경세, 입장료, 수중 사진/영상 촬영 포함' },
-                          { icon: FaClock, number: '02', title: '1회 다이빙 35분 이상', text: '짧게 사진만 찍는 체험이 아니라 교육과 수중 적응 시간을 포함해 여유 있게 진행' },
-                          { icon: FaUsers, number: '03', title: '2,000회 이상 진행 가이드', text: '현지 바다 상황과 포인트를 잘 아는 가이드가 당일 컨디션에 맞춰 안전하게 안내' },
-                          { icon: FaCertificate, number: '04', title: 'PADI · SSI 공식 샵 구성', text: '공식 등록된 다이빙샵과 강사, 가이드 기준으로 초보자도 믿고 맡길 수 있게 구성' },
-                        ].map((item) => {
-                          const Icon = item.icon
-                          return (
-                            <div key={item.title} className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-[0_14px_36px_rgba(8,145,178,0.1)]">
-                              <div className="mb-4 flex items-center justify-between gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#ffe66d] text-sm font-black text-[#06334a]">
-                                  {item.number}
-                                </div>
-                                <Icon className="text-cyan-600" size={22} />
-                              </div>
-                              <h5 className="text-lg font-black leading-6 text-[#06334a]">{item.title}</h5>
-                              <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{item.text}</p>
-                            </div>
-                          )
-                        })}
-                      </div>
+                      <p className="text-sm font-bold leading-6 text-slate-700">{feature}</p>
                     </div>
+                  ))}
+                </div>
 
-                    <div className="rounded-2xl border border-sky-100 bg-white p-6">
-                      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Tour Schedule</p>
-                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">세부 다이빙 투어 일정</h4>
-                        </div>
-                        <p className="text-sm text-slate-500">상품과 당일 해양 상황에 따라 시간은 조정될 수 있습니다.</p>
-                      </div>
-                      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-                        {[
-                          ['08:00', '막탄 호텔 픽업'],
-                          ['09:00', '다이빙 교육'],
-                          ['10:00', '1번째 보트 다이빙'],
-                          ['11:00', '2번째 보트 다이빙'],
-                          ['12:00', '점심 식사'],
-                          ['14:30', '3회 상품 종료/드랍'],
-                        ].map(([time, label], index) => (
-                          <div key={`${time}-${label}`} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
-                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
-                              {String(index + 1).padStart(2, '0')}
-                            </div>
-                            <p className="font-black text-cyan-600">{time}</p>
-                            <p className="mt-1 text-sm font-bold text-slate-700">{label}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
-                      <div className="flex flex-col gap-2 p-6 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Dive Point Map</p>
-                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">세부 다이빙 포인트 지도</h4>
-                        </div>
-                        <p className="text-sm text-slate-500">당일 기상과 해양 상황에 따라 다이빙샵에서 포인트를 지정합니다.</p>
-                      </div>
-                      <img
-                        src="/assets/cebu/cebu-dive-point-map.png"
-                        alt="세부 막탄과 올랑고 섬 다이빙 포인트 지도"
-                        className="w-full bg-sky-100 object-cover"
-                      />
-                    </div>
-
-                    <div className="grid gap-4 lg:grid-cols-3">
-                      <div className="rounded-2xl bg-white p-6 shadow-sm">
-                        <div className="mb-4 flex items-center justify-between">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">01</div>
-                          <FaMapMarkedAlt className="text-cyan-600" size={26} />
-                        </div>
-                        <h4 className="text-xl font-black text-[#06334a]">세부 포인트 Top 3</h4>
-                        <div className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
-                          {[
-                            ['1', '콘티키', '정어리떼를 자주 볼 수 있는 인기 포인트'],
-                            ['2', '올랑고 섬', '산호와 열대어가 많은 해양국립공원'],
-                            ['3', '마리곤돈 동굴', '해저 동굴을 경험할 수 있는 대표 포인트'],
-                          ].map(([number, name, text]) => (
-                            <div key={name} className="flex gap-3 rounded-xl bg-cyan-50 p-3">
-                              <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-cyan-600 text-xs font-black text-white">{number}</span>
-                              <p><strong>{name}</strong> - {text}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl bg-white p-6 shadow-sm">
-                        <div className="mb-4 flex items-center justify-between">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">02</div>
-                          <FaCamera className="text-amber-500" size={26} />
-                        </div>
-                        <h4 className="text-xl font-black text-[#06334a]">사진/영상 혜택</h4>
-                        <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
-                          투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 공유해드립니다.
-                          사진 리뷰 이벤트 참여 시 추가 혜택도 받을 수 있습니다.
-                        </p>
-                      </div>
-                      <div className="rounded-2xl bg-white p-6 shadow-sm">
-                        <div className="mb-4 flex items-center justify-between">
-                          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">03</div>
-                          <FaStar className="text-blue-500" size={26} />
-                        </div>
-                        <h4 className="text-xl font-black text-[#06334a]">펀다이빙 + 체험다이빙 동행 가능</h4>
-                        <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
-                          자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정과 같은 보트 안에서
-                          각자 수준에 맞게 즐길 수 있습니다.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {currentBranch.id === 'bohol' && (
-                  <div className="mb-8 space-y-6">
-                    <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                      <div className="rounded-2xl bg-[#06334a] p-6 text-white">
-                        <p className="mb-3 inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#06334a]">
-                          보홀 알로나 올 인클루시브 투어
-                        </p>
-                        <h4 className="text-3xl font-black leading-tight">
-                          거북이, 산호 절벽, 섬 투어까지
-                          <span className="block text-parks-gold">보홀 바다를 제대로 즐깁니다.</span>
-                        </h4>
-                        <p className="mt-4 text-sm leading-7 text-cyan-50/80">
-                          보홀 지점은 알로나 비치 산호 절벽 포인트부터 나팔링, 발리카삭, 파밀라칸까지
-                          다양한 포인트를 운영합니다. 예약 후 메일로 예약확정서를 발급해드리며,
-                          원하는 포인트는 사전 상담을 통해 선택할 수 있습니다.
-                        </p>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {[
-                          { icon: FaCheckCircle, title: '올 인클루시브 구성', text: '장비 렌탈, 보트 다이빙, 점심, 환경세, 입장료, 수중 사진/영상 촬영까지 포함' },
-                          { icon: FaClock, title: '1회 35분 이상', text: '펀다이빙은 1회 40분 이상, 체험다이빙은 교육 후 25~30분 내외로 진행' },
-                          { icon: FaMapMarkedAlt, title: '원하는 포인트 선택', text: '알로나, 나팔링, 발리카삭, 파밀라칸 중 일정과 목적에 맞춰 예약 가능' },
-                          { icon: FaCertificate, title: 'PADI 5 Star 기준', text: '안전 브리핑, 장비 점검, 현지 가이드 운영을 기준으로 투어 진행' },
-                        ].map((item) => {
-                          const Icon = item.icon
-                          return (
-                            <div key={item.title} className="rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
-                              <Icon className="mb-3 text-cyan-600" size={22} />
-                              <h5 className="font-black text-[#06334a]">{item.title}</h5>
-                              <p className="mt-2 text-sm leading-6 text-slate-600">{item.text}</p>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-sky-100 bg-white p-6">
-                      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                        <div>
-                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Tour Schedule</p>
-                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">보홀 다이빙 투어 일정</h4>
-                        </div>
-                        <p className="text-sm text-slate-500">발리카삭/파밀라칸 다이빙은 최소 1달 전 예약을 권장합니다.</p>
-                      </div>
-                      <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
-                        {[
-                          ['09:00', '알로나 비치 도착'],
-                          ['09:00', '다이빙 교육'],
-                          ['10:00', '1번째 보트 다이빙'],
-                          ['11:00', '2번째 보트 다이빙'],
-                          ['12:00', '점심 식사'],
-                          ['14:30', '3회 상품 종료'],
-                        ].map(([time, label], index) => (
-                          <div key={`${time}-${label}`} className="rounded-xl bg-cyan-50 p-4">
-                            <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
-                              {index + 1}
-                            </div>
-                            <p className="font-black text-cyan-600">{time}</p>
-                            <p className="mt-1 text-sm font-bold text-slate-700">{label}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <p className="mt-4 text-sm leading-6 text-amber-600">
-                        점심 샌드위치는 발리카삭 또는 파밀라칸 다이빙 상품에만 제공됩니다.
+                <div className="mb-8 space-y-6">
+                  <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+                    <div className="rounded-2xl bg-[#06334a] p-6 text-white shadow-[0_24px_70px_rgba(3,51,74,0.2)]">
+                      <p className="mb-3 inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#06334a]">
+                        {branchContent.heroBadge}
+                      </p>
+                      <h4 className="text-3xl font-black leading-tight">
+                        {branchContent.heroTitle}
+                        <span className="block text-parks-gold">{branchContent.heroAccent}</span>
+                      </h4>
+                      <p className="mt-4 text-sm font-semibold leading-7 text-cyan-50/90">
+                        {branchContent.heroDescription}
+                      </p>
+                      <p className="mt-4 rounded-xl bg-white/10 p-4 text-sm font-bold leading-6 text-white">
+                        {branchContent.heroNote}
                       </p>
                     </div>
 
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {branchContent.featureCards.map((item, index) => {
+                        const Icon = item.icon
+                        return (
+                          <div key={item.title} className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-[0_14px_36px_rgba(8,145,178,0.1)]">
+                            <div className="mb-4 flex items-center justify-between gap-3">
+                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#ffe66d] text-sm font-black text-[#06334a]">
+                                {String(index + 1).padStart(2, '0')}
+                              </div>
+                              <Icon className="text-cyan-600" size={22} />
+                            </div>
+                            <h5 className="text-lg font-black leading-6 text-[#06334a]">{item.title}</h5>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{item.text}</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-sky-100 bg-white p-6">
+                    <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Tour Schedule</p>
+                        <h4 className="mt-1 text-2xl font-black text-[#06334a]">{branchContent.scheduleTitle}</h4>
+                      </div>
+                      <p className="text-sm text-slate-500">{branchContent.scheduleNote}</p>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+                      {branchContent.scheduleItems.map((item, index) => (
+                        <div key={`${item.time}-${item.label}`} className="rounded-xl border border-cyan-100 bg-white p-4 shadow-sm">
+                          <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                            {String(index + 1).padStart(2, '0')}
+                          </div>
+                          <p className="font-black text-cyan-600">{item.time}</p>
+                          <p className="mt-1 text-sm font-bold text-slate-700">{item.label}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {branchContent.scheduleFootnote && (
+                      <p className="mt-4 text-sm font-semibold leading-6 text-amber-600">
+                        {branchContent.scheduleFootnote}
+                      </p>
+                    )}
+                  </div>
+
+                  {branchContent.pointMap && (
                     <div className="overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
                       <div className="flex flex-col gap-2 p-6 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-accent">Dive Point Map</p>
-                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">보홀 다이빙 포인트 지도</h4>
+                          <h4 className="mt-1 text-2xl font-black text-[#06334a]">{branchContent.pointMap.title}</h4>
                         </div>
-                        <p className="text-sm text-slate-500">원하는 포인트로 선택 예약이 가능하며, 당일 해양 상황에 따라 조정될 수 있습니다.</p>
+                        <p className="text-sm text-slate-500">{branchContent.pointMap.note}</p>
                       </div>
                       <img
-                        src="/assets/bohol/bohol-dive-point-map.png"
-                        alt="보홀 발리카삭, 팡라오, 파밀라칸 다이빙 포인트 지도"
+                        src={branchContent.pointMap.src}
+                        alt={branchContent.pointMap.alt}
                         className="w-full bg-sky-100 object-cover"
                       />
                     </div>
+                  )}
 
-                    <div className="grid gap-4 lg:grid-cols-3">
-                      <div className="rounded-2xl bg-[#e8fbff] p-6">
-                        <FaMapMarkedAlt className="mb-4 text-cyan-600" size={26} />
-                        <h4 className="text-xl font-black text-[#06334a]">보홀 포인트 Top 3</h4>
-                        <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
-                          <li><strong>파밀라칸</strong> - 수만 마리 물고기떼와 거북이를 만날 수 있는 인기 포인트</li>
-                          <li><strong>발리카삭</strong> - 하루 100명 제한이 있는 보홀 대표 섬 다이빙</li>
-                          <li><strong>알로나 비치 리프</strong> - 알로나 해변에 길게 펼쳐진 산호 절벽 포인트</li>
-                        </ul>
+                  <div className="grid gap-4 lg:grid-cols-3">
+                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">01</div>
+                        <FaMapMarkedAlt className="text-cyan-600" size={26} />
                       </div>
-                      <div className="rounded-2xl bg-[#fff7d6] p-6">
-                        <FaCamera className="mb-4 text-amber-500" size={26} />
-                        <h4 className="text-xl font-black text-[#06334a]">사진/영상 혜택</h4>
-                        <p className="mt-4 text-sm leading-6 text-slate-700">
-                          투어 중 최신 고프로로 사진 약 50장과 영상 약 5개를 무료로 공유해드립니다.
-                          사진 리뷰 이벤트 참여 시 네이버 포인트 혜택도 받을 수 있습니다.
-                        </p>
-                      </div>
-                      <div className="rounded-2xl bg-[#eef4ff] p-6">
-                        <FaStar className="mb-4 text-blue-500" size={26} />
-                        <h4 className="text-xl font-black text-[#06334a]">함께하는 동행 다이빙</h4>
-                        <p className="mt-4 text-sm leading-6 text-slate-700">
-                          자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 일정 안에서
-                          연인/친구/가족이 함께 즐길 수 있습니다.
-                        </p>
+                      <h4 className="text-xl font-black text-[#06334a]">{branchContent.topPointsTitle}</h4>
+                      <div className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+                        {branchContent.topPoints.map((point, index) => (
+                          <div key={point.name} className="flex gap-3 rounded-xl bg-cyan-50 p-3">
+                            <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-cyan-600 text-xs font-black text-white">
+                              {index + 1}
+                            </span>
+                            <p><strong>{point.name}</strong> - {point.text}</p>
+                          </div>
+                        ))}
                       </div>
                     </div>
+                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">02</div>
+                        <FaCamera className="text-amber-500" size={26} />
+                      </div>
+                      <h4 className="text-xl font-black text-[#06334a]">사진/영상 혜택</h4>
+                      <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
+                        {branchContent.photoBenefitText}
+                      </p>
+                    </div>
+                    <div className="rounded-2xl bg-white p-6 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">03</div>
+                        <FaStar className="text-blue-500" size={26} />
+                      </div>
+                      <h4 className="text-xl font-black text-[#06334a]">펀다이빙 + 체험다이빙 동행 가능</h4>
+                      <p className="mt-4 text-sm font-semibold leading-6 text-slate-700">
+                        {branchContent.mixedDivingText}
+                      </p>
+                    </div>
                   </div>
-                )}
+                </div>
 
                 <div className="relative group">
                   <div
@@ -851,108 +969,106 @@ const BranchPage: React.FC = () => {
             <div className="space-y-8 animate-fade-in">
               <div className="beach-panel p-8 rounded-2xl">
                 <h3 className="text-2xl font-bold text-[#06334a] mb-4">{t.branchPricing.title}</h3>
-                {isCebuBranch && (
-                  <div className="mb-5 space-y-4">
-                    <div className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-sm">
-                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Included</p>
-                          <h4 className="mt-1 text-xl font-black text-[#06334a]">세부 투어 포함사항</h4>
-                        </div>
-                        <p className="max-w-xl text-sm font-bold leading-6 text-slate-600">
-                          아래 항목은 투어 필수 구성에 포함되어 있어 현장에서 별도 추가금 걱정 없이 예약할 수 있습니다.
-                        </p>
+                <div className="mb-5 space-y-4">
+                  <div className="rounded-2xl border border-cyan-100 bg-white p-5 shadow-sm">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                      <div>
+                        <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Included</p>
+                        <h4 className="mt-1 text-xl font-black text-[#06334a]">{branchContent.includedTitle}</h4>
                       </div>
-                      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
-                        {cebuIncludedItems.map((item, index) => (
-                          <div key={item} className="rounded-xl bg-cyan-50 p-3 text-center">
-                            <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
-                              {String(index + 1).padStart(2, '0')}
-                            </div>
-                            <p className="text-sm font-black text-[#06334a]">{item}</p>
-                          </div>
-                        ))}
-                      </div>
+                      <p className="max-w-xl text-sm font-bold leading-6 text-slate-600">
+                        {branchContent.includedDescription}
+                      </p>
                     </div>
-
-                    <div className="rounded-2xl border border-cyan-200 bg-[#e8fbff] p-5">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="flex gap-4">
-                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#06334a] text-white">
-                            <FaUsers size={20} />
+                    <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-6">
+                      {branchContent.includedItems.map((item, index) => (
+                        <div key={item} className="rounded-xl bg-cyan-50 p-3 text-center">
+                          <div className="mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#06334a] text-xs font-black text-white">
+                            {String(index + 1).padStart(2, '0')}
                           </div>
-                          <div>
-                            <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Together</p>
-                            <h4 className="mt-1 text-xl font-black text-[#06334a]">펀다이빙 + 체험다이빙 동행 가능</h4>
-                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-                              자격증이 있는 일행은 펀다이빙, 처음인 일행은 체험다이빙으로 같은 일정 안에서 함께 출발하고 함께 즐길 수 있습니다.
-                            </p>
-                          </div>
+                          <p className="text-sm font-black text-[#06334a]">{item}</p>
                         </div>
-                        <div className="flex flex-wrap gap-2 md:justify-end">
-                          <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">자격증 보유자</span>
-                          <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">다이빙 처음</span>
-                          <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">같은 보트/일정</span>
-                        </div>
-                      </div>
+                      ))}
                     </div>
+                  </div>
 
-                    <div className="rounded-2xl border border-amber-200 bg-[#fff8df] p-5">
-                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="rounded-2xl border border-cyan-200 bg-[#e8fbff] p-5">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                      <div className="flex gap-4">
+                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#06334a] text-white">
+                          <FaUsers size={20} />
+                        </div>
                         <div>
-                          <p className="flex items-center gap-2 text-sm font-black text-amber-700">
-                            <FaCalendarAlt />
-                            오늘/내일 출발은 카카오톡 문의
-                          </p>
+                          <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Together</p>
+                          <h4 className="mt-1 text-xl font-black text-[#06334a]">펀다이빙 + 체험다이빙 동행 가능</h4>
                           <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-                            온라인 즉시결제는 투어 2일 전부터 3개월 이내 일정만 가능합니다. 급한 일정은 가능 여부를 먼저 확인해주세요.
+                            {branchContent.mixedDivingText}
                           </p>
                         </div>
-                        <a
-                          href={KAKAO_CHAT_URL}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center justify-center rounded-full bg-[#06334a] px-5 py-3 text-sm font-black text-white transition hover:bg-cyan-700"
-                        >
-                          카카오톡 문의
-                        </a>
+                      </div>
+                      <div className="flex flex-wrap gap-2 md:justify-end">
+                        <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">자격증 보유자</span>
+                        <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">다이빙 처음</span>
+                        <span className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#06334a] shadow-sm">같은 일정</span>
                       </div>
                     </div>
                   </div>
-                )}
 
-                {isCebuBranch ? (
-                  <div className="grid gap-4 lg:grid-cols-3">
-                    {branchProducts.length > 0 ? (
-                      branchProducts.map((item, index) => {
-                        const isBeginnerPick = index === 0
-                        return (
-                          <div
-                            key={item.program}
-                            className={`flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
-                              isBeginnerPick ? 'border-parks-gold ring-2 ring-parks-gold/30' : 'border-cyan-100'
-                            }`}
-                          >
-                            <div className="mb-4 flex items-start justify-between gap-3">
-                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
-                                {String(index + 1).padStart(2, '0')}
-                              </div>
-                              {isBeginnerPick && (
-                                <span className="rounded-full bg-parks-gold px-3 py-1 text-xs font-black text-[#06334a]">
-                                  초보자 추천
-                                </span>
-                              )}
+                  <div className="rounded-2xl border border-amber-200 bg-[#fff8df] p-5">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <p className="flex items-center gap-2 text-sm font-black text-amber-700">
+                          <FaCalendarAlt />
+                          오늘/내일 출발은 카카오톡 문의
+                        </p>
+                        <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                          온라인 즉시결제는 투어 2일 전부터 3개월 이내 일정만 가능합니다. 급한 일정은 가능 여부를 먼저 확인해주세요.
+                        </p>
+                      </div>
+                      <a
+                        href={KAKAO_CHAT_URL}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center rounded-full bg-[#06334a] px-5 py-3 text-sm font-black text-white transition hover:bg-cyan-700"
+                      >
+                        카카오톡 문의
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-3">
+                  {branchProducts.length > 0 ? (
+                    branchProducts.map((item, index) => {
+                      const isBeginnerPick = index === recommendedProductIndex && isDiscoveryProduct(item.program)
+                      return (
+                        <div
+                          key={item.program}
+                          className={`flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
+                            isBeginnerPick ? 'border-parks-gold ring-2 ring-parks-gold/30' : 'border-cyan-100'
+                          }`}
+                        >
+                          <div className="mb-4 flex items-start justify-between gap-3">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
+                              {String(index + 1).padStart(2, '0')}
                             </div>
-                            <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
-                            <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
-                              {isBeginnerPick
-                                ? '처음 다이빙하는 고객도 교육부터 입수까지 천천히 진행하는 기본 추천 상품입니다.'
-                                : '자격증 보유 다이버가 막탄 포인트를 여유 있게 즐기기 좋은 상품입니다.'}
-                            </p>
-                            <div className="mt-5 rounded-xl bg-cyan-50 p-4">
+                            {isBeginnerPick && (
+                              <span className="rounded-full bg-parks-gold px-3 py-1 text-xs font-black text-[#06334a]">
+                                초보자 추천
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
+                          <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
+                            {isDiscoveryProduct(item.program) ? branchContent.productCopy.discovery : branchContent.productCopy.fun}
+                          </p>
+                          <div className="mt-auto pt-5">
+                            <div className="rounded-xl bg-cyan-50 p-4">
                               <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">1인 결제금액</p>
                               <p className="mt-1 text-3xl font-black text-[#06334a]">{formatKrw(getProductPriceKrw(item))}</p>
-                              <p className="mt-1 text-xs font-bold text-slate-500">원화 고정가</p>
+                              <p className="mt-1 text-xs font-bold text-slate-500">
+                                {item.priceKrw ? '원화 고정가' : '1 USD = 1,550원 기준'}
+                              </p>
                             </div>
                             <button
                               type="button"
@@ -963,80 +1079,36 @@ const BranchPage: React.FC = () => {
                               장바구니 담기
                             </button>
                           </div>
-                        )
-                      })
-                    ) : (
-                      <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center text-slate-500">
-                        {t.branchPricing.empty}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left bg-white rounded-xl overflow-hidden shadow-sm">
-                      <thead>
-                        <tr className="bg-[#06334a] text-white">
-                          <th className="py-4 px-6 font-bold">{t.branchPricing.headers.program}</th>
-                          <th className="py-4 px-6 text-right font-bold text-parks-gold">{t.branchPricing.headers.price}</th>
-                          <th className="py-4 px-6 text-right font-bold">장바구니</th>
-                        </tr>
-                      </thead>
-                      <tbody className="text-slate-700 divide-y divide-sky-100">
-                        {branchProducts.length > 0 ? (
-                          branchProducts.map((item, index) => (
-                            <tr key={index} className="hover:bg-cyan-50 transition-colors">
-                              <td className="py-4 px-6 font-medium">{item.program}</td>
-                              <td className="py-4 px-6 text-right tabular-nums text-parks-gold font-bold">
-                                {formatKrw(getProductPriceKrw(item))}
-                              </td>
-                              <td className="py-4 px-6 text-right">
-                                <button
-                                  type="button"
-                                  onClick={() => openPaymentModal(item)}
-                                  className="inline-flex items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-2 text-sm font-black text-ocean-dark transition hover:bg-white"
-                                >
-                                  <FaShoppingCart size={14} />
-                                  담기
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan={3} className="py-8 text-center text-slate-500 italic">
-                              {t.branchPricing.empty}
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                        </div>
+                      )
+                    })
+                  ) : (
+                    <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center text-slate-500">
+                      {t.branchPricing.empty}
+                    </div>
+                  )}
+                </div>
                 <p className="mt-3 text-xs text-slate-500">
-                  {isCebuBranch
-                    ? '세부 상품은 원화 고정 결제 금액입니다.'
-                    : '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.'}
+                  {branchContent.priceNote}
                 </p>
 
-                {isCebuBranch && (
-                  <div className="mt-5 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Refund</p>
-                        <h4 className="mt-1 text-xl font-black text-[#06334a]">환불 규정</h4>
-                      </div>
-                      <p className="text-sm font-semibold text-slate-500">투어 시작일 기준으로 적용됩니다.</p>
+                <div className="mt-5 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Refund</p>
+                      <h4 className="mt-1 text-xl font-black text-[#06334a]">환불 규정</h4>
                     </div>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                      {cebuRefundItems.map((item) => (
-                        <div key={item.label} className="rounded-xl bg-cyan-50 p-4">
-                          <p className="text-sm font-black text-cyan-700">{item.label}</p>
-                          <p className="mt-1 text-lg font-black text-[#06334a]">{item.value}</p>
-                        </div>
-                      ))}
-                    </div>
+                    <p className="text-sm font-semibold text-slate-500">투어 시작일 기준으로 적용됩니다.</p>
                   </div>
-                )}
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    {branchContent.refundItems.map((item) => (
+                      <div key={item.label} className="rounded-xl bg-cyan-50 p-4">
+                        <p className="text-sm font-black text-cyan-700">{item.label}</p>
+                        <p className="mt-1 text-lg font-black text-[#06334a]">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="mt-6 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1278,31 +1350,29 @@ const BranchPage: React.FC = () => {
                 </p>
 
                 {(() => {
-                  const reviews = REVIEW_DATA[language]?.[currentBranch.id as CenterId] || []
+                  const reviews = REVIEW_DATA[language]?.[branchId] || []
 
                   return (
                     <div className="relative group">
-                      {isCebuBranch && (
-                        <div className="mb-6 rounded-2xl border border-cyan-100 bg-white p-5 shadow-sm">
-                          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                            <div>
-                              <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Real Reviews</p>
-                              <h4 className="mt-1 text-xl font-black text-[#06334a]">세부 실제 이용 고객 후기</h4>
-                              <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
-                                닉네임은 마스킹하고, 고객이 남긴 원문 말투는 최대한 유지했습니다.
-                              </p>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:min-w-[520px]">
-                              {cebuReviewHighlights.map((item) => (
-                                <div key={item.label} className="rounded-xl bg-cyan-50 p-3">
-                                  <p className="text-xs font-black text-cyan-700">{item.label}</p>
-                                  <p className="mt-1 text-sm font-black text-[#06334a]">{item.value}</p>
-                                </div>
-                              ))}
-                            </div>
+                      <div className="mb-6 rounded-2xl border border-cyan-100 bg-white p-5 shadow-sm">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-[0.2em] text-ocean-teal">Real Reviews</p>
+                            <h4 className="mt-1 text-xl font-black text-[#06334a]">{branchContent.reviewTitle}</h4>
+                            <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                              {branchContent.reviewSubtitle}
+                            </p>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:min-w-[520px]">
+                            {branchContent.reviewHighlights.map((item) => (
+                              <div key={item.label} className="rounded-xl bg-cyan-50 p-3">
+                                <p className="text-xs font-black text-cyan-700">{item.label}</p>
+                                <p className="mt-1 text-sm font-black text-[#06334a]">{item.value}</p>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      )}
+                      </div>
 
                       <div
                         ref={scrollContainerRef}
@@ -1310,7 +1380,7 @@ const BranchPage: React.FC = () => {
                       >
                         {reviews.length > 0 ? (
                           reviews.map((review: string, i: number) => {
-                            const reviewMeta = isCebuBranch ? cebuReviewMeta[i % cebuReviewMeta.length] : null
+                            const reviewMeta = branchContent.reviewMeta[i % branchContent.reviewMeta.length]
 
                             return (
                               <div
