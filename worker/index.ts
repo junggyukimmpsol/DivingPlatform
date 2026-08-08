@@ -34,6 +34,9 @@ type Env = {
   PORTONE_STORE_ID?: string
   PORTONE_CHANNEL_KEY?: string
   PORTONE_API_SECRET?: string
+  PORTONE_V1_CUSTOMER_CODE?: string
+  PORTONE_V1_REST_API_KEY?: string
+  PORTONE_V1_REST_API_SECRET?: string
   OPENAI_API_KEY?: string
   OPENAI_IMAGE_MODEL?: string
   OPENAI_IMAGE_PROXY_URL?: string
@@ -1034,13 +1037,14 @@ const sendPaidOrderEmailFromOrder = async (env: Env, order: PaidOrderRow, items:
   )
 
 const handlePaymentConfig = async (_request: Request, env: Env) => {
-  if (!env.PORTONE_STORE_ID || !env.PORTONE_CHANNEL_KEY) {
-    return json({ error: 'PORTONE_STORE_ID와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
+  if (!env.PORTONE_V1_CUSTOMER_CODE || !env.PORTONE_CHANNEL_KEY) {
+    return json({ error: 'PORTONE_V1_CUSTOMER_CODE와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
   }
 
   return json({
-    storeId: env.PORTONE_STORE_ID,
+    customerCode: env.PORTONE_V1_CUSTOMER_CODE,
     channelKey: env.PORTONE_CHANNEL_KEY,
+    mode: 'v1',
     provider: 'nhn-kcp',
   })
 }
@@ -1048,8 +1052,8 @@ const handlePaymentConfig = async (_request: Request, env: Env) => {
 const handlePaymentPrepare = async (request: Request, env: Env) => {
   const setupError = requireBindings(env)
   if (setupError) return setupError
-  if (!env.PORTONE_STORE_ID || !env.PORTONE_CHANNEL_KEY) {
-    return json({ error: 'NHN KCP 결제를 위한 PORTONE_STORE_ID와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
+  if (!env.PORTONE_V1_CUSTOMER_CODE || !env.PORTONE_CHANNEL_KEY) {
+    return json({ error: 'NHN KCP 결제를 위한 PORTONE_V1_CUSTOMER_CODE와 PORTONE_CHANNEL_KEY 설정이 필요합니다.' }, { status: 503 })
   }
 
   const body = (await request.json()) as {
@@ -1194,7 +1198,8 @@ const handlePaymentPrepare = async (request: Request, env: Env) => {
   return json({
     ok: true,
     provider: 'nhn-kcp',
-    storeId: env.PORTONE_STORE_ID,
+    mode: 'v1',
+    customerCode: env.PORTONE_V1_CUSTOMER_CODE,
     channelKey: env.PORTONE_CHANNEL_KEY,
     paymentId,
     orderName,
@@ -1212,37 +1217,91 @@ const handlePaymentComplete = async (request: Request, env: Env) => {
   if (setupError) return setupError
   const emailSetupError = requireEmailBindings(env)
   if (emailSetupError) return emailSetupError
-  if (!env.PORTONE_API_SECRET) return json({ error: 'PORTONE_API_SECRET 설정이 필요합니다.' }, { status: 503 })
 
   const body = (await request.json()) as {
+    impUid?: string
     paymentId?: string
   }
   const paymentId = String(body.paymentId || '').trim()
+  const impUid = String(body.impUid || '').trim()
   if (!paymentId) return json({ error: '결제번호가 없습니다.' }, { status: 400 })
 
   const order = await env.DB!.prepare('SELECT * FROM paid_orders WHERE payment_id = ?').bind(paymentId).first<PaidOrderRow>()
   if (!order) return json({ error: '결제 대기 주문을 찾을 수 없습니다.' }, { status: 404 })
   if (order.status === 'paid') return json({ ok: true, message: '이미 결제 완료 처리된 예약입니다.' })
 
-  const paymentResponse = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
-    headers: {
-      authorization: `PortOne ${env.PORTONE_API_SECRET}`,
-    },
-  })
+  let paidAmount = 0
+  let paymentStatus = ''
 
-  if (!paymentResponse.ok) {
-    const detail = await paymentResponse.text()
-    return json({ error: '포트원 결제 조회에 실패했습니다.', detail }, { status: 502 })
+  if (impUid) {
+    if (!env.PORTONE_V1_REST_API_KEY || !env.PORTONE_V1_REST_API_SECRET) {
+      return json({ error: 'PORTONE_V1_REST_API_KEY와 PORTONE_V1_REST_API_SECRET 설정이 필요합니다.' }, { status: 503 })
+    }
+
+    const tokenResponse = await fetch('https://api.iamport.kr/users/getToken', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        imp_key: env.PORTONE_V1_REST_API_KEY,
+        imp_secret: env.PORTONE_V1_REST_API_SECRET,
+      }),
+    })
+    if (!tokenResponse.ok) {
+      const detail = await tokenResponse.text()
+      return json({ error: '포트원 V1 토큰 발급에 실패했습니다.', detail }, { status: 502 })
+    }
+
+    const tokenData = await tokenResponse.json() as {
+      response?: { access_token?: string }
+    }
+    const accessToken = tokenData.response?.access_token
+    if (!accessToken) return json({ error: '포트원 V1 토큰 응답이 올바르지 않습니다.' }, { status: 502 })
+
+    const paymentResponse = await fetch(`https://api.iamport.kr/payments/${encodeURIComponent(impUid)}`, {
+      headers: { authorization: accessToken },
+    })
+    if (!paymentResponse.ok) {
+      const detail = await paymentResponse.text()
+      return json({ error: '포트원 V1 결제 조회에 실패했습니다.', detail }, { status: 502 })
+    }
+
+    const payment = await paymentResponse.json() as {
+      response?: {
+        amount?: number
+        merchant_uid?: string
+        status?: string
+      }
+    }
+    if (payment.response?.merchant_uid !== paymentId) {
+      return json({ error: '포트원 주문번호와 예약 주문번호가 일치하지 않습니다.' }, { status: 400 })
+    }
+    paidAmount = Number(payment.response?.amount || 0)
+    paymentStatus = String(payment.response?.status || '').toLowerCase()
+  } else {
+    if (!env.PORTONE_API_SECRET) return json({ error: 'PORTONE_API_SECRET 설정이 필요합니다.' }, { status: 503 })
+
+    const paymentResponse = await fetch(`https://api.portone.io/payments/${encodeURIComponent(paymentId)}`, {
+      headers: {
+        authorization: `PortOne ${env.PORTONE_API_SECRET}`,
+      },
+    })
+
+    if (!paymentResponse.ok) {
+      const detail = await paymentResponse.text()
+      return json({ error: '포트원 결제 조회에 실패했습니다.', detail }, { status: 502 })
+    }
+
+    const payment = await paymentResponse.json() as {
+      status?: string
+      amount?: { total?: number; paid?: number }
+      paidAmount?: number
+      totalAmount?: number
+    }
+    paidAmount = Number(payment.amount?.total ?? payment.amount?.paid ?? payment.paidAmount ?? payment.totalAmount ?? 0)
+    paymentStatus = String(payment.status || '').toUpperCase()
   }
 
-  const payment = await paymentResponse.json() as {
-    status?: string
-    amount?: { total?: number; paid?: number }
-    paidAmount?: number
-    totalAmount?: number
-  }
-  const paidAmount = Number(payment.amount?.total ?? payment.amount?.paid ?? payment.paidAmount ?? payment.totalAmount ?? 0)
-  if (payment.status !== 'PAID') return json({ error: '결제가 완료된 상태가 아닙니다.' }, { status: 400 })
+  if (paymentStatus !== 'paid' && paymentStatus !== 'PAID') return json({ error: '결제가 완료된 상태가 아닙니다.' }, { status: 400 })
   if (paidAmount !== order.total_amount_krw) return json({ error: '실제 결제금액이 장바구니 금액과 일치하지 않습니다.' }, { status: 400 })
 
   await env

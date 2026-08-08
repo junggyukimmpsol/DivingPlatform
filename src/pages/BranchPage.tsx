@@ -55,27 +55,29 @@ type CheckoutCustomer = {
 
 type PortOnePaymentResponse = {
   code?: string
+  error_msg?: string
+  imp_uid?: string
   message?: string
+  merchant_uid?: string
   paymentId?: string
+  success?: boolean
 }
 
 type PortOnePaymentRequest = {
-  storeId: string
   channelKey: string
-  paymentId: string
-  orderName: string
-  totalAmount: number
-  currency: 'KRW'
-  payMethod: 'CARD'
-  customer?: {
-    fullName?: string
-    email?: string
-    phoneNumber?: string
-  }
+  pay_method: 'card'
+  merchant_uid: string
+  name: string
+  amount: number
+  buyer_email?: string
+  buyer_name?: string
+  buyer_tel?: string
+  m_redirect_url?: string
 }
 
 type PaymentPrepareResponse = {
   channelKey?: string
+  customerCode?: string
   customer?: {
     email?: string
     fullName?: string
@@ -91,8 +93,9 @@ type PaymentPrepareResponse = {
 
 declare global {
   interface Window {
-    PortOne?: {
-      requestPayment: (request: PortOnePaymentRequest) => Promise<PortOnePaymentResponse>
+    IMP?: {
+      init: (customerCode: string) => void
+      request_pay: (request: PortOnePaymentRequest, callback: (response: PortOnePaymentResponse) => void) => void
     }
   }
 }
@@ -129,12 +132,12 @@ const getMonthKey = (date: Date) => date.getFullYear() * 12 + date.getMonth()
 
 const loadPortOneSdk = () =>
   new Promise<void>((resolve, reject) => {
-    if (window.PortOne) {
+    if (window.IMP) {
       resolve()
       return
     }
 
-    const existingScript = document.querySelector<HTMLScriptElement>('script[data-portone-sdk="true"]')
+    const existingScript = document.querySelector<HTMLScriptElement>('script[data-portone-v1-sdk="true"]')
     if (existingScript) {
       existingScript.addEventListener('load', () => resolve(), { once: true })
       existingScript.addEventListener('error', () => reject(new Error('결제 SDK를 불러오지 못했습니다.')), { once: true })
@@ -142,12 +145,21 @@ const loadPortOneSdk = () =>
     }
 
     const script = document.createElement('script')
-    script.src = 'https://cdn.portone.io/v2/browser-sdk.js'
+    script.src = 'https://cdn.iamport.kr/v1/iamport.js'
     script.async = true
-    script.dataset.portoneSdk = 'true'
+    script.dataset.portoneV1Sdk = 'true'
     script.onload = () => resolve()
     script.onerror = () => reject(new Error('결제 SDK를 불러오지 못했습니다.'))
     document.head.appendChild(script)
+  })
+
+const requestPortOneV1Payment = (request: PortOnePaymentRequest) =>
+  new Promise<PortOnePaymentResponse>((resolve, reject) => {
+    if (!window.IMP) {
+      reject(new Error('결제 SDK가 준비되지 않았습니다.'))
+      return
+    }
+    window.IMP.request_pay(request, (response) => resolve(response))
   })
 
 const BranchPage: React.FC = () => {
@@ -372,7 +384,7 @@ const BranchPage: React.FC = () => {
       const prepared = await prepareResponse.json() as PaymentPrepareResponse
       if (
         !prepareResponse.ok ||
-        !prepared.storeId ||
+        !prepared.customerCode ||
         !prepared.channelKey ||
         !prepared.paymentId ||
         !prepared.orderName ||
@@ -382,25 +394,23 @@ const BranchPage: React.FC = () => {
       }
 
       await loadPortOneSdk()
-      if (!window.PortOne) throw new Error('결제 SDK가 준비되지 않았습니다.')
+      if (!window.IMP) throw new Error('결제 SDK가 준비되지 않았습니다.')
+      window.IMP.init(prepared.customerCode)
 
-      const payment = await window.PortOne.requestPayment({
-        storeId: prepared.storeId,
+      const payment = await requestPortOneV1Payment({
         channelKey: prepared.channelKey,
-        paymentId: prepared.paymentId,
-        orderName: prepared.orderName,
-        totalAmount: prepared.totalAmount,
-        currency: 'KRW',
-        payMethod: 'CARD',
-        customer: {
-          fullName: prepared.customer?.fullName || checkoutCustomer.name,
-          email: prepared.customer?.email || checkoutCustomer.email,
-          phoneNumber: prepared.customer?.phoneNumber || checkoutCustomer.phone,
-        },
+        pay_method: 'card',
+        merchant_uid: prepared.paymentId,
+        name: prepared.orderName,
+        amount: prepared.totalAmount,
+        buyer_name: prepared.customer?.fullName || checkoutCustomer.name,
+        buyer_email: prepared.customer?.email || checkoutCustomer.email,
+        buyer_tel: prepared.customer?.phoneNumber || checkoutCustomer.phone,
+        m_redirect_url: `${window.location.origin}${window.location.pathname}`,
       })
 
-      if (payment.code) {
-        throw new Error(payment.message || '결제가 취소되었거나 실패했습니다.')
+      if (payment.success === false || payment.code) {
+        throw new Error(payment.error_msg || payment.message || '결제가 취소되었거나 실패했습니다.')
       }
 
       setCheckoutMessage('결제 완료 여부를 확인하는 중입니다.')
@@ -410,7 +420,8 @@ const BranchPage: React.FC = () => {
         headers: { 'content-type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          paymentId: payment.paymentId || prepared.paymentId,
+          paymentId: payment.merchant_uid || payment.paymentId || prepared.paymentId,
+          impUid: payment.imp_uid,
         }),
       })
       const data = await response.json() as { error?: string; message?: string }
