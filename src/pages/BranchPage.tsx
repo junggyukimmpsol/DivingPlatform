@@ -32,6 +32,7 @@ type TourProduct = {
   program: string
   balance: number
   priceKrw?: number
+  soldOut?: boolean
 }
 
 type BranchContentCard = {
@@ -173,6 +174,8 @@ const usdToKrw = (usd: number) => Math.round(usd * KRW_PER_USD)
 const formatKrw = (amount: number) => `${Math.round(amount).toLocaleString('ko-KR')}원`
 
 const getProductPriceKrw = (product: TourProduct) => product.priceKrw ?? usdToKrw(product.balance)
+
+const hasFixedKrwPrice = (product: TourProduct) => typeof product.priceKrw === 'number'
 
 const isDiscoveryProduct = (program: string) => /체험|Discovery|体验/.test(program)
 
@@ -547,7 +550,7 @@ const BRANCH_PRESENTATION: Record<CenterId, BranchPresentation> = {
     ],
     photoBenefitText: '만타가오리, 산호, 난파선 등 포인트별 장면을 여행 기록으로 남길 수 있도록 사진과 영상을 챙겨드립니다.',
     mixedDivingText: '자격증 보유자는 펀다이빙, 미보유자는 체험다이빙으로 같은 여행 일정 안에서 각자 수준에 맞게 즐길 수 있습니다.',
-    priceNote: '1 USD = 1,550원 기준으로 환산한 원화 결제 금액입니다.',
+    priceNote: '발리 상품은 원화 고정 결제 금액입니다. 현재 누사페니다 상품만 예약 가능하며, 뚤람벤/누사두아 상품은 품절 처리되어 있습니다.',
     productCopy: {
       discovery: '발리에서 체험다이빙을 시작하고 싶은 고객이 포인트별 특징에 맞춰 선택하기 좋은 상품입니다.',
       fun: '만타가오리, 난파선, 산호 등 목적이 분명한 포인트를 찾는 자격증 보유 다이버에게 추천합니다.',
@@ -800,6 +803,12 @@ const BranchPage: React.FC = () => {
   ].filter((section) => section.entries.length > 0)
 
   const openPaymentModal = (product: TourProduct) => {
+    if (product.soldOut) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('현재 품절된 상품입니다. 예약 가능한 상품을 선택해주세요.')
+      return
+    }
+
     setSelectedProduct(product)
     setGuestCount(1)
     setTourDate('')
@@ -812,6 +821,11 @@ const BranchPage: React.FC = () => {
 
   const addSelectedProductToCart = () => {
     if (!selectedProduct) return
+    if (selectedProduct.soldOut) {
+      setCheckoutStatus('error')
+      setCheckoutMessage('현재 품절된 상품입니다. 예약 가능한 상품을 선택해주세요.')
+      return
+    }
     if (!tourDate) {
       setCheckoutStatus('error')
       setCheckoutMessage('투어 날짜를 먼저 선택해주세요.')
@@ -1375,17 +1389,21 @@ const BranchPage: React.FC = () => {
                                 key={item.program}
                                 className={`flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${
                                   isBeginnerPick ? 'border-parks-gold ring-2 ring-parks-gold/30' : 'border-cyan-100'
-                                }`}
+                                } ${item.soldOut ? 'opacity-70 hover:translate-y-0 hover:shadow-sm' : ''}`}
                               >
                                 <div className="mb-4 flex items-start justify-between gap-3">
                                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-sm font-black text-white">
                                     {String(index + 1).padStart(2, '0')}
                                   </div>
-                                  {isBeginnerPick && (
+                                  {item.soldOut ? (
+                                    <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-black text-slate-600">
+                                      품절
+                                    </span>
+                                  ) : isBeginnerPick ? (
                                     <span className="rounded-full bg-parks-gold px-3 py-1 text-xs font-black text-[#06334a]">
                                       초보자 추천
                                     </span>
-                                  )}
+                                  ) : null}
                                 </div>
                                 <h4 className="min-h-[3.5rem] text-lg font-black leading-7 text-[#06334a]">{item.program}</h4>
                                 <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">
@@ -1399,18 +1417,21 @@ const BranchPage: React.FC = () => {
                                 <div className="mt-auto pt-5">
                                   <div className="rounded-xl bg-cyan-50 p-4">
                                     <p className="text-xs font-black uppercase tracking-[0.18em] text-ocean-teal">1인 결제금액</p>
-                                    <p className="mt-1 text-3xl font-black text-[#06334a]">{formatKrw(getProductPriceKrw(item))}</p>
+                                    <p className="mt-1 text-3xl font-black text-[#06334a]">
+                                      {item.soldOut ? '품절' : formatKrw(getProductPriceKrw(item))}
+                                    </p>
                                     <p className="mt-1 text-xs font-bold text-slate-500">
-                                      {item.priceKrw ? '원화 고정가' : '1 USD = 1,550원 기준'}
+                                      {item.soldOut ? '예약 재개 시 공지 예정' : hasFixedKrwPrice(item) ? '원화 고정가' : '1 USD = 1,550원 기준'}
                                     </p>
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => openPaymentModal(item)}
-                                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-3 text-sm font-black text-ocean-dark transition hover:bg-[#06334a] hover:text-white"
+                                    disabled={item.soldOut}
+                                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-parks-gold px-4 py-3 text-sm font-black text-ocean-dark transition hover:bg-[#06334a] hover:text-white disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-500"
                                   >
                                     <FaShoppingCart size={14} />
-                                    장바구니 담기
+                                    {item.soldOut ? '품절' : '장바구니 담기'}
                                   </button>
                                 </div>
                               </div>
@@ -1861,7 +1882,7 @@ const BranchPage: React.FC = () => {
                   <span className="ml-1 text-sm font-bold text-slate-400">/ 1인</span>
                 </p>
                 <p className="mt-2 text-xs text-slate-500">
-                  {selectedProduct.priceKrw ? '원화 고정가' : '1 USD = 1,550원 기준'}
+                  {hasFixedKrwPrice(selectedProduct) ? '원화 고정가' : '1 USD = 1,550원 기준'}
                 </p>
               </div>
 
