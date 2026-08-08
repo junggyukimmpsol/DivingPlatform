@@ -22,5 +22,9 @@
 			"binding": "CERT_BUCKET",
 			"bucket_name": "divingplatform-certificates"
 		}
-	]
+	],
+	"vars": {
+		"PORTONE_STORE_ID": "store-a75f2549-f817-4a69-913b-2d60f2a3d9c0",
+		"PORTONE_CHANNEL_KEY": "channel-key-8a513f5b-d09a-4a26-b010-33e94badd333"
+	}
 }
