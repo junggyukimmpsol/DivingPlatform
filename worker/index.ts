@@ -585,6 +585,11 @@ const saveProfile = async (env: Env, userId: string, form: FormData) => {
   return null
 }
 
+const deletePendingUser = async (env: Env, userId: string) => {
+  await env.DB!.prepare('DELETE FROM diver_profiles WHERE user_id = ?').bind(userId).run()
+  await env.DB!.prepare('DELETE FROM users WHERE id = ? AND email_verified_at IS NULL').bind(userId).run()
+}
+
 const handleRegister = async (request: Request, env: Env) => {
   const setupError = requireBindings(env)
   if (setupError) return setupError
@@ -603,9 +608,36 @@ const handleRegister = async (request: Request, env: Env) => {
     return json({ error: '비밀번호는 8자 이상이어야 합니다.' }, { status: 400 })
   }
 
-  const existing = await env.DB!.prepare('SELECT id FROM users WHERE email = ?').bind(email).first()
+  const existing = await env.DB!.prepare('SELECT * FROM users WHERE email = ?').bind(email).first<UserRow>()
   if (existing) {
-    return json({ error: '이미 가입된 이메일입니다.' }, { status: 409 })
+    if (existing.email_verified_at) {
+      return json({ error: '이미 가입된 이메일입니다. 로그인해주세요.' }, { status: 409 })
+    }
+
+    const passwordHash = await hashPassword(password)
+    await env
+      .DB!.prepare(
+        `UPDATE users
+         SET name = ?,
+             password_hash = ?,
+             password_salt = ?,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+      )
+      .bind(name, passwordHash.hash, passwordHash.salt, existing.id)
+      .run()
+
+    const profileError = await saveProfile(env, existing.id, form)
+    if (profileError) return profileError
+
+    const verificationToken = await createVerificationToken(env, existing.id)
+    const emailError = await sendVerificationEmail(request, env, email, name, verificationToken)
+    if (emailError) return emailError
+
+    return json({
+      needsEmailVerification: true,
+      message: '이미 가입 대기 중인 이메일입니다. 새 인증 링크를 다시 보냈습니다. 이메일 인증 후 로그인해주세요.',
+    })
   }
 
   const userId = crypto.randomUUID()
@@ -619,11 +651,17 @@ const handleRegister = async (request: Request, env: Env) => {
     .run()
 
   const profileError = await saveProfile(env, userId, form)
-  if (profileError) return profileError
+  if (profileError) {
+    await deletePendingUser(env, userId)
+    return profileError
+  }
 
   const verificationToken = await createVerificationToken(env, userId)
   const emailError = await sendVerificationEmail(request, env, email, name, verificationToken)
-  if (emailError) return emailError
+  if (emailError) {
+    await deletePendingUser(env, userId)
+    return emailError
+  }
 
   return json(
     {
