@@ -7,7 +7,9 @@ import {
   FaCheckCircle,
   FaClock,
   FaComments,
+  FaFileSignature,
   FaStar,
+  FaShieldAlt,
   FaUsers,
 } from 'react-icons/fa'
 
@@ -47,6 +49,23 @@ const HomePage: React.FC = () => {
     { number: '02', label: '장비 사이즈·자격증 원클릭 예약', text: '키, 몸무게, 발사이즈, 자격증 정보를 한 번만 등록하면 다음 예약부터 반복 제출 없이 사용할 수 있습니다.' },
     { number: '03', label: 'PADI · SSI 공식 다이빙샵 구성', text: '공식 등록된 다이빙샵과 강사, 가이드 중심으로 투어를 구성해 더 안전하게 믿고 맡길 수 있습니다.' },
     { number: '04', label: 'Parks 통합 포인트', text: '투어 후 적립되는 포인트를 다른 Parks 지점 예약에도 사용할 수 있도록 준비 중입니다.' },
+  ]
+  const assuranceItems = [
+    {
+      icon: FaFileSignature,
+      title: '관광사업등록 완료',
+      text: '화성시 관광사업등록증 제2026-000002호, 국내외여행업 등록 업체입니다.',
+    },
+    {
+      icon: FaShieldAlt,
+      title: '여행업 보증보험 가입',
+      text: 'SGI서울보증 다이렉트인허가보증보험에 가입되어 있습니다.',
+    },
+    {
+      icon: FaCheckCircle,
+      title: '영업보증금 3천만원',
+      text: '여행업자 영업보증금 보증 기준으로 고객 예약을 더 책임 있게 관리합니다.',
+    },
   ]
   return (
     <div className="pb-20">
@@ -129,6 +148,20 @@ const HomePage: React.FC = () => {
                     <p className="text-sm text-slate-500">{stat.sub}</p>
                   </div>
                 </div>
+              )
+            })}
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {assuranceItems.map((item) => {
+              const Icon = item.icon
+              return (
+                <article key={item.title} className="rounded-xl border border-cyan-100 bg-cyan-50/80 p-5">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-parks-gold">
+                    <Icon size={18} />
+                  </div>
+                  <h3 className="text-lg font-black text-[#06334a]">{item.title}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{item.text}</p>
+                </article>
               )
             })}
           </div>

@@ -56,6 +56,7 @@ const Footer = () => {
               <Link to="/terms" className="transition-colors hover:text-parks-gold">
                 이용약관 및 환불정책
               </Link>
+              <p>화성시 관광사업등록 및 SGI서울보증 여행업 보증보험 가입 업체입니다.</p>
               <p>투어 예약 및 결제 전 환불 규정을 반드시 확인해주세요.</p>
             </div>
           </div>

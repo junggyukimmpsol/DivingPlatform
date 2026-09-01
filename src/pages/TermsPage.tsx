@@ -57,6 +57,34 @@ const TermsPage: React.FC = () => {
             </dl>
           </section>
 
+          <section className="rounded-lg border border-parks-gold/20 bg-parks-gold/10 p-6">
+            <h2 className="font-display text-2xl font-bold text-white">안심 예약 증빙</h2>
+            <p className="mt-3 text-sm leading-7 text-slate-300">
+              Parks Local Diving은 관광사업등록 및 여행업 보증보험 가입 내역을 기준으로 예약을 관리합니다.
+              증빙 원본은 민감정보를 제외한 범위에서 요청 시 확인할 수 있습니다.
+            </p>
+            <dl className="mt-5 grid gap-4 text-sm text-slate-300 sm:grid-cols-2">
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <dt className="font-bold text-parks-gold">관광사업등록</dt>
+                <dd className="mt-2 leading-7">화성시 관광사업등록증 제2026-000002호</dd>
+                <dd className="mt-1 text-slate-400">업종: 국내외여행업</dd>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <dt className="font-bold text-parks-gold">여행업 보증보험</dt>
+                <dd className="mt-2 leading-7">SGI서울보증 다이렉트인허가보증보험 가입</dd>
+                <dd className="mt-1 text-slate-400">보증내용: 여행업자 영업보증금 보증</dd>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <dt className="font-bold text-parks-gold">보험가입금액</dt>
+                <dd className="mt-2 leading-7">30,000,000원</dd>
+              </div>
+              <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                <dt className="font-bold text-parks-gold">보험기간</dt>
+                <dd className="mt-2 leading-7">2026년 01월 22일 ~ 2027년 01월 21일</dd>
+              </div>
+            </dl>
+          </section>
+
           <section className="rounded-lg border border-white/10 bg-white/5 p-6">
             <h2 className="font-display text-2xl font-bold text-white">이용약관</h2>
             <div className="mt-5 space-y-4 text-sm leading-7 text-slate-300">
