@@ -20,15 +20,19 @@ const TermsPage: React.FC = () => {
             <dl className="mt-5 grid gap-4 text-sm text-slate-300 sm:grid-cols-2">
               <div>
                 <dt className="font-bold text-slate-500">상호명</dt>
-                <dd className="mt-1">삼박자네트워크</dd>
+                <dd className="mt-1">마린앤그린</dd>
               </div>
               <div>
                 <dt className="font-bold text-slate-500">대표자명</dt>
-                <dd className="mt-1">박준덕</dd>
+                <dd className="mt-1">박준혁</dd>
               </div>
               <div>
                 <dt className="font-bold text-slate-500">사업자등록번호</dt>
-                <dd className="mt-1">440-59-00827</dd>
+                <dd className="mt-1">192-15-02825</dd>
+              </div>
+              <div>
+                <dt className="font-bold text-slate-500">업태</dt>
+                <dd className="mt-1">서비스업</dd>
               </div>
               <div>
                 <dt className="font-bold text-slate-500">전화번호</dt>
@@ -40,7 +44,15 @@ const TermsPage: React.FC = () => {
               </div>
               <div className="sm:col-span-2">
                 <dt className="font-bold text-slate-500">주소</dt>
-                <dd className="mt-1">경기도 수원시 영통구 권광로260번길 36</dd>
+                <dd className="mt-1">경기도 화성시 동탄중심상가2길 8, 4층 401-파28호(반송동, 로하스애비뉴)</dd>
+              </div>
+              <div>
+                <dt className="font-bold text-slate-500">개업일</dt>
+                <dd className="mt-1">2026년 01월 21일</dd>
+              </div>
+              <div>
+                <dt className="font-bold text-slate-500">등록일</dt>
+                <dd className="mt-1">2026년 01월 22일</dd>
               </div>
             </dl>
           </section>
@@ -49,7 +61,7 @@ const TermsPage: React.FC = () => {
             <h2 className="font-display text-2xl font-bold text-white">이용약관</h2>
             <div className="mt-5 space-y-4 text-sm leading-7 text-slate-300">
               <p>
-                본 약관은 삼박자네트워크가 운영하는 Parks Local Diving 웹사이트에서 제공하는
+                본 약관은 마린앤그린이 운영하는 Parks Local Diving 웹사이트에서 제공하는
                 다이빙 투어 예약, 회원 서비스, 결제 및 관련 서비스 이용에 적용됩니다.
               </p>
               <p>

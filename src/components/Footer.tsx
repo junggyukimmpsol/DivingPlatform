@@ -13,15 +13,19 @@ const Footer = () => {
             <dl className="grid gap-2 text-cyan-50/75 sm:grid-cols-2">
               <div>
                 <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">상호명</dt>
-                <dd className="mt-1">삼박자네트워크</dd>
+                <dd className="mt-1">마린앤그린</dd>
               </div>
               <div>
                 <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">대표자명</dt>
-                <dd className="mt-1">박준덕</dd>
+                <dd className="mt-1">박준혁</dd>
               </div>
               <div>
                 <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">사업자등록번호</dt>
-                <dd className="mt-1">440-59-00827</dd>
+                <dd className="mt-1">192-15-02825</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">업태</dt>
+                <dd className="mt-1">서비스업</dd>
               </div>
               <div>
                 <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">전화번호</dt>
@@ -33,7 +37,15 @@ const Footer = () => {
               </div>
               <div className="sm:col-span-2">
                 <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">주소</dt>
-                <dd className="mt-1">경기도 수원시 영통구 권광로260번길 36</dd>
+                <dd className="mt-1">경기도 화성시 동탄중심상가2길 8, 4층 401-파28호(반송동, 로하스애비뉴)</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">개업일</dt>
+                <dd className="mt-1">2026년 01월 21일</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-bold uppercase tracking-wider text-ocean-teal/70">등록일</dt>
+                <dd className="mt-1">2026년 01월 22일</dd>
               </div>
             </dl>
           </div>
