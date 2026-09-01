@@ -57,8 +57,11 @@ const TermsPage: React.FC = () => {
             </dl>
           </section>
 
-          <section className="rounded-lg border border-parks-gold/20 bg-parks-gold/10 p-6">
-            <h2 className="font-display text-2xl font-bold text-white">안심 예약 증빙</h2>
+          <section className="rounded-lg border-2 border-parks-gold bg-[#053047] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+            <p className="inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#053047]">
+              공식 확인 완료
+            </p>
+            <h2 className="mt-4 font-display text-3xl font-black text-white">공식 등록 및 안심 예약 증빙</h2>
             <p className="mt-3 text-sm leading-7 text-slate-300">
               Parks Local Diving은 관광사업등록 및 여행업 보증보험 가입 내역을 기준으로 예약을 관리합니다.
               증빙 원본은 민감정보를 제외한 범위에서 요청 시 확인할 수 있습니다.

@@ -54,17 +54,20 @@ const HomePage: React.FC = () => {
     {
       icon: FaFileSignature,
       title: '관광사업등록 완료',
-      text: '화성시 관광사업등록증 제2026-000002호, 국내외여행업 등록 업체입니다.',
+      value: '제2026-000002호',
+      text: '화성시 등록 국내외여행업 업체',
     },
     {
       icon: FaShieldAlt,
       title: '여행업 보증보험 가입',
-      text: 'SGI서울보증 다이렉트인허가보증보험에 가입되어 있습니다.',
+      value: 'SGI서울보증',
+      text: '다이렉트인허가보증보험 가입',
     },
     {
       icon: FaCheckCircle,
       title: '영업보증금 3천만원',
-      text: '여행업자 영업보증금 보증 기준으로 고객 예약을 더 책임 있게 관리합니다.',
+      value: '30,000,000원',
+      text: '여행업자 영업보증금 보증',
     },
   ]
   return (
@@ -89,6 +92,16 @@ const HomePage: React.FC = () => {
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/90 drop-shadow md:text-xl">
               세부, 보홀, 코타키나발루, 발리, 나트랑의 검증된 현지 다이빙 투어를 비교하고 예약하세요.
             </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <span className="inline-flex items-center gap-2 rounded-full border border-parks-gold/60 bg-[#03283b]/80 px-4 py-2 text-xs font-black text-white shadow-lg backdrop-blur-md sm:text-sm">
+                <FaFileSignature className="text-parks-gold" />
+                화성시 관광사업등록 업체
+              </span>
+              <span className="inline-flex items-center gap-2 rounded-full border border-parks-gold/60 bg-[#03283b]/80 px-4 py-2 text-xs font-black text-white shadow-lg backdrop-blur-md sm:text-sm">
+                <FaShieldAlt className="text-parks-gold" />
+                SGI서울보증 여행업 보증보험 가입
+              </span>
+            </div>
           </div>
 
           <div className="grid max-w-6xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-5">
@@ -151,19 +164,48 @@ const HomePage: React.FC = () => {
               )
             })}
           </div>
-          <div className="mt-5 grid gap-3 md:grid-cols-3">
-            {assuranceItems.map((item) => {
-              const Icon = item.icon
-              return (
-                <article key={item.title} className="rounded-xl border border-cyan-100 bg-cyan-50/80 p-5">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#06334a] text-parks-gold">
-                    <Icon size={18} />
-                  </div>
-                  <h3 className="text-lg font-black text-[#06334a]">{item.title}</h3>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{item.text}</p>
-                </article>
-              )
-            })}
+          <div className="mt-6 overflow-hidden rounded-2xl border-2 border-parks-gold bg-[#053047] shadow-[0_26px_90px_rgba(3,51,74,0.28)]">
+            <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+              <div className="relative p-6 text-white sm:p-8">
+                <p className="inline-flex rounded-full bg-parks-gold px-4 py-2 text-xs font-black text-[#053047]">
+                  공식 확인 완료
+                </p>
+                <h2 className="mt-5 text-3xl font-black leading-tight md:text-4xl">
+                  공식 등록 여행업체
+                  <span className="block text-parks-gold">보증보험 가입 완료</span>
+                </h2>
+                <p className="mt-4 max-w-xl text-sm font-semibold leading-7 text-cyan-50/85 md:text-base">
+                  Parks Local Diving은 관광사업등록과 여행업 보증보험 가입 내역을 기준으로 예약을 관리합니다.
+                  고객님이 더 안심하고 투어를 선택할 수 있도록 주요 증빙 정보를 공개합니다.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/terms')}
+                  className="mt-6 rounded-full bg-white px-5 py-3 text-sm font-black text-[#053047] transition hover:bg-parks-gold"
+                >
+                  증빙 정보 자세히 보기
+                </button>
+              </div>
+              <div className="grid border-t border-parks-gold/35 bg-white text-slate-900 md:grid-cols-3 lg:border-l lg:border-t-0">
+                {assuranceItems.map((item, index) => {
+                  const Icon = item.icon
+                  return (
+                    <article
+                      key={item.title}
+                      className={`p-5 sm:p-6 ${index > 0 ? 'border-t border-sky-100 md:border-l md:border-t-0' : ''}`}
+                    >
+                      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#053047] text-parks-gold">
+                        <Icon size={19} />
+                      </div>
+                      <p className="text-xs font-black text-cyan-600">공식 확인</p>
+                      <h3 className="mt-2 text-xl font-black text-[#053047]">{item.title}</h3>
+                      <p className="mt-3 text-2xl font-black text-parks-gold-dark">{item.value}</p>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{item.text}</p>
+                    </article>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </section>
